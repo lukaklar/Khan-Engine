@@ -14,7 +14,10 @@ namespace Khan
 		void Update();
 		void SetDescriptorSet(VkDescriptorSet descriptorSet);
 		void SetUniformBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range);
+		void SetStorageBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range);
 		void SetSampledImage(uint32_t binding, VkImageView imageView);
+		void SetStorageImage(uint32_t binding, VkImageView imageView);
+		void SetStorageTexelBuffer(uint32_t binding, const VkBufferView& bufferView);
 		void SetSampler(uint32_t binding, VkSampler sampler);
 
 	private:

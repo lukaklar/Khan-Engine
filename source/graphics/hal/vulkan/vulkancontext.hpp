@@ -34,7 +34,6 @@ namespace Khan
 
 		inline RenderDevice& GetDevice() const { return m_Device; }
 
-		// TODO: Insert barriers at start and end of recording by querying the render graph
 		void BeginRecording(const RenderPass& pass);
 		void EndRecording();
 

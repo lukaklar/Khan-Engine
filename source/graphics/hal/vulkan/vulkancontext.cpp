@@ -364,6 +364,7 @@ namespace Khan
 
 		if (m_FirstDirtySet == ResourceBindFrequency_Count) return;
 
+		ResourceState srvResourceState = m_CommandType == CommandType::Dispatch ? ResourceState_NonPixelShaderAccess : ResourceState_PixelShaderAccess;
 		for (uint32_t set = m_FirstDirtySet; set < ResourceBindFrequency_Count; ++set)
 		{
 			for (uint32_t binding = 0; binding < K_MAX_SRV; ++binding)
@@ -371,12 +372,37 @@ namespace Khan
 				VulkanTextureView* texture = m_SRVTextures[set][binding];
 				if (texture != nullptr)
 				{
-					m_BarrierRecorder.RecordBarrier(*texture, ResourceState_PixelShaderAccess, m_ExecutingPass->GetExecutionQueue());
+					m_BarrierRecorder.RecordBarrier(*texture, srvResourceState, m_ExecutingPass->GetExecutionQueue());
+					continue;
+				}
+
+				VulkanBufferView* buffer = m_SRVBuffers[set][binding];
+				if (buffer != nullptr)
+				{
+					m_BarrierRecorder.RecordBarrier(*buffer, srvResourceState, m_ExecutingPass->GetExecutionQueue());
+				}
+			}
+
+			if (m_CommandType == CommandType::Dispatch)
+			{
+				for (uint32_t binding = 0; binding < K_MAX_UAV; ++binding)
+				{
+					VulkanTextureView* texture = m_UAVTextures[set][binding];
+					if (texture != nullptr)
+					{
+						m_BarrierRecorder.RecordBarrier(*texture, ResourceState_UnorderedAccess, m_ExecutingPass->GetExecutionQueue());
+						continue;
+					}
+
+					VulkanBufferView* buffer = m_UAVBuffers[set][binding];
+					if (buffer != nullptr)
+					{
+						m_BarrierRecorder.RecordBarrier(*buffer, ResourceState_UnorderedAccess, m_ExecutingPass->GetExecutionQueue());
+					}
 				}
 			}
 		}
 
-		// TODO: Insert SRV and UAV barriers
 	}
 
 	inline void RenderContext::BindResources()
@@ -417,6 +443,7 @@ namespace Khan
 
 		m_DescriptorPool.AllocateDescriptorSets(ResourceBindFrequency_Count - m_FirstDirtySet, m_PipelineState->m_DescriptorSetLayout + m_FirstDirtySet, m_DescriptorSets + m_FirstDirtySet);
 		m_DescriptorUpdater.Reset();
+
 		for (uint32_t set = m_FirstDirtySet; set < ResourceBindFrequency_Count; ++set)
 		{
 			m_DescriptorUpdater.SetDescriptorSet(m_DescriptorSets[set]);
@@ -445,10 +472,54 @@ namespace Khan
 				if (texture != nullptr)
 				{
 					m_DescriptorUpdater.SetSampledImage(binding, texture->VulkanImageView());
+					continue;
+				}
+
+				const VulkanBufferView* buffer = m_SRVBuffers[set][binding];
+				if (buffer != nullptr)
+				{
+					if (buffer->GetDesc().m_Format == PF_NONE)
+					{
+						VkBuffer vulkanBuffer = static_cast<const VulkanBuffer&>(buffer->GetBuffer()).GetVulkanBuffer();
+						VkDeviceSize offset = buffer->GetDesc().m_Offset;
+						VkDeviceSize range = buffer->GetDesc().m_Range;
+						m_DescriptorUpdater.SetStorageBuffer(binding, vulkanBuffer, offset, range);
+					}
+					else
+					{
+						m_DescriptorUpdater.SetStorageTexelBuffer(binding, buffer->GetVulkanBufferView());
+					}
 				}
 			}
 
-			// TODO: Set SRVs and UAVs
+			if (m_CommandType == CommandType::Dispatch)
+			{
+				for (uint32_t binding = 0; binding < K_MAX_UAV; ++binding)
+				{
+					const VulkanTextureView* texture = m_UAVTextures[set][binding];
+					if (texture != nullptr)
+					{
+						m_DescriptorUpdater.SetStorageImage(binding, texture->VulkanImageView());
+						continue;
+					}
+
+					const VulkanBufferView* buffer = m_UAVBuffers[set][binding];
+					if (buffer != nullptr)
+					{
+						if (buffer->GetDesc().m_Format == PF_NONE)
+						{
+							VkBuffer vulkanBuffer = static_cast<const VulkanBuffer&>(buffer->GetBuffer()).GetVulkanBuffer();
+							VkDeviceSize offset = buffer->GetDesc().m_Offset;
+							VkDeviceSize range = buffer->GetDesc().m_Range;
+							m_DescriptorUpdater.SetStorageBuffer(binding, vulkanBuffer, offset, range);
+						}
+						else
+						{
+							m_DescriptorUpdater.SetStorageTexelBuffer(binding, buffer->GetVulkanBufferView());
+						}
+					}
+				}
+			}
 		}
 
 		m_DescriptorUpdater.Update();

@@ -22,12 +22,25 @@ namespace Khan
         m_DescriptorSet = descriptorSet;
     }
 
-    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetUniformBuffer(uint32_t slot, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetUniformBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
     {
         VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
         write.dstSet = m_DescriptorSet;
-        write.dstBinding = slot;
+        write.dstBinding = binding;
         write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
+        write.pBufferInfo = &info;
+        info.buffer = buffer;
+        info.offset = offset;
+        info.range = range;
+    }
+
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetStorageBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
+    {
+        VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = binding;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
         write.pBufferInfo = &info;
         info.buffer = buffer;
@@ -45,6 +58,28 @@ namespace Khan
         write.pImageInfo = &info;
         info.imageView = imageView;
         info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    }
+
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetStorageImage(uint32_t binding, VkImageView imageView)
+    {
+        VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = binding;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        VkDescriptorImageInfo& info = m_ImageInfos[m_ImageCount++];
+        write.pImageInfo = &info;
+        info.imageView = imageView;
+        info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    }
+
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetStorageTexelBuffer(uint32_t binding, const VkBufferView& bufferView)
+    {
+        VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = binding;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+        VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
+        write.pTexelBufferView = &bufferView;
     }
 
     KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetSampler(uint32_t binding, VkSampler sampler)
