@@ -48,7 +48,7 @@ namespace Khan
 		void SetSRVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer);
 		void SetUAVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture);
 		void SetUAVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer);
-		//void SetSampler();
+		// TODO: void SetSampler();
 
 		void SetPipelineState(const RenderPipelineState& pipelineState);
 
@@ -76,7 +76,6 @@ namespace Khan
 		const RenderPass* m_ExecutingPass;
 		CommandType m_CommandType;
 		VulkanCommandPool m_CommandPools[2];
-		//SemaphoreAllocator m_SemaphoreAllocator;
 		VulkanBarrierRecorder m_BarrierRecorder;
 
 		std::vector<VkFramebuffer> m_Framebuffers[K_MAX_FRAMES_IN_FLIGHT];

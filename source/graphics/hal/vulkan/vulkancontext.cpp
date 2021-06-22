@@ -101,8 +101,7 @@ namespace Khan
 
 		vkEndCommandBuffer(m_CommandBuffer);
 
-		// TODO: Submit the command buffer to the appropriate device queue and let it know whether it needs to signal or wait on a semaphore
-		// and what the id of the signalled/waited semaphore is (actually the global execution order index of the node)
+		m_Device.SubmitCommands(m_CommandBuffer, rgNode);
 	}
 
 	void RenderContext::BeginPhysicalRenderPass(const PhysicalRenderPass& renderPass, TextureView* renderTargets[], TextureView* depthStencilBuffer)
@@ -409,7 +408,6 @@ namespace Khan
 	{
 		if (m_CommandType == CommandType::Draw)
 		{
-
 			VkBuffer vbs[K_MAX_VERTEX_DATA_STREAMS];
 			uint32_t count = 0;
 			uint32_t first = 0;
