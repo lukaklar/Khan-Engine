@@ -66,7 +66,6 @@ namespace Khan
 
         struct BlendMode
         {
-
             BlendFactor m_SrcColorFactor = BlendFactor::One;
             BlendFactor m_DstColorFactor = BlendFactor::Zero;
             BlendOperation m_ColorBlendOp = BlendOperation::Add;
