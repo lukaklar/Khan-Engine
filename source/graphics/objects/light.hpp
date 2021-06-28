@@ -10,6 +10,7 @@ namespace Khan
 			Directional,
 			Point,
 			Spot,
+			Capsule
 		};
 
 		virtual ~Light() = 0;
@@ -65,16 +66,40 @@ namespace Khan
 
 		inline const glm::vec3& GetPosition() const { return m_Position; }
 		inline void SetPosition(const glm::vec3& value) { m_Position = value; }
+		inline float GetRange() const { return m_Range; }
+		inline void SetRange(float value) { m_Range = value; }
 		inline const glm::vec3& GetDirection() const { return m_Direction; }
 		inline void SetDirection(const glm::vec3& value) { m_Direction = value; }
-		inline float GetCutOff() const { return m_CutOff; }
-		inline void SetCutOff(float value) { m_CutOff = value; }
+		inline float GetInnerCutOff() const { return m_InnerCutOff; }
+		inline void SetInnerCutOff(float value) { m_InnerCutOff = value; }
 		inline float GetOuterCutOff() const { return m_OuterCutOff; }
 		inline void SetOuterCutOff(float value) { m_OuterCutOff = value; }
 
 	private:
 		glm::vec3 m_Position;
+		float m_Range;
 		glm::vec3 m_Direction;
-		float m_CutOff, m_OuterCutOff;
+		float m_InnerCutOff, m_OuterCutOff;
+	};
+
+	class CapsuleLight : public Light
+	{
+	public:
+		CapsuleLight() : Light(Capsule) {}
+
+		inline const glm::vec3& GetPosition() const { return m_Position; }
+		inline void SetPosition(const glm::vec3& value) { m_Position = value; }
+		inline float GetRange() const { return m_Range; }
+		inline void SetRange(float value) { m_Range = value; }
+		inline const glm::vec3& GetDirection() const { return m_Direction; }
+		inline void SetDirection(const glm::vec3& value) { m_Direction = value; }
+		inline float GetLength() const { return m_Length; }
+		inline void SetLength(float value) { m_Length = value; }
+
+	private:
+		glm::vec3 m_Position;
+		float m_Range;
+		glm::vec3 m_Direction;
+		float m_Length;
 	};
 }
