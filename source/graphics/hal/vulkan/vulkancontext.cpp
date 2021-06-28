@@ -326,6 +326,15 @@ namespace Khan
 		vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
+	void RenderContext::Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ)
+	{
+		m_CommandType = CommandType::Dispatch;
+		BindPipeline();
+		InsertBarriers();
+		BindResources();
+		vkCmdDispatch(m_CommandBuffer, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+	}
+
 	void RenderContext::ResetFrame(uint32_t frameIndex)
 	{
 		m_CurrentFramebuffers = &m_Framebuffers[frameIndex];

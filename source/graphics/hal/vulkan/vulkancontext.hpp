@@ -57,10 +57,9 @@ namespace Khan
 
 		void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance);
 		void DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance);
-		// TODO: indirect
-
-		// TODO: for all copy/compute commands take a bool argument: useDMA/useAsyncCompute? otherwise execute them on the graphics queue
-		//void Dispatch(...);
+		// TODO: DrawIndirect
+		void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ);
+		// TODO: DispatchIndirect
 
 		void ResetFrame(uint32_t frameIndex);
 
