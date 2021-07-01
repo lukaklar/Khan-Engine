@@ -22,6 +22,7 @@ namespace Khan
 		inline RenderPipelineState* GetPipelineState() const { return m_PipelineState; }
 		inline void SetPipelineState(RenderPipelineState* value) { m_PipelineState = value; }
 		inline bool IsCompiled() const { return m_PipelineState != nullptr; }
+		inline const Shader* GetPixelShader() const { return m_PixelShader; }
 		inline const std::vector<MaterialTexture>& GetTextures() const { return m_Textures; }
 		inline bool HasTwoSides() const { return m_TwoSided; }
 		inline bool IsTransparent() const { return m_Transparent; }

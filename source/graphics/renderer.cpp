@@ -30,6 +30,7 @@ namespace Khan
 	inline void Renderer::SchedulePasses()
 	{
 		RenderGraph& rg = RenderBackend::g_Device->GetRenderGraph();
+		//rg.AddPass(m_DepthPrePass);
 		//rg.AddPass(m_GBufferPass);
 		//rg.AddPass(m_DeferredLightingPass);
 		//rg.AddPass(m_TransparentPass);

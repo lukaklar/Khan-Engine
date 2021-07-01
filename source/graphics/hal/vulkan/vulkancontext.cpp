@@ -204,7 +204,7 @@ namespace Khan
 	void RenderContext::SetVertexBuffer(uint32_t location, Buffer* vertexBuffer, uint32_t offset)
 	{
 		VulkanBuffer* vb = reinterpret_cast<VulkanBuffer*>(vertexBuffer);
-		if (m_VertexBuffers[location] == vb)
+		if (m_VertexBuffers[location] != vb)
 		{
 			m_VertexBuffers[location] = vb;
 			m_VBOffsets[location] = offset;

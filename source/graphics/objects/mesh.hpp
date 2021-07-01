@@ -20,7 +20,7 @@ namespace Khan
 
 		inline Buffer* GetVertexBuffer() const { return m_VertexBuffer; }
 		inline Buffer* GetIndexBuffer() const { return m_IndexBuffer; }
-		inline const std::vector<SubMeshData>& GetSubMesheData() { return m_SubMeshData; }
+		inline const std::vector<SubMeshData>& GetSubMeshData() { return m_SubMeshData; }
 
 	private:
 		Buffer* m_VertexBuffer;

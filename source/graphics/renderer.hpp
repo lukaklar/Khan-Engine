@@ -1,5 +1,6 @@
 #pragma once
 #include "graphics/passes/deferredpasses.hpp"
+#include "graphics/passes/depthpasses.hpp"
 #include "graphics/passes/gbufferpasses.hpp"
 #include "graphics/passes/transparentpasses.hpp"
 #include "graphics/posteffects/hdr.hpp"
@@ -9,6 +10,8 @@
 
 namespace Khan
 {
+	class Mesh;
+
 	class Renderer
 	{
 	public:
@@ -19,9 +22,13 @@ namespace Khan
 		inline ResourceBlackboard& GetResourceBlackboard() { return m_ResourceBlackboard; }
 		inline ThreadPool& GetThreadPool() { return m_ThreadPool; }
 
+		inline std::vector<Mesh*>& GetOpaqueMeshes() { return m_OpaqueMeshes; }
+		inline std::map<float, Mesh*> GetTransparentMeshes() { return m_TransparentMeshes; }
+
 	private:
 		void SchedulePasses();
 
+		DepthPrePass m_DepthPrePass;
 		GBufferPass m_GBufferPass;
 		DeferredLightingPass m_DeferredLightingPass;
 		TransparentPass m_TransparentPass;
@@ -30,5 +37,8 @@ namespace Khan
 
 		ResourceBlackboard m_ResourceBlackboard;
 		ThreadPool m_ThreadPool;
+
+		std::vector<Mesh*> m_OpaqueMeshes;
+		std::map<float, Mesh*> m_TransparentMeshes;
 	};
 }

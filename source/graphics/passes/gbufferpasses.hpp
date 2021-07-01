@@ -24,8 +24,6 @@ namespace Khan
 		TextureView* m_GBuffer_MotionVectors;
 		TextureView* m_GBuffer_Depth;
 
-		PhysicalRenderPass* m_PhysicalRenderPass;
-
 		GraphicsPipelineDescription m_PipelineDesc;
 	};
 }
