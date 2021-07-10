@@ -1,6 +1,7 @@
 #pragma once
 
 #include "system/assert.h"
+#include <string>
 
 namespace Khan
 {
