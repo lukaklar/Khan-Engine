@@ -70,16 +70,14 @@ namespace Khan
 		inline void SetRange(float value) { m_Range = value; }
 		inline const glm::vec3& GetDirection() const { return m_Direction; }
 		inline void SetDirection(const glm::vec3& value) { m_Direction = value; }
-		inline float GetInnerCutOff() const { return m_InnerCutOff; }
-		inline void SetInnerCutOff(float value) { m_InnerCutOff = value; }
-		inline float GetOuterCutOff() const { return m_OuterCutOff; }
-		inline void SetOuterCutOff(float value) { m_OuterCutOff = value; }
+		inline float GetAngle() const { return m_Angle; }
+		inline void SetAngle(float value) { m_Angle = value; }
 
 	private:
 		glm::vec3 m_Position;
 		float m_Range;
 		glm::vec3 m_Direction;
-		float m_InnerCutOff, m_OuterCutOff;
+		float m_Angle;
 	};
 
 	class CapsuleLight : public Light

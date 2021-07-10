@@ -14,6 +14,8 @@ namespace Khan
 		static std::thread g_MainWindowThread;
 		volatile bool g_Running;
 
+		Renderer* g_Renderer;
+
 		//	bool InitWindowAndGraphics()
 		//	{
 		//		// creates window and initializes graphics in parallel
@@ -76,7 +78,9 @@ namespace Khan
 			//if (!Initialize()) return;
 			Window::Initialize("Khan Engine", 1280u, 720u);
 			RenderBackend::Initialize(true);
+			g_Renderer = new Renderer();
 			s_MainLoop.Run();
+			delete g_Renderer;
 			RenderBackend::Shutdown();
 			Window::Shutdown();
 			//Shutdown();

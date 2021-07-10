@@ -36,6 +36,6 @@ namespace Khan
 
 	private:
 		std::vector<std::unique_ptr<Thread>> m_Threads;
-		uint32_t m_NextJobThread = 0;
+		uint32_t m_NextWorkerThread = 0;
 	};
 }

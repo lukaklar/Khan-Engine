@@ -1,7 +1,9 @@
 #pragma once
-#include "graphics/passes/deferredpasses.hpp"
+#include "graphics/hal/constantbuffer.hpp"
 #include "graphics/passes/depthpasses.hpp"
+#include "graphics/passes/finalpasses.hpp"
 #include "graphics/passes/gbufferpasses.hpp"
+#include "graphics/passes/tileddeferredpasses.hpp"
 #include "graphics/passes/transparentpasses.hpp"
 #include "graphics/posteffects/hdr.hpp"
 #include "graphics/passes/testpasses.hpp"
@@ -15,6 +17,8 @@ namespace Khan
 	class Renderer
 	{
 	public:
+		Renderer();
+
 		void PreRender();
 		void Render();
 		void PostRender();
@@ -22,23 +26,33 @@ namespace Khan
 		inline ResourceBlackboard& GetResourceBlackboard() { return m_ResourceBlackboard; }
 		inline ThreadPool& GetThreadPool() { return m_ThreadPool; }
 
-		inline std::vector<Mesh*>& GetOpaqueMeshes() { return m_OpaqueMeshes; }
-		inline std::map<float, Mesh*> GetTransparentMeshes() { return m_TransparentMeshes; }
+		//inline std::vector<Mesh*>& GetOpaqueMeshes() { return m_OpaqueMeshes; }
+		//inline std::map<float, Mesh*>& GetTransparentMeshes() { return m_TransparentMeshes; }
 
 	private:
 		void SchedulePasses();
 
 		DepthPrePass m_DepthPrePass;
 		GBufferPass m_GBufferPass;
-		DeferredLightingPass m_DeferredLightingPass;
+		TiledDeferredLightingPass m_TiledDeferredLightingPass;
 		TransparentPass m_TransparentPass;
 		HDRPass m_HDRPass;
 		TestPass m_TestPass;
+		FinalPass m_FinalPass;
 
 		ResourceBlackboard m_ResourceBlackboard;
 		ThreadPool m_ThreadPool;
 
-		std::vector<Mesh*> m_OpaqueMeshes;
-		std::map<float, Mesh*> m_TransparentMeshes;
+		//std::vector<Mesh*> m_OpaqueMeshes;
+		//std::map<float, Mesh*> m_TransparentMeshes;
+
+		/*uint32_t m_ScreenWidth, m_ScreenHeight;
+		glm::mat4 m_ViewMatrix;
+		glm::mat4 m_ProjectionMatrix;
+		glm::mat4 m_InverseViewMatrix;
+		glm::mat4 m_InverseProjectionMatrix;
+
+		ConstantBuffer m_DispatchParams;
+		ConstantBuffer m_ScreenToViewParams;*/
 	};
 }

@@ -10,6 +10,13 @@
 
 namespace Khan
 {
+	Renderer::Renderer()
+		: m_ThreadPool(1)
+		//, m_DispatchParams(2 * sizeof(glm::uvec4))
+		//, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
+	{
+	}
+
 	void Renderer::PreRender()
 	{
 		m_ResourceBlackboard.m_FinalOutput = RenderBackend::g_Swapchain->GetCurrentBackBuffer();
@@ -32,10 +39,11 @@ namespace Khan
 		RenderGraph& rg = RenderBackend::g_Device->GetRenderGraph();
 		//rg.AddPass(m_DepthPrePass);
 		//rg.AddPass(m_GBufferPass);
-		//rg.AddPass(m_DeferredLightingPass);
+		//rg.AddPass(m_TiledDeferredLightingPass);
 		//rg.AddPass(m_TransparentPass);
 		//rg.AddPass(m_HDRPass);
 		rg.AddPass(m_TestPass);
+		rg.AddPass(m_FinalPass);
 		rg.Setup(*this);
 		rg.Compile();
 	}

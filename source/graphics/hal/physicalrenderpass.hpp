@@ -68,7 +68,7 @@ namespace Khan
 		PhysicalRenderPassDescription m_Desc;
 
 		glm::vec4 m_RenderTargetClearColors[K_MAX_RENDER_TARGETS] = {};
-		float m_DepthClearValue = 0.0f;
+		float m_DepthClearValue = 1.0f;
 		uint32_t m_StencilClearValue = 0;
 	};
 }

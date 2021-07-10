@@ -2,10 +2,20 @@
 
 namespace Khan
 {
+	class Buffer;
 	class Texture;
 
 	struct ResourceBlackboard
 	{
+		// TODO: Create these in the renderer
+		Buffer* m_ScreenFrustums;
+		Buffer* m_SceneLights;
+
+		Buffer* m_OpaqueLightIndexList;
+		Buffer* m_TransparentLightIndexList;
+		Texture* m_OpaqueLightGrid;
+		Texture* m_TransparentLightGrid;
+
 		struct
 		{
 			Texture* Albedo = nullptr;

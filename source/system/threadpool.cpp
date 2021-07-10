@@ -75,8 +75,8 @@ namespace Khan
 
 	void ThreadPool::AddJob(std::function<void()> job)
 	{
-		m_Threads[m_NextJobThread]->AddJob(job);
-		m_NextJobThread = (m_NextJobThread + 1) % m_Threads.size();
+		m_Threads[m_NextWorkerThread]->AddJob(job);
+		m_NextWorkerThread = (m_NextWorkerThread + 1) % m_Threads.size();
 	}
 
 	void ThreadPool::Wait()

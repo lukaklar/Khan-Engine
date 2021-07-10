@@ -34,7 +34,12 @@ namespace Khan
 		{
 			GraphicsPipelineDescription desc;
 			desc.m_VertexShader = ShaderManager::Get().GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
-			desc.m_DepthStencilState.m_DepthMode.m_DepthBoundsTestEnabled = true;
+			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::POSITION);
+			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float2, VertexInputState::StreamDescriptor::StreamElement::Usage::TEXCOORD0);
+			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::NORMAL);
+			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::BITANGENT);
+			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::TANGENT);
+			desc.m_DepthStencilState.m_DepthMode.m_DepthTestEnabled = true;
 			desc.m_DepthStencilState.m_DepthMode.m_DepthWriteEnabled = true;
 			desc.m_DepthStencilState.m_DepthMode.m_DepthFunc = DepthStencilState::CompareFunction::Less;
 			desc.m_RasterizerState.m_CullMode = RasterizerState::CullMode::Back;
@@ -77,7 +82,7 @@ namespace Khan
 		context.SetViewport(0.0f, 0.0f, (float)m_DepthBuffer->GetTexture().GetDesc().m_Width, (float)m_DepthBuffer->GetTexture().GetDesc().m_Height);
 		context.SetScissor(0, 0, m_DepthBuffer->GetTexture().GetDesc().m_Width, m_DepthBuffer->GetTexture().GetDesc().m_Height);
 		
-		auto& meshes = renderer.GetOpaqueMeshes();
+		/*auto& meshes = renderer.GetOpaqueMeshes();
 		for (auto* mesh : meshes)
 		{
 			context.SetVertexBuffer(0, mesh->GetVertexBuffer(), 0);
@@ -88,7 +93,7 @@ namespace Khan
 			{
 				context.DrawIndexedInstanced(submesh.m_NumIndices, 1, submesh.m_IndexBufferOffset, submesh.m_VertexBufferOffset, 0);
 			}
-		}
+		}*/
 
 		context.EndPhysicalRenderPass();
 	}
