@@ -253,6 +253,19 @@ namespace Khan
 				commandBuffers[info->m_ExecutionQueueIndex].clear();
 			}
 		}
+
+		for (uint32_t i = 0; i < QueueType_Count; ++i)
+		{
+			auto& cmdBuffers = commandBuffers[i];
+			if (!cmdBuffers.empty())
+			{
+				VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+				submitInfo.commandBufferCount = static_cast<uint32_t>(cmdBuffers.size());
+				submitInfo.pCommandBuffers = cmdBuffers.data();
+
+				VK_ASSERT(vkQueueSubmit(m_CommandQueues[i], 1, &submitInfo, VK_NULL_HANDLE), "[VULKAN] Failed to submit to queue.");
+			}
+		}
 	}
 }
 

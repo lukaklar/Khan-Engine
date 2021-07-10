@@ -32,11 +32,11 @@ namespace Khan
 	private:
 		void SchedulePasses();
 
-		DepthPrePass m_DepthPrePass;
-		GBufferPass m_GBufferPass;
-		TiledDeferredLightingPass m_TiledDeferredLightingPass;
-		TransparentPass m_TransparentPass;
-		HDRPass m_HDRPass;
+		//DepthPrePass m_DepthPrePass;
+		//GBufferPass m_GBufferPass;
+		//TiledDeferredLightingPass m_TiledDeferredLightingPass;
+		//TransparentPass m_TransparentPass;
+		//HDRPass m_HDRPass;
 		TestPass m_TestPass;
 		FinalPass m_FinalPass;
 
