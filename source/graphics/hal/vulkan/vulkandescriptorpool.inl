@@ -51,6 +51,7 @@ namespace Khan
 		}
 		m_FreePools.insert(m_FreePools.end(), framePool.begin(), framePool.end());
 		framePool.clear();
+		m_CurrentPool = VK_NULL_HANDLE;
 	}
 }
 

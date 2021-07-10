@@ -644,6 +644,8 @@ namespace Khan
 
 	void RenderGraph::Reset()
 	{
+		m_PassNodes.clear();
+		m_PassToNodeMap.clear();
 		//m_GlobalWriteDependencyRegistry.clear();
 		m_DependencyLevels.clear();
 		//m_ResourceUsageTimelines.clear();
