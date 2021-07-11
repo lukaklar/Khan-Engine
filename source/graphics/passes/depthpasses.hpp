@@ -18,6 +18,7 @@ namespace Khan
 	private:
 		TextureView* m_DepthBuffer;
 		PhysicalRenderPass* m_PhysicalRenderPass;
-		RenderPipelineState* m_PipelineState;
+		RenderPipelineState* m_PipelineStateNoCulling;
+		RenderPipelineState* m_PipelineStateBackfaceCulling;
 	};
 }

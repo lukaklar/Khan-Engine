@@ -103,7 +103,7 @@ namespace Khan
 
 		context.BeginPhysicalRenderPass(*m_PipelineDesc.m_PhysicalRenderPass, renderTargets, m_GBuffer_Depth);
 
-		/*auto& meshes = renderer.GetOpaqueMeshes();
+		auto& meshes = renderer.GetOpaqueMeshes();
 		for (auto* mesh : meshes)
 		{
 			context.SetVertexBuffer(0, mesh->GetVertexBuffer(), 0);
@@ -132,7 +132,7 @@ namespace Khan
 
 				context.DrawIndexedInstanced(submesh.m_NumIndices, 1, submesh.m_IndexBufferOffset, submesh.m_VertexBufferOffset, 0);
 			}
-		}*/
+		}
 
 		context.EndPhysicalRenderPass();
 	}

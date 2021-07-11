@@ -50,6 +50,37 @@ namespace Khan
 	{
 		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, &m_ColorBuffer, m_DepthBuffer);
 
+		/*auto& meshes = renderer.GetTransparentMeshes();
+		for (auto* mesh : meshes)
+		{
+			context.SetVertexBuffer(0, mesh->GetVertexBuffer(), 0);
+			context.SetIndexBuffer(mesh->GetIndexBuffer(), 0, false);
+
+			auto& submeshes = mesh->GetSubMeshData();
+			for (auto& submesh : submeshes)
+			{
+				Material* material = submesh.m_Material;
+
+				if (!material->IsCompiled())
+				{
+					m_PipelineDesc.m_PixelShader = material->GetPixelShader();
+					m_PipelineDesc.m_RasterizerState.m_CullMode = material->HasTwoSides() ? RasterizerState::CullMode::None : RasterizerState::CullMode::Back;
+
+					material->SetPipelineState(context.GetDevice().CreateGraphicsPipelineState(m_PipelineDesc));
+				}
+
+				context.SetPipelineState(*material->GetPipelineState());
+
+				auto& textures = material->GetTextures();
+				for (auto& texture : textures)
+				{
+					context.SetSRVTexture(ResourceBindFrequency_PerMaterial, texture.m_Binding, texture.m_Texture);
+				}
+
+				context.DrawIndexedInstanced(submesh.m_NumIndices, 1, submesh.m_IndexBufferOffset, submesh.m_VertexBufferOffset, 0);
+			}
+		}*/
+
 		context.EndPhysicalRenderPass();
 	}
 }

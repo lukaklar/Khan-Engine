@@ -10,6 +10,7 @@
 #include "graphics/hal/pipelinedescriptions.hpp"
 #include "graphics/hal/shadermanager.hpp"
 #include "graphics/objects/mesh.hpp"
+#include "graphics/materials/material.hpp"
 
 #ifdef KH_GFXAPI_VULKAN
 #include "graphics/hal/vulkan/vulkancontext.hpp"
@@ -42,10 +43,13 @@ namespace Khan
 			desc.m_DepthStencilState.m_DepthMode.m_DepthTestEnabled = true;
 			desc.m_DepthStencilState.m_DepthMode.m_DepthWriteEnabled = true;
 			desc.m_DepthStencilState.m_DepthMode.m_DepthFunc = DepthStencilState::CompareFunction::Less;
-			desc.m_RasterizerState.m_CullMode = RasterizerState::CullMode::Back;
+			desc.m_RasterizerState.m_CullMode = RasterizerState::CullMode::None;
 			desc.m_PhysicalRenderPass = m_PhysicalRenderPass;
 
-			m_PipelineState = RenderBackend::g_Device->CreateGraphicsPipelineState(desc);
+			m_PipelineStateNoCulling = RenderBackend::g_Device->CreateGraphicsPipelineState(desc);
+
+			desc.m_RasterizerState.m_CullMode = RasterizerState::CullMode::Back;
+			m_PipelineStateBackfaceCulling = RenderBackend::g_Device->CreateGraphicsPipelineState(desc);
 		}
 	}
 
@@ -78,11 +82,8 @@ namespace Khan
 	void DepthPrePass::Execute(RenderContext& context, Renderer& renderer)
 	{
 		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_DepthBuffer);
-		context.SetPipelineState(*m_PipelineState);
-		context.SetViewport(0.0f, 0.0f, (float)m_DepthBuffer->GetTexture().GetDesc().m_Width, (float)m_DepthBuffer->GetTexture().GetDesc().m_Height);
-		context.SetScissor(0, 0, m_DepthBuffer->GetTexture().GetDesc().m_Width, m_DepthBuffer->GetTexture().GetDesc().m_Height);
 		
-		/*auto& meshes = renderer.GetOpaqueMeshes();
+		auto& meshes = renderer.GetOpaqueMeshes();
 		for (auto* mesh : meshes)
 		{
 			context.SetVertexBuffer(0, mesh->GetVertexBuffer(), 0);
@@ -91,9 +92,17 @@ namespace Khan
 			auto& submeshes = mesh->GetSubMeshData();
 			for (auto& submesh : submeshes)
 			{
+				Material* material = submesh.m_Material;
+
+				// TODO: Get material and check if it has both faces and in accordance with that use the appropriate pipeline state
+				RenderPipelineState* pipelineState = material->HasTwoSides() ? m_PipelineStateNoCulling : m_PipelineStateBackfaceCulling;
+
+				context.SetPipelineState(*pipelineState);
+				context.SetViewport(0.0f, 0.0f, (float)m_DepthBuffer->GetTexture().GetDesc().m_Width, (float)m_DepthBuffer->GetTexture().GetDesc().m_Height);
+				context.SetScissor(0, 0, m_DepthBuffer->GetTexture().GetDesc().m_Width, m_DepthBuffer->GetTexture().GetDesc().m_Height);
 				context.DrawIndexedInstanced(submesh.m_NumIndices, 1, submesh.m_IndexBufferOffset, submesh.m_VertexBufferOffset, 0);
 			}
-		}*/
+		}
 
 		context.EndPhysicalRenderPass();
 	}

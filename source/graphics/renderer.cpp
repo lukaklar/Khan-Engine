@@ -7,13 +7,14 @@
 #include "graphics/hal/vulkan/vulkanswapchain.hpp"
 #endif // KH_GFXAPI_VULKAN
 
+#include "system/window.hpp"
+
 
 namespace Khan
 {
 	Renderer::Renderer()
 		: m_ThreadPool(1)
-		//, m_DispatchParams(2 * sizeof(glm::uvec4))
-		//, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
+		, m_ScreenSizeChanged(true)
 	{
 	}
 
@@ -37,14 +38,37 @@ namespace Khan
 	inline void Renderer::SchedulePasses()
 	{
 		RenderGraph& rg = RenderBackend::g_Device->GetRenderGraph();
-		//rg.AddPass(m_DepthPrePass);
-		//rg.AddPass(m_GBufferPass);
-		//rg.AddPass(m_TiledDeferredLightingPass);
+
+		if (m_ScreenSizeChanged)
+		{
+			RecreateScreenFrustumBuffer();
+			rg.AddPass(m_TileFrustumCalculationPass);
+			m_ScreenSizeChanged = false;
+		}
+
+		rg.AddPass(m_DepthPrePass);
+		rg.AddPass(m_LightCullingPass);
+		rg.AddPass(m_GBufferPass);
+		rg.AddPass(m_TiledDeferredLightingPass);
 		//rg.AddPass(m_TransparentPass);
 		//rg.AddPass(m_HDRPass);
 		rg.AddPass(m_TestPass);
 		rg.AddPass(m_FinalPass);
 		rg.Setup(*this);
 		rg.Compile();
+	}
+
+	inline void Renderer::RecreateScreenFrustumBuffer()
+	{
+		if (m_ResourceBlackboard.m_ScreenFrustums)
+		{
+			RenderBackend::g_Device->DestroyBuffer(m_ResourceBlackboard.m_ScreenFrustums);
+		}
+
+		BufferDesc desc;
+		desc.m_Size = 4 * 4 * sizeof(float) * Window::g_Width / K_TILE_SIZE * Window::g_Height / K_TILE_SIZE;
+		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
+
+		m_ResourceBlackboard.m_ScreenFrustums = RenderBackend::g_Device->CreateBuffer(desc);
 	}
 }

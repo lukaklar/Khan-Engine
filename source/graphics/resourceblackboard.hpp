@@ -7,14 +7,14 @@ namespace Khan
 
 	struct ResourceBlackboard
 	{
-		// TODO: Create these in the renderer
-		Buffer* m_ScreenFrustums;
-		Buffer* m_SceneLights;
+		Buffer* m_ScreenFrustums = nullptr;
+		// TODO: Create this in the renderer
+		Buffer* m_SceneLights = nullptr;
 
-		Buffer* m_OpaqueLightIndexList;
-		Buffer* m_TransparentLightIndexList;
-		Texture* m_OpaqueLightGrid;
-		Texture* m_TransparentLightGrid;
+		Buffer* m_OpaqueLightIndexList = nullptr;
+		Buffer* m_TransparentLightIndexList = nullptr;
+		Texture* m_OpaqueLightGrid = nullptr;
+		Texture* m_TransparentLightGrid = nullptr;
 
 		struct
 		{
