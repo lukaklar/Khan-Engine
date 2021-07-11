@@ -32,6 +32,8 @@ namespace Khan
 		inline std::vector<Mesh*>& GetOpaqueMeshes() { return m_OpaqueMeshes; }
 		//inline std::map<float, Mesh*>& GetTransparentMeshes() { return m_TransparentMeshes; }
 
+		inline uint32_t GetScreenTileSize() const { return K_TILE_SIZE; }
+
 	private:
 		void SchedulePasses();
 		void RecreateScreenFrustumBuffer();
@@ -60,6 +62,6 @@ namespace Khan
 
 		bool m_ScreenSizeChanged;
 
-		static constexpr uint32_t K_TILE_SIZE = 16;
+		inline static constexpr uint32_t K_TILE_SIZE = 16;
 	};
 }
