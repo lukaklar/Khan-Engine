@@ -20,9 +20,11 @@ namespace Khan
 		template<ShaderType shaderType>
 		const Shader* GetShader(const char* name, const char* entryPoint)
 		{
-			std::string fullName = name;
-			fullName += "|";
-			fullName += entryPoint;
+			std::string fullFileName = ms_Path;
+			fullFileName += name;
+			fullFileName += ms_Extension;
+
+			std::string fullName(fullFileName + "|" + entryPoint);
 
 			auto shaderMapIt = m_ShaderMaps[shaderType].find(fullName);
 			if (shaderMapIt != m_ShaderMaps[shaderType].end())
@@ -30,10 +32,10 @@ namespace Khan
 				return shaderMapIt->second;
 			}
 
-			auto shaderFileMapIt = m_ShaderFileMap.find(name);
+			auto shaderFileMapIt = m_ShaderFileMap.find(fullFileName);
 			if (shaderFileMapIt == m_ShaderFileMap.end())
 			{
-				std::ifstream file(name, std::ios::ate | std::ios::binary);
+				std::ifstream file(fullFileName, std::ios::ate | std::ios::binary);
 
 				if (!file.is_open()) {
 					throw std::runtime_error("failed to open file!");
@@ -65,5 +67,10 @@ namespace Khan
 	private:
 		std::unordered_map<std::string, Shader*> m_ShaderMaps[ShaderType_Count];
 		std::unordered_map<std::string, std::vector<uint8_t>> m_ShaderFileMap;
+
+#ifdef KH_GFXAPI_VULKAN
+		inline static constexpr char* ms_Path = "..\\..\\bin\\shaders\\vulkan\\";
+		inline static constexpr char* ms_Extension = ".spv";
+#endif // KH_GFXAPI_VULKAN
 	};
 }

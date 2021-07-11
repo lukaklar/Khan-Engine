@@ -36,11 +36,11 @@ namespace Khan
 		void SchedulePasses();
 		void RecreateScreenFrustumBuffer();
 
-		TileFrustumCalculationPass m_TileFrustumCalculationPass;
-		DepthPrePass m_DepthPrePass;
-		GBufferPass m_GBufferPass;
-		LightCullingPass m_LightCullingPass;
-		TiledDeferredLightingPass m_TiledDeferredLightingPass;
+		//TileFrustumCalculationPass m_TileFrustumCalculationPass;
+		//DepthPrePass m_DepthPrePass;
+		//GBufferPass m_GBufferPass;
+		//LightCullingPass m_LightCullingPass;
+		//TiledDeferredLightingPass m_TiledDeferredLightingPass;
 		//TransparentPass m_TransparentPass;
 		//HDRPass m_HDRPass;
 		TestPass m_TestPass;

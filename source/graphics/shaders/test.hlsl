@@ -1,11 +1,11 @@
-float2 positions[3] =
+static const float2 positions[3] =
 {
     { 0.0, -0.5 },
     { 0.5, 0.5 },
     { -0.5, 0.5 }
 };
 
-float3 colors[3] =
+static const float3 colors[3] =
 {
     { 1.0, 0.0, 0.0 },
     { 0.0, 1.0, 0.0 },
@@ -15,14 +15,14 @@ float3 colors[3] =
 struct VS_OUTPUT
 {
     float4 Position : SV_Position;
-    float3 Color;
+    float3 Color    : COLOR;
 };
 
-VS_OUTPUT VS_Main()
+VS_OUTPUT VS_Main(uint vertexID : SV_VertexID)
 {
     VS_OUTPUT Out;
-    Out.Position = float4(positions[SV_VertexID], 0.0f, 1.0f);
-    Out.Color = colors[SV_VertexID];
+    Out.Position = float4(positions[vertexID], 0.0f, 1.0f);
+    Out.Color = colors[vertexID];
 
     return Out;
 }
