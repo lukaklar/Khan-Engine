@@ -14,6 +14,7 @@ namespace Khan
 		: m_Adapter(adapter)
 		, m_TransientResourceManager(*this)
 		, m_RenderGraph(&m_TransientResourceManager)
+		, m_FrameCounter(0)
 	{
 		VkDeviceQueueCreateInfo queueInfos[QueueType_Count];
 		float queuePriority = 1.0f;

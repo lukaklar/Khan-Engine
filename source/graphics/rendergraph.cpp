@@ -644,9 +644,8 @@ namespace Khan
 
 	void RenderGraph::Reset()
 	{
-		m_PassNodes.clear();
-		m_PassToNodeMap.clear();
 		//m_GlobalWriteDependencyRegistry.clear();
+		m_WrittenSubresourceToPassMap.clear();
 		m_DependencyLevels.clear();
 		//m_ResourceUsageTimelines.clear();
 		m_QueueNodeCounters.clear();
@@ -656,11 +655,9 @@ namespace Khan
 		m_DetectedQueueCount = 1;
 		m_NodesPerQueue.clear();
 		//m_FirstNodesThatUseRayTracing.clear();
-
-		for (Node& node : m_PassNodes)
-		{
-			node.Clear();
-		}
+		m_PassNodes.clear();
+		m_PassToNodeMap.clear();
+		m_DetectedQueueCount = 0;
 	}
 
 	RenderGraph::Node::Node(RenderPass& pass)

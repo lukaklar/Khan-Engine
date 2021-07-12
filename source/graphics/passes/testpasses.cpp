@@ -33,8 +33,8 @@ namespace Khan
 
 		{
 			GraphicsPipelineDescription desc;
-			desc.m_VertexShader = ShaderManager::Get().GetShader<ShaderType_Vertex>("test_VS", "VS_Main");
-			desc.m_PixelShader = ShaderManager::Get().GetShader<ShaderType_Pixel>("test_PS", "PS_Main");
+			desc.m_VertexShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("test_VS", "VS_Main");
+			desc.m_PixelShader = ShaderManager::Get()->GetShader<ShaderType_Pixel>("test_PS", "PS_Main");
 			desc.m_PhysicalRenderPass = m_PhysicalRenderPass;
 
 			m_PipelineState = RenderBackend::g_Device->CreateGraphicsPipelineState(desc);

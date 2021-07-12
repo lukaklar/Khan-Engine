@@ -34,7 +34,7 @@ namespace Khan
 
 		{
 			GraphicsPipelineDescription desc;
-			desc.m_VertexShader = ShaderManager::Get().GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
+			desc.m_VertexShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::POSITION);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float2, VertexInputState::StreamDescriptor::StreamElement::Usage::TEXCOORD0);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::NORMAL);

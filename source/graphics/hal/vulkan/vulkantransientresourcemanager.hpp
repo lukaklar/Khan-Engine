@@ -31,10 +31,12 @@ namespace Khan
 		VulkanBuffer m_BufferPool[K_BUFFER_POOL_SIZE];
 		VulkanTexture m_TexturePool[K_TEXTURE_POOL_SIZE];
 
-		VulkanBuffer m_DummyBufferPool[K_BUFFER_VIEW_POOL_SIZE];
-		VulkanBufferView m_BufferViewPool[K_BUFFER_VIEW_POOL_SIZE];
-		VulkanTexture m_DummyTexturePool[K_TEXTURE_VIEW_POOL_SIZE];
-		VulkanTextureView m_TextureViewPool[K_TEXTURE_VIEW_POOL_SIZE];
+		VulkanBuffer m_DummyBufferPool[K_MAX_FRAMES_IN_FLIGHT][K_BUFFER_VIEW_POOL_SIZE];
+		VulkanBufferView m_BufferViewPool[K_MAX_FRAMES_IN_FLIGHT][K_BUFFER_VIEW_POOL_SIZE];
+		VulkanTexture m_DummyTexturePool[K_MAX_FRAMES_IN_FLIGHT][K_TEXTURE_VIEW_POOL_SIZE];
+		VulkanTextureView m_TextureViewPool[K_MAX_FRAMES_IN_FLIGHT][K_TEXTURE_VIEW_POOL_SIZE];
+
+		uint32_t m_CurrentFrameIndex = 0;
 	};
 }
 

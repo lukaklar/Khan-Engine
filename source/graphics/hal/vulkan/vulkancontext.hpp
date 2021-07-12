@@ -92,7 +92,6 @@ namespace Khan
 
 		VulkanDescriptorPool m_DescriptorPool;
 		VulkanDescriptorSetUpdater m_DescriptorUpdater;
-		VkDescriptorSet m_DescriptorSets[ResourceBindFrequency_Count];
 		uint32_t m_FirstDirtySet;
 
 		ConstantBuffer* m_CBuffers[ResourceBindFrequency_Count][K_MAX_CBV];

@@ -53,9 +53,9 @@ namespace Khan
         static constexpr uint32_t K_TEXTURE_VIEW_POOL_SIZE = 256;
 
         uint8_t m_BufferPoolIndex = 0;
-        uint8_t m_BufferViewPoolIndex = 0;
+        uint8_t m_BufferViewPoolIndex[K_MAX_FRAMES_IN_FLIGHT] = {};
         uint8_t m_TexturePoolIndex = 0;
-        uint8_t m_TextureViewPoolIndex = 0;
+        uint8_t m_TextureViewPoolIndex[K_MAX_FRAMES_IN_FLIGHT] = {};
 
         //std::unordered_map<std::pair<const RenderPass*, BufferDesc>, Buffer*, pair_hash> m_DescToBufferMap;
         std::unordered_map<std::pair<const RenderPass*, std::pair<Buffer*, BufferViewDesc>>, BufferView*, double_pair_hash> m_DescToBufferViewMap;

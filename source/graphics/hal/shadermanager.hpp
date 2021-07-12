@@ -1,6 +1,7 @@
 #pragma once
 #include "graphics/hal/shader.hpp"
 #include "graphics/hal/renderbackend.hpp"
+#include "core/singleton.h"
 
 #ifdef KH_GFXAPI_VULKAN
 #include "graphics/hal/vulkan/vulkandevice.hpp"
@@ -10,11 +11,9 @@
 
 namespace Khan
 {
-	class ShaderManager
+	class ShaderManager : public Singleton<ShaderManager>
 	{
 	public:
-		static ShaderManager& Get();
-
 		~ShaderManager();
 
 		template<ShaderType shaderType>

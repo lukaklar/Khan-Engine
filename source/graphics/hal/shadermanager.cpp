@@ -3,12 +3,6 @@
 
 namespace Khan
 {
-	ShaderManager& ShaderManager::Get()
-	{
-		static ShaderManager s_Instance;
-		return s_Instance;
-	}
-
 	ShaderManager::~ShaderManager()
 	{
 		for (auto map : m_ShaderMaps)

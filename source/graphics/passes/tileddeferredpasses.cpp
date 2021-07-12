@@ -29,7 +29,7 @@ namespace Khan
 	{
 		ComputePipelineDescription desc;
 		// TODO: Set the appropriate shader and entry point
-		desc.m_ComputeShader = ShaderManager::Get().GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
 
 		m_PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
 	}
@@ -170,7 +170,7 @@ namespace Khan
 	{
 		ComputePipelineDescription desc;
 		// TODO: Set the appropriate shader and entry point
-		desc.m_ComputeShader = ShaderManager::Get().GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
 
 		m_PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
 	}

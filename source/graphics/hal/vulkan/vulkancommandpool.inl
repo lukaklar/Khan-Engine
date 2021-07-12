@@ -33,6 +33,7 @@ namespace Khan
 	{
 		m_CurrentPool = &m_FramePools[frameIndex];
 		VK_ASSERT(vkResetCommandPool(m_Device, m_CurrentPool->m_CommandPool, 0), "[VULKAN] Failed to reset command pool.");
+		m_CurrentPool->m_Index = 0;
 	}
 }
 

@@ -448,12 +448,13 @@ namespace Khan
 
 		if (m_FirstDirtySet == ResourceBindFrequency_Count) return;
 
-		m_DescriptorPool.AllocateDescriptorSets(ResourceBindFrequency_Count - m_FirstDirtySet, m_PipelineState->m_DescriptorSetLayout + m_FirstDirtySet, m_DescriptorSets + m_FirstDirtySet);
+		VkDescriptorSet descriptorSets[ResourceBindFrequency_Count];
+		m_DescriptorPool.AllocateDescriptorSets(ResourceBindFrequency_Count - m_FirstDirtySet, m_PipelineState->m_DescriptorSetLayout + m_FirstDirtySet, descriptorSets + m_FirstDirtySet);
 		m_DescriptorUpdater.Reset();
 
 		for (uint32_t set = m_FirstDirtySet; set < ResourceBindFrequency_Count; ++set)
 		{
-			m_DescriptorUpdater.SetDescriptorSet(m_DescriptorSets[set]);
+			m_DescriptorUpdater.SetDescriptorSet(descriptorSets[set]);
 
 			VkBuffer uniformBufferForFrame = m_Device.m_UniformBufferAllocator.CurrentBuffer();
 			for (uint32_t binding = 0; binding < K_MAX_CBV; ++binding)
@@ -532,7 +533,7 @@ namespace Khan
 		m_DescriptorUpdater.Update();
 
 		VkPipelineBindPoint bindPoint = m_CommandType == CommandType::Draw ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
-		vkCmdBindDescriptorSets(m_CommandBuffer, bindPoint, m_PipelineState->m_PipelineLayout, m_FirstDirtySet, ResourceBindFrequency_Count - m_FirstDirtySet, m_DescriptorSets + m_FirstDirtySet, 0, nullptr);
+		vkCmdBindDescriptorSets(m_CommandBuffer, bindPoint, m_PipelineState->m_PipelineLayout, m_FirstDirtySet, ResourceBindFrequency_Count - m_FirstDirtySet, descriptorSets + m_FirstDirtySet, 0, nullptr);
 
 		m_FirstDirtySet = ResourceBindFrequency_Count;
 	}

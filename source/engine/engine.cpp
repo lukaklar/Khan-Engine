@@ -5,6 +5,7 @@
 #include "system/splashscreen.hpp"
 #include "system/window.hpp"
 #include "graphics/hal/renderbackend.hpp"
+#include "graphics/hal/shadermanager.hpp"
 
 namespace Khan
 {
@@ -78,9 +79,11 @@ namespace Khan
 			//if (!Initialize()) return;
 			Window::Initialize("Khan Engine", 1280u, 720u);
 			RenderBackend::Initialize(true);
+			ShaderManager::CreateSingleton();
 			g_Renderer = new Renderer();
 			s_MainLoop.Run();
 			delete g_Renderer;
+			ShaderManager::DestroySingleton();
 			RenderBackend::Shutdown();
 			Window::Shutdown();
 			//Shutdown();
