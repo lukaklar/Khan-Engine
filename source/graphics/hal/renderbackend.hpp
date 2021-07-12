@@ -18,6 +18,5 @@ namespace Khan
 
 		void Initialize(bool enableDebugMode);
 		void Shutdown();
-		void AdvanceFrame();
 	}
 }

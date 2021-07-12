@@ -20,7 +20,6 @@ namespace Khan
 			Engine::g_Renderer->PreRender();
 			Engine::g_Renderer->Render();
 			Engine::g_Renderer->PostRender();
-			//Khan::RenderBackend::AdvanceFrame();
 			auto end = std::chrono::steady_clock::now();
 			std::chrono::duration<double> elapsed_seconds = end - start;
 			timer += elapsed_seconds.count();

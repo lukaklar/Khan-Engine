@@ -177,12 +177,6 @@ namespace Khan
 
 			DestroyInstance();
 		}
-
-		void AdvanceFrame()
-		{
-			// TODO: Do render work here and flip the swapchain
-			g_Swapchain->Flip();
-		}
 	}
 }
 
