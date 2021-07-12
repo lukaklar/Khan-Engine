@@ -49,7 +49,7 @@ namespace Khan
 
 		KH_ASSERT(m_BufferViewPoolIndex[m_CurrentFrameIndex] < K_BUFFER_VIEW_POOL_SIZE, "Buffer view pool too small, you should increase its size.");
 		VulkanBuffer* dummyBuffer = new(&m_DummyBufferPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]])VulkanBuffer(*reinterpret_cast<VulkanBuffer*>(buffer));
-		VulkanBufferView* value = new(&m_BufferViewPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]++])VulkanBufferView(VK_NULL_HANDLE, *buffer, desc);
+		VulkanBufferView* value = new(&m_BufferViewPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]++])VulkanBufferView(VK_NULL_HANDLE, *dummyBuffer, desc);
 		m_DescToBufferViewMap.insert({ key, value });
 
 		return value;
@@ -111,10 +111,10 @@ namespace Khan
 
 		VkImageView imageView;
 		VK_ASSERT(vkCreateImageView(m_Device.VulkanDevice(), &viewInfo, nullptr, &imageView), "[VULKAN] Failed to create image view.");
-
+		ResourceState s = texture->GetState();
 		KH_ASSERT(m_TextureViewPoolIndex[m_CurrentFrameIndex] < K_TEXTURE_VIEW_POOL_SIZE, "Texture view pool too small, you should increase its size.");
 		VulkanTexture* dummyTexture = new(&m_DummyTexturePool[m_CurrentFrameIndex][m_TextureViewPoolIndex[m_CurrentFrameIndex]])VulkanTexture(*reinterpret_cast<VulkanTexture*>(texture));
-		VulkanTextureView* value = new(&m_TextureViewPool[m_CurrentFrameIndex][m_TextureViewPoolIndex[m_CurrentFrameIndex]++])VulkanTextureView(imageView, *texture, desc);
+		VulkanTextureView* value = new(&m_TextureViewPool[m_CurrentFrameIndex][m_TextureViewPoolIndex[m_CurrentFrameIndex]++])VulkanTextureView(imageView, *dummyTexture, desc);
 		//m_DescToTextureViewMap.insert({ key, value });
 
 		return value;
