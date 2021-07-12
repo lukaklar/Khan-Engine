@@ -39,11 +39,11 @@ namespace Khan
 		viewDesc.m_BaseMipLevel = 0;
 		viewDesc.m_LevelCount = 1;
 
-		viewDesc.m_Format = renderer.GetResourceBlackboard().m_LightAccumulationBuffer->GetDesc().m_Format;
-		m_ColorBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_LightAccumulationBuffer, viewDesc, ResourceState_RenderTarget, true);
+		viewDesc.m_Format = renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer->GetDesc().m_Format;
+		m_ColorBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer, viewDesc, ResourceState_RenderTarget, true);
 
 		viewDesc.m_Format = PF_D32_FLOAT;
-		m_DepthBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().GBuffer.Depth, viewDesc, ResourceState_DepthWriteStencilWrite);
+		m_DepthBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Transient.m_GBuffer.m_Depth, viewDesc, ResourceState_DepthWriteStencilWrite);
 	}
 
 	void TransparentPass::Execute(RenderContext& context, Renderer& renderer)

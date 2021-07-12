@@ -18,9 +18,14 @@ namespace Khan
 	{
 	}
 
+	Renderer::~Renderer()
+	{
+		DestroyScreenFrustumBuffer();
+	}
+
 	void Renderer::PreRender()
 	{
-		m_ResourceBlackboard.m_FinalOutput = RenderBackend::g_Swapchain->GetCurrentBackBuffer();
+		m_ResourceBlackboard.m_Persistent.m_FinalOutput = RenderBackend::g_Swapchain->GetCurrentBackBuffer();
 		// TODO: Possibly also perform frustum culling and node processing in general in a separate thread to pass scheduling and rendergraph compilation
 		SchedulePasses();
 	}
@@ -54,21 +59,26 @@ namespace Khan
 		//rg.AddPass(m_HDRPass);
 		rg.AddPass(m_TestPass);
 		rg.AddPass(m_FinalPass);
+
 		rg.Setup(*this);
 		rg.Compile();
 	}
 
 	inline void Renderer::RecreateScreenFrustumBuffer()
 	{
-		if (m_ResourceBlackboard.m_ScreenFrustums)
-		{
-			RenderBackend::g_Device->DestroyBuffer(m_ResourceBlackboard.m_ScreenFrustums);
-		}
+		DestroyScreenFrustumBuffer();
 
 		BufferDesc desc;
 		desc.m_Size = 4 * 4 * sizeof(float) * Window::g_Width / K_TILE_SIZE * Window::g_Height / K_TILE_SIZE;
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
+		m_ResourceBlackboard.m_Persistent.m_ScreenFrustums = RenderBackend::g_Device->CreateBuffer(desc);
+	}
 
-		m_ResourceBlackboard.m_ScreenFrustums = RenderBackend::g_Device->CreateBuffer(desc);
+	inline void Renderer::DestroyScreenFrustumBuffer()
+	{
+		if (m_ResourceBlackboard.m_Persistent.m_ScreenFrustums)
+		{
+			RenderBackend::g_Device->DestroyBuffer(m_ResourceBlackboard.m_Persistent.m_ScreenFrustums);
+		}
 	}
 }

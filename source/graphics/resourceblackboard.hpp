@@ -7,27 +7,34 @@ namespace Khan
 
 	struct ResourceBlackboard
 	{
-		Buffer* m_ScreenFrustums = nullptr;
-		// TODO: Create this in the renderer
-		Buffer* m_SceneLights = nullptr;
+		struct
+		{
+			Buffer* m_ScreenFrustums = nullptr;
+			// TODO: Create this in the renderer
+			Buffer* m_SceneLights = nullptr;
 
-		Buffer* m_OpaqueLightIndexList = nullptr;
-		Buffer* m_TransparentLightIndexList = nullptr;
-		Texture* m_OpaqueLightGrid = nullptr;
-		Texture* m_TransparentLightGrid = nullptr;
+			Texture* m_FinalOutput = nullptr;
+		} m_Persistent;
 
 		struct
 		{
-			Texture* Albedo = nullptr;
-			Texture* Normals = nullptr;
-			Texture* Emissive = nullptr;
-			Texture* SpecularReflectance = nullptr;
-			Texture* MetallicAndRoughness = nullptr;
-			Texture* MotionVectors = nullptr;
-			Texture* Depth = nullptr;
-		} GBuffer;
+			Buffer* m_OpaqueLightIndexList = nullptr;
+			Buffer* m_TransparentLightIndexList = nullptr;
+			Texture* m_OpaqueLightGrid = nullptr;
+			Texture* m_TransparentLightGrid = nullptr;
 
-		Texture* m_LightAccumulationBuffer = nullptr;
-		Texture* m_FinalOutput = nullptr;
+			struct
+			{
+				Texture* m_Albedo = nullptr;
+				Texture* m_Normals = nullptr;
+				Texture* m_Emissive = nullptr;
+				Texture* m_SpecularReflectance = nullptr;
+				Texture* m_MetallicAndRoughness = nullptr;
+				Texture* m_MotionVectors = nullptr;
+				Texture* m_Depth = nullptr;
+			} m_GBuffer;
+
+			Texture* m_LightAccumulationBuffer = nullptr;
+		} m_Transient;
 	};
 }

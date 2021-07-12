@@ -66,11 +66,11 @@ namespace Khan
 		desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowDepthStencil;
 
 		Texture* depthBuffer = renderGraph.CreateManagedResource(desc);
-		renderer.GetResourceBlackboard().GBuffer.Depth = depthBuffer;
+		renderer.GetResourceBlackboard().m_Transient.m_GBuffer.m_Depth = depthBuffer;
 
 		TextureViewDesc viewDesc;
 		viewDesc.m_Type = TextureViewType_2D;
-		viewDesc.m_Format = renderer.GetResourceBlackboard().m_FinalOutput->GetDesc().m_Format;
+		viewDesc.m_Format = renderer.GetResourceBlackboard().m_Persistent.m_FinalOutput->GetDesc().m_Format;
 		viewDesc.m_BaseArrayLayer = 0;
 		viewDesc.m_LayerCount = 1;
 		viewDesc.m_BaseMipLevel = 0;

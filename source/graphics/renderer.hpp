@@ -21,6 +21,7 @@ namespace Khan
 	{
 	public:
 		Renderer();
+		~Renderer();
 
 		void PreRender();
 		void Render();
@@ -37,6 +38,7 @@ namespace Khan
 	private:
 		void SchedulePasses();
 		void RecreateScreenFrustumBuffer();
+		void DestroyScreenFrustumBuffer();
 
 		//TileFrustumCalculationPass m_TileFrustumCalculationPass;
 		//DepthPrePass m_DepthPrePass;

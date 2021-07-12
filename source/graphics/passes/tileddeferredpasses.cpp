@@ -16,7 +16,7 @@
 #endif // KH_GFXAPI_VULKAN
 
 #define DECLARE_GBUFFER_INPUT(target, state)\
-temp = renderer.GetResourceBlackboard().GBuffer.##target;\
+temp = renderer.GetResourceBlackboard().m_Transient.m_GBuffer.m_##target;\
 viewDesc.m_Format = temp->GetDesc().m_Format;\
 m_GBuffer_##target = renderGraph.DeclareResourceDependency(temp, viewDesc, state);
 
@@ -36,7 +36,7 @@ namespace Khan
 
 	void TileFrustumCalculationPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
-		Buffer* screenFrustums = renderer.GetResourceBlackboard().m_ScreenFrustums;
+		Buffer* screenFrustums = renderer.GetResourceBlackboard().m_Persistent.m_ScreenFrustums;
 
 		BufferViewDesc desc;
 		desc.m_Offset = 0;
@@ -84,24 +84,24 @@ namespace Khan
 			temp = renderGraph.CreateManagedResource(desc);
 			m_TransparentLightIndexCounter = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
-			temp = renderer.GetResourceBlackboard().m_ScreenFrustums;
+			temp = renderer.GetResourceBlackboard().m_Persistent.m_ScreenFrustums;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			m_PerTileFrustums = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
-			temp = renderer.GetResourceBlackboard().m_SceneLights;
+			temp = renderer.GetResourceBlackboard().m_Persistent.m_SceneLights;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
 			desc.m_Size = 10000;
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 			temp = renderGraph.CreateManagedResource(desc);
-			renderer.GetResourceBlackboard().m_OpaqueLightIndexList = temp;
+			renderer.GetResourceBlackboard().m_Transient.m_OpaqueLightIndexList = temp;
 
 			viewDesc.m_Range = desc.m_Size;
 			m_OpaqueLightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			temp = renderGraph.CreateManagedResource(desc);
-			renderer.GetResourceBlackboard().m_TransparentLightIndexList = temp;
+			renderer.GetResourceBlackboard().m_Transient.m_TransparentLightIndexList = temp;
 
 			viewDesc.m_Range = desc.m_Size;
 			m_TransparentLightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
@@ -122,7 +122,7 @@ namespace Khan
 			desc.m_Flags = TextureFlag_AllowUnorderedAccess | TextureFlag_AllowShaderResource;
 
 			temp = renderGraph.CreateManagedResource(desc);
-			renderer.GetResourceBlackboard().m_OpaqueLightGrid = temp;
+			renderer.GetResourceBlackboard().m_Transient.m_OpaqueLightGrid = temp;
 
 			viewDesc.m_Type = TextureViewType_2D;
 			viewDesc.m_Format = PF_R32G32_UINT;
@@ -134,11 +134,11 @@ namespace Khan
 			m_OpaqueLightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			temp = renderGraph.CreateManagedResource(desc);
-			renderer.GetResourceBlackboard().m_TransparentLightGrid = temp;
+			renderer.GetResourceBlackboard().m_Transient.m_TransparentLightGrid = temp;
 
 			m_TransparentLightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
-			temp = renderer.GetResourceBlackboard().GBuffer.Depth;
+			temp = renderer.GetResourceBlackboard().m_Transient.m_GBuffer.m_Depth;
 			viewDesc.m_Format = temp->GetDesc().m_Format;
 			m_DepthTexture = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 		}
@@ -192,7 +192,7 @@ namespace Khan
 
 		temp = renderGraph.CreateManagedResource(desc);
 		KH_DEBUGONLY(temp->SetDebugName("LightAccumulationBuffer"));
-		renderer.GetResourceBlackboard().m_LightAccumulationBuffer = temp;
+		renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer = temp;
 
 		TextureViewDesc viewDesc;
 		viewDesc.m_Type = TextureViewType_2D;
@@ -212,7 +212,7 @@ namespace Khan
 		// TODO: Will need a shadow map
 
 		viewDesc.m_Format = PF_R16G16B16A16_FLOAT;
-		m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_LightAccumulationBuffer, viewDesc, ResourceState_UnorderedAccess);
+		m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer, viewDesc, ResourceState_UnorderedAccess);
 	}
 
 	void TiledDeferredLightingPass::Execute(RenderContext& context, Renderer& renderer)
