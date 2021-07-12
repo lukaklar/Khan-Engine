@@ -8,8 +8,6 @@
 
 struct Light
 {
-	float4 m_PositionWS; // world space position for point and spot lights
-	float4 m_DirectionWS; // world space direction for directional and spot lights
 	float4 m_PositionVS; // view space position for point and spot lights
 	float4 m_DirectionVS; // view space direction for directional, spot and capsule lights
 	float3 m_Color;
