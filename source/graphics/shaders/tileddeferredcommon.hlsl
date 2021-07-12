@@ -5,21 +5,17 @@
 #define DIRECTIONAL_LIGHT 0
 #define POINT_LIGHT 1
 #define SPOT_LIGHT 2
-#define CAPSULE_LIGHT 3
 
 struct Light
 {
-	float4 m_Position1WS; // world space position for point, spot and capsule lights
-	float4 m_Position2WS; // world space position only for capsule lights
-	float4 m_DirectionWS; // world space direction for directional, spot and capsule lights
-	float4 m_Position1VS; // view space position for point, spot and capsule lights
-	float4 m_Position2VS; // view space position only for capsule lights
+	float4 m_PositionWS; // world space position for point and spot lights
+	float4 m_DirectionWS; // world space direction for directional and spot lights
+	float4 m_PositionVS; // view space position for point and spot lights
 	float4 m_DirectionVS; // view space direction for directional, spot and capsule lights
 	float3 m_Color;
 	float  m_Luminance;
 	float  m_SpotlightAngle;
 	float  m_Range;
-	float  m_CapsuleLength;
 	uint   m_Type;
 	bool   m_Active;
 };

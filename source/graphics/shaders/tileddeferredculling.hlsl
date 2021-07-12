@@ -204,7 +204,7 @@ void CS_CullLights(uint3 groupID           : SV_GroupID,
             {
             case POINT_LIGHT:
             {
-                Sphere sphere = { light.m_Position1VS.xyz, light.m_Range };
+                Sphere sphere = { light.m_PositionVS.xyz, light.m_Range };
                 if (SphereInsideFrustum(sphere, gs_GroupFrustum, nearClipVS, maxDepthVS))
                 {
                     // Add light to light list for transparent geometry.
@@ -222,7 +222,7 @@ void CS_CullLights(uint3 groupID           : SV_GroupID,
             {
                 // TODO: It will already be in radians?
                 float coneRadius = tan(radians(light.m_SpotlightAngle)) * light.m_Range;
-                Cone cone = { light.m_Position1VS.xyz, light.m_Range, light.m_DirectionVS.xyz, coneRadius };
+                Cone cone = { light.m_PositionVS.xyz, light.m_Range, light.m_DirectionVS.xyz, coneRadius };
                 if (ConeInsideFrustum(cone, gs_GroupFrustum, nearClipVS, maxDepthVS))
                 {
                     // Add light to light list for transparent geometry.

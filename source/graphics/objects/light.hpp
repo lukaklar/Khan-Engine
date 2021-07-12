@@ -9,8 +9,7 @@ namespace Khan
 		{
 			Directional,
 			Point,
-			Spot,
-			Capsule
+			Spot
 		};
 
 		virtual ~Light() = 0;
@@ -78,26 +77,5 @@ namespace Khan
 		float m_Range;
 		glm::vec3 m_Direction;
 		float m_Angle;
-	};
-
-	class CapsuleLight : public Light
-	{
-	public:
-		CapsuleLight() : Light(Capsule) {}
-
-		inline const glm::vec3& GetPosition() const { return m_Position; }
-		inline void SetPosition(const glm::vec3& value) { m_Position = value; }
-		inline float GetRange() const { return m_Range; }
-		inline void SetRange(float value) { m_Range = value; }
-		inline const glm::vec3& GetDirection() const { return m_Direction; }
-		inline void SetDirection(const glm::vec3& value) { m_Direction = value; }
-		inline float GetLength() const { return m_Length; }
-		inline void SetLength(float value) { m_Length = value; }
-
-	private:
-		glm::vec3 m_Position;
-		float m_Range;
-		glm::vec3 m_Direction;
-		float m_Length;
 	};
 }

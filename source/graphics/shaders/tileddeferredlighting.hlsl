@@ -11,18 +11,11 @@ StructuredBuffer<uint> g_LightIndexList : register(t5);
 Texture2D<uint2> g_LightGrid : register(t6);
 StructuredBuffer<Light> g_Lights : register(t7);
 
-cbuffer g_GBufferUnpackParams : register(b2)
-{
-    float4x4 g_InverseView;
-}
-
 RWTexture2D<float4> g_LightingResult : register(u0);
-
-#define EyePosition g_InverseView[3].xyz
 
 struct SurfaceData
 {
-    float3 m_Position;
+    float3 m_PositionVS;
 	float3 m_Albedo;
 	float  m_Metallic;
 	float3 m_Normal;
@@ -36,8 +29,7 @@ SurfaceData UnpackGBuffer(int3 location)
     
     //float linearDepth = LinearizeDepth(g_GBuffer_Depth.Load(location).r);
     float depth = g_GBuffer_Depth.Load(location).r;
-    float4 positionVS = ScreenToView(float4(location.xy, depth, 1.0));
-    Out.m_Position = mul(g_InverseView, positionVS);
+    Out.m_PositionVS = ScreenToView(float4(location.xy, depth, 1.0));
     
     Out.m_Albedo = g_GBuffer_Albedo.Load(location).rgb;
 	Out.m_SpecularReflectance = g_GBuffer_SpecularReflectance.Load(location).rgb;
@@ -68,7 +60,8 @@ void CS_Lighting(uint3 groupID : SV_GroupID,
     uint startOffset = g_LightGrid[tileIndex].x;
     uint lightCount = g_LightGrid[tileIndex].y;
     
-    float3 V = EyePosition - data.m_Position;
+    //float3 eyePos = float3(0, 0, 0);
+    float3 V = float3(0, 0, 0) - data.m_PositionVS;
     
     // Specular contribution
     float3 Lo = float3(0.0, 0.0, 0.0);
@@ -77,30 +70,37 @@ void CS_Lighting(uint3 groupID : SV_GroupID,
         uint lightIndex = g_LightIndexList[startOffset + i];
         Light light = g_Lights[lightIndex];
         
+        if (!light.m_Active)
+        {
+            continue;
+        }
+        
         float3 L;
         float3 radiance;
         switch (light.m_Type)
         {
             case DIRECTIONAL_LIGHT:
             {
-                L = normalize(-light.m_DirectionWS);
-                radiance = light.m_Color;
+                L = normalize(-light.m_DirectionVS);
+                radiance = light.m_Color * light.m_Luminance;
                 break;
             }
             case POINT_LIGHT:
             {
-                L = normalize((float3)light.m_Position1WS - data.m_Position);
-                float distance = length((float3) light.m_Position1WS - data.m_Position);
+                L = (float3)light.m_PositionVS - data.m_PositionVS;
+                float distance = length(L);
+                L /= distance;
                 float attenuation = 1.0 / (distance * distance);
-                radiance = light.m_Color * attenuation;
+                radiance = light.m_Color * attenuation * light.m_Luminance;
                 break;
             }
             case SPOT_LIGHT:
             {
-                L = normalize((float3) light.m_Position1WS - data.m_Position);
-                float distance = length((float3) light.m_Position1WS - data.m_Position);
+                L = (float3) light.m_PositionVS - data.m_PositionVS;
+                float distance = length(L);
+                L /= distance;
                 float attenuation = 1.0 / (distance * distance);
-                radiance = light.m_Color * attenuation;
+                radiance = light.m_Color * attenuation * light.m_Luminance;
                 // check the angle between L and lightDirection and calculate falloff
                 break;
             }
