@@ -48,6 +48,8 @@ namespace Khan
 		TextureView* m_OpaqueLightGrid;
 		TextureView* m_TransparentLightGrid;
 
+		RenderPipelineState* m_PipelineState;
+
 		// TODO: Move these up to renderer so they can be shared between passes
 		ConstantBuffer m_DispatchParams;
 		ConstantBuffer m_ScreenToViewParams;

@@ -26,21 +26,8 @@ namespace Khan
     {
         VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
         write.dstSet = m_DescriptorSet;
-        write.dstBinding = binding;
+        write.dstBinding = K_HLSL_B_REGISTER_OFFSET + binding;
         write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
-        write.pBufferInfo = &info;
-        info.buffer = buffer;
-        info.offset = offset;
-        info.range = range;
-    }
-
-    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetStorageBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
-    {
-        VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
-        write.dstSet = m_DescriptorSet;
-        write.dstBinding = binding;
-        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
         write.pBufferInfo = &info;
         info.buffer = buffer;
@@ -52,7 +39,7 @@ namespace Khan
     {
         VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
         write.dstSet = m_DescriptorSet;
-        write.dstBinding = binding;
+        write.dstBinding = K_HLSL_T_REGISTER_OFFSET + binding;
         write.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         VkDescriptorImageInfo& info = m_ImageInfos[m_ImageCount++];
         write.pImageInfo = &info;
@@ -60,11 +47,49 @@ namespace Khan
         info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     }
 
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetStorageBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
+    {
+        VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = K_HLSL_T_REGISTER_OFFSET + binding;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
+        write.pBufferInfo = &info;
+        info.buffer = buffer;
+        info.offset = offset;
+        info.range = range;
+    }
+
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetUAStorageBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
+    {
+        VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = K_HLSL_U_REGISTER_OFFSET + binding;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
+        write.pBufferInfo = &info;
+        info.buffer = buffer;
+        info.offset = offset;
+        info.range = range;
+    }
+
     KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetStorageImage(uint32_t binding, VkImageView imageView)
     {
         VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
         write.dstSet = m_DescriptorSet;
-        write.dstBinding = binding;
+        write.dstBinding = K_HLSL_T_REGISTER_OFFSET + binding;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        VkDescriptorImageInfo& info = m_ImageInfos[m_ImageCount++];
+        write.pImageInfo = &info;
+        info.imageView = imageView;
+        info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    }
+
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetUAStorageImage(uint32_t binding, VkImageView imageView)
+    {
+        VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = K_HLSL_U_REGISTER_OFFSET + binding;
         write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
         VkDescriptorImageInfo& info = m_ImageInfos[m_ImageCount++];
         write.pImageInfo = &info;
@@ -76,7 +101,17 @@ namespace Khan
     {
         VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
         write.dstSet = m_DescriptorSet;
-        write.dstBinding = binding;
+        write.dstBinding = K_HLSL_T_REGISTER_OFFSET + binding;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+        VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
+        write.pTexelBufferView = &bufferView;
+    }
+
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetUAStorageTexelBuffer(uint32_t binding, const VkBufferView& bufferView)
+    {
+        VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = K_HLSL_U_REGISTER_OFFSET + binding;
         write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
         VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
         write.pTexelBufferView = &bufferView;
@@ -86,7 +121,7 @@ namespace Khan
     {
         VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
         write.dstSet = m_DescriptorSet;
-        write.dstBinding = binding;
+        write.dstBinding = K_HLSL_S_REGISTER_OFFSET + binding;
         write.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
         VkDescriptorImageInfo& info = m_ImageInfos[m_ImageCount++];
         write.pImageInfo = &info;

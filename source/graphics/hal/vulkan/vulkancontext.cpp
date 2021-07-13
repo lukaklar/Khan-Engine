@@ -479,7 +479,14 @@ namespace Khan
 				const VulkanTextureView* texture = m_SRVTextures[set][binding];
 				if (texture != nullptr)
 				{
-					m_DescriptorUpdater.SetSampledImage(binding, texture->VulkanImageView());
+					if (m_CommandType == CommandType::Draw)
+					{
+						m_DescriptorUpdater.SetSampledImage(binding, texture->VulkanImageView());
+					}
+					else
+					{
+						m_DescriptorUpdater.SetStorageImage(binding, texture->VulkanImageView());
+					}
 					continue;
 				}
 
@@ -507,7 +514,7 @@ namespace Khan
 					const VulkanTextureView* texture = m_UAVTextures[set][binding];
 					if (texture != nullptr)
 					{
-						m_DescriptorUpdater.SetStorageImage(binding, texture->VulkanImageView());
+						m_DescriptorUpdater.SetUAStorageImage(binding, texture->VulkanImageView());
 						continue;
 					}
 
@@ -519,11 +526,11 @@ namespace Khan
 							VkBuffer vulkanBuffer = static_cast<const VulkanBuffer&>(buffer->GetBuffer()).GetVulkanBuffer();
 							VkDeviceSize offset = buffer->GetDesc().m_Offset;
 							VkDeviceSize range = buffer->GetDesc().m_Range;
-							m_DescriptorUpdater.SetStorageBuffer(binding, vulkanBuffer, offset, range);
+							m_DescriptorUpdater.SetUAStorageBuffer(binding, vulkanBuffer, offset, range);
 						}
 						else
 						{
-							m_DescriptorUpdater.SetStorageTexelBuffer(binding, buffer->GetVulkanBufferView());
+							m_DescriptorUpdater.SetUAStorageTexelBuffer(binding, buffer->GetVulkanBufferView());
 						}
 					}
 				}

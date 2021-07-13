@@ -34,7 +34,7 @@ namespace Khan
 
 		{
 			GraphicsPipelineDescription desc;
-			desc.m_VertexShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
+			desc.m_VertexShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("depth_VS", "VS_Main");
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::POSITION);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float2, VertexInputState::StreamDescriptor::StreamElement::Usage::TEXCOORD0);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::NORMAL);
@@ -63,6 +63,7 @@ namespace Khan
 		desc.m_ArrayLayers = 1;
 		desc.m_MipLevels = 1;
 		//desc.m_SampleCount;
+		desc.m_Format = PF_D32_FLOAT;
 		desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowDepthStencil;
 
 		Texture* depthBuffer = renderGraph.CreateManagedResource(desc);

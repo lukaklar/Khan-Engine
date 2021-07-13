@@ -68,8 +68,8 @@ namespace Khan
 		std::unordered_map<std::string, std::vector<uint8_t>> m_ShaderFileMap;
 
 #ifdef KH_GFXAPI_VULKAN
-		inline static constexpr char* ms_Path = "..\\..\\bin\\shaders\\vulkan\\";
-		inline static constexpr char* ms_Extension = ".spv";
+		static constexpr char* ms_Path = "..\\..\\bin\\shaders\\vulkan\\";
+		static constexpr char* ms_Extension = ".spv";
 #endif // KH_GFXAPI_VULKAN
 	};
 }

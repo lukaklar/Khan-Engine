@@ -29,7 +29,7 @@ SurfaceData UnpackGBuffer(int3 location)
     
     //float linearDepth = LinearizeDepth(g_GBuffer_Depth.Load(location).r);
     float depth = g_GBuffer_Depth.Load(location).r;
-    Out.m_PositionVS = ScreenToView(float4(location.xy, depth, 1.0));
+    Out.m_PositionVS = ScreenToView(float4(location.xy, depth, 1.0)).xyz;
     
     Out.m_Albedo = g_GBuffer_Albedo.Load(location).rgb;
 	Out.m_SpecularReflectance = g_GBuffer_SpecularReflectance.Load(location).rgb;
@@ -45,10 +45,10 @@ SurfaceData UnpackGBuffer(int3 location)
 }
 
 [numthreads(TILE_SIZE, TILE_SIZE, 1)]
-void CS_Lighting(uint3 groupID : SV_GroupID,
-                 uint3 groupThreadID : SV_GroupThreadID,
-                 uint3 dispatchThreadID : SV_DispatchThreadID,
-                 uint groupIndex : SV_GroupIndex)
+void CS_TiledDeferredLighting(uint3 groupID : SV_GroupID,
+                              uint3 groupThreadID : SV_GroupThreadID,
+                              uint3 dispatchThreadID : SV_DispatchThreadID,
+                              uint groupIndex : SV_GroupIndex)
 {
     int3 texCoord = int3(dispatchThreadID.xy, 0);
     SurfaceData data = UnpackGBuffer(texCoord);
@@ -81,13 +81,13 @@ void CS_Lighting(uint3 groupID : SV_GroupID,
         {
             case DIRECTIONAL_LIGHT:
             {
-                L = normalize(-light.m_DirectionVS);
+                L = normalize(-light.m_DirectionVS.xyz);
                 radiance = light.m_Color * light.m_Luminance;
                 break;
             }
             case POINT_LIGHT:
             {
-                L = (float3)light.m_PositionVS - data.m_PositionVS;
+                L = light.m_PositionVS.xyz - data.m_PositionVS;
                 float distance = length(L);
                 L /= distance;
                 float attenuation = 1.0 / (distance * distance);
@@ -96,7 +96,7 @@ void CS_Lighting(uint3 groupID : SV_GroupID,
             }
             case SPOT_LIGHT:
             {
-                L = (float3) light.m_PositionVS - data.m_PositionVS;
+                L = light.m_PositionVS.xyz - data.m_PositionVS;
                 float distance = length(L);
                 L /= distance;
                 float attenuation = 1.0 / (distance * distance);

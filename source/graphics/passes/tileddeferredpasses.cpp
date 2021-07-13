@@ -28,8 +28,7 @@ namespace Khan
 		, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
 	{
 		ComputePipelineDescription desc;
-		// TODO: Set the appropriate shader and entry point
-		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("tilefrustumcalculation_CS", "CS_ComputeFrustums");
 
 		m_PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
 	}
@@ -62,7 +61,10 @@ namespace Khan
 		, m_DispatchParams(2 * sizeof(glm::uvec4))
 		, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
 	{
+		ComputePipelineDescription desc;
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("tileddeferredculling_CS", "CS_CullLights");
 
+		m_PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
 	}
 
 	void LightCullingPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
@@ -169,8 +171,7 @@ namespace Khan
 		, m_GBufferUnpackParams(sizeof(glm::vec4) + sizeof(glm::mat4))
 	{
 		ComputePipelineDescription desc;
-		// TODO: Set the appropriate shader and entry point
-		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("C:\\dev\\Khan\\source\\graphics\\shaders\\vert.spv", "main");
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("tileddeferredlighting_CS", "CS_TiledDeferredLighting");
 
 		m_PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
 	}

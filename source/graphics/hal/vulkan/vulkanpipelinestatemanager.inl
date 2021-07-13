@@ -388,7 +388,7 @@ namespace Khan
 		}
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		pipelineLayoutInfo.setLayoutCount = 4;
+		pipelineLayoutInfo.setLayoutCount = ResourceBindFrequency_Count;
 		pipelineLayoutInfo.pSetLayouts = pipelineState->m_DescriptorSetLayout;
 		VK_ASSERT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineState->m_PipelineLayout), "[VULKAN] Failed to create pipeline layout");
 
