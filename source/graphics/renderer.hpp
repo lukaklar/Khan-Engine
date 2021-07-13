@@ -37,6 +37,7 @@ namespace Khan
 
 	private:
 		void SchedulePasses();
+
 		void RecreateScreenFrustumBuffer();
 		void DestroyScreenFrustumBuffer();
 

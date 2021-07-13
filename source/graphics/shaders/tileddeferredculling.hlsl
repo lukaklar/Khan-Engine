@@ -170,7 +170,7 @@ void CS_CullLights(uint3 groupID           : SV_GroupID,
         gs_uMaxDepth = 0;
         gs_OpaqueLightCount = 0;
         gs_TransparentLightCount = 0;
-        gs_GroupFrustum = g_PerTileFrustums[groupID.x + (groupID.y * numThreadGroups.x)];
+        gs_GroupFrustum = g_PerTileFrustums[groupID.x + (groupID.y * g_NumThreadGroups.x)];
     }
  
     GroupMemoryBarrierWithGroupSync();
@@ -196,57 +196,53 @@ void CS_CullLights(uint3 groupID           : SV_GroupID,
     // Each thread in a group will cull 1 light until all lights have been culled.
     for (uint i = groupIndex; i < NUM_LIGHTS; i += TILE_SIZE * TILE_SIZE)
     {
-        if (g_Lights[i].m_Active)
-        {
-            Light light = g_Lights[i];
+        Light light = g_Lights[i];
 
             switch (light.m_Type)
             {
-            case POINT_LIGHT:
-            {
-                Sphere sphere = { light.m_PositionVS.xyz, light.m_Range };
-                if (SphereInsideFrustum(sphere, gs_GroupFrustum, nearClipVS, maxDepthVS))
+                case POINT_LIGHT:
                 {
-                    // Add light to light list for transparent geometry.
-                    AppendLightForTransparentGeometry(i);
- 
-                    if (!SphereInsidePlane(sphere, minPlane))
+                    Sphere sphere = { light.m_PositionVS, light.m_Range };
+                    if (SphereInsideFrustum(sphere, gs_GroupFrustum, nearClipVS, maxDepthVS))
                     {
-                        // Add light to light list for opaque geometry.
-                        AppendLightForOpaqueGeometry(i);
+                        // Add light to light list for transparent geometry.
+                        AppendLightForTransparentGeometry(i);
+ 
+                        if (!SphereInsidePlane(sphere, minPlane))
+                        {
+                            // Add light to light list for opaque geometry.
+                            AppendLightForOpaqueGeometry(i);
+                        }
                     }
+                    break;
                 }
-                break;
-            }
-            case SPOT_LIGHT:
-            {
-                // TODO: It will already be in radians?
-                float coneRadius = tan(radians(light.m_SpotlightAngle)) * light.m_Range;
-                Cone cone = { light.m_PositionVS.xyz, light.m_Range, light.m_DirectionVS.xyz, coneRadius };
-                if (ConeInsideFrustum(cone, gs_GroupFrustum, nearClipVS, maxDepthVS))
+                case SPOT_LIGHT:
                 {
-                    // Add light to light list for transparent geometry.
-                    AppendLightForTransparentGeometry(i);
- 
-                    if (!ConeInsidePlane(cone, minPlane))
+                    // TODO: It will already be in radians?
+                    float coneRadius = tan(radians(light.m_SpotlightAngle)) * light.m_Range;
+                    Cone cone = { light.m_PositionVS, light.m_Range, light.m_DirectionVS, coneRadius };
+                    if (ConeInsideFrustum(cone, gs_GroupFrustum, nearClipVS, maxDepthVS))
                     {
-                        // Add light to light list for opaque geometry.
-                        AppendLightForOpaqueGeometry(i);
+                        // Add light to light list for transparent geometry.
+                        AppendLightForTransparentGeometry(i);
+ 
+                        if (!ConeInsidePlane(cone, minPlane))
+                        {
+                            // Add light to light list for opaque geometry.
+                            AppendLightForOpaqueGeometry(i);
+                        }
                     }
+                    break;
                 }
-                break;
+                case DIRECTIONAL_LIGHT:
+                {
+                    // Directional lights always get added to our light list.
+                    // (Hopefully there are not too many directional lights!)
+                    AppendLightForOpaqueGeometry(i);
+                    AppendLightForTransparentGeometry(i);
+                    break;
+                }
             }
-            case DIRECTIONAL_LIGHT:
-            {
-                // Directional lights always get added to our light list.
-                // (Hopefully there are not too many directional lights!)
-                AppendLightForOpaqueGeometry(i);
-                AppendLightForTransparentGeometry(i);
-                break;
-            }
-            // TODO: Capsule light (same as point light but with 2 spheres instead of one)
-            }
-        }
     }
  
     // Wait till all threads in group have caught up.

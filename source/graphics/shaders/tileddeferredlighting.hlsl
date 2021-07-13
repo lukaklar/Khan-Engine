@@ -70,11 +70,6 @@ void CS_TiledDeferredLighting(uint3 groupID : SV_GroupID,
         uint lightIndex = g_LightIndexList[startOffset + i];
         Light light = g_Lights[lightIndex];
         
-        if (!light.m_Active)
-        {
-            continue;
-        }
-        
         float3 L;
         float3 radiance;
         switch (light.m_Type)

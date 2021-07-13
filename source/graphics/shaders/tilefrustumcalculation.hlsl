@@ -47,9 +47,9 @@ void CS_ComputeFrustums(uint3 groupID           : SV_GroupID,
 	frustum.m_Planes[3] = ComputePlane(eyePos, viewSpace[3], viewSpace[2]);
 
     // Store the computed frustum in global memory (if our thread ID is in bounds of the grid).
-    if (dispatchThreadID.x < numThreads.x && dispatchThreadID.y < numThreads.y)
+    if (dispatchThreadID.x < g_NumThreads.x && dispatchThreadID.y < g_NumThreads.y)
     {
-        uint index = dispatchThreadID.x + (dispatchThreadID.y * numThreads.x);
+        uint index = dispatchThreadID.x + (dispatchThreadID.y * g_NumThreads.x);
         g_PerTileFrustums[index] = frustum;
     }
 }

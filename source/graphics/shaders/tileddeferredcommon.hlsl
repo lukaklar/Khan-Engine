@@ -8,14 +8,13 @@
 
 struct Light
 {
-	float4 m_PositionVS; // view space position for point and spot lights
-	float4 m_DirectionVS; // view space direction for directional, spot and capsule lights
+	uint   m_Type;
+	float3 m_PositionVS;
+	float3 m_DirectionVS;
+    float  m_Range;
 	float3 m_Color;
 	float  m_Luminance;
 	float  m_SpotlightAngle;
-	float  m_Range;
-	uint   m_Type;
-	bool   m_Active;
 };
 
 struct Plane
@@ -59,28 +58,28 @@ Plane ComputePlane(float3 p0, float3 p1, float3 p2)
 cbuffer DispatchParams : register(b0)
 {
     // Number of groups dispatched. (This parameter is not available as an HLSL system value!)
-    uint3 numThreadGroups;
+    uint3 g_NumThreadGroups;
     // uint padding // implicit padding to 16 bytes.
  
     // Total number of threads dispatched. (Also not available as an HLSL system value!)
     // Note: This value may be less than the actual number of threads executed 
     // if the screen size is not evenly divisible by the block size.
-    uint3 numThreads;
+    uint3 g_NumThreads;
     // uint padding // implicit padding to 16 bytes.
 }
 
 // Parameters required to convert screen space coordinates to view space.
 cbuffer ScreenToViewParams : register(b1)
 {
-    float4x4 InverseProjection;
-    float2 ScreenDimensions;
+    float4x4 g_InverseProjection;
+    float2   g_ScreenDimensions;
 }
 
 // Convert clip space coordinates to view space
 float4 ClipToView(float4 clip)
 {
     // View space position.
-    float4 view = mul(InverseProjection, clip);
+    float4 view = mul(g_InverseProjection, clip);
     // Perspective projection.
     view = view / view.w;
  
@@ -91,7 +90,7 @@ float4 ClipToView(float4 clip)
 float4 ScreenToView(float4 screen)
 {
     // Convert to normalized texture coordinates
-    float2 texCoord = screen.xy / ScreenDimensions;
+    float2 texCoord = screen.xy / g_ScreenDimensions;
  
     // Convert to clip space
     float4 clip = float4(float2(texCoord.x, 1.0f - texCoord.y) * 2.0f - 1.0f, screen.z, screen.w);
