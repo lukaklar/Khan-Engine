@@ -265,13 +265,14 @@ namespace Khan
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 
-		// TODO: Set parameters for GBuffer unpacking 1, 2
-
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_GBuffer_Albedo);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 1, m_GBuffer_Normals);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 2, m_GBuffer_SpecularReflectance);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 3, m_GBuffer_MetallicAndRoughness);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 4, m_GBuffer_Depth);
+		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 5, m_LightIndexList);
+		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 6, m_LightGrid);
+		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 7, m_LightData);
 
 		// TODO: these should be equal to the screen dimensions (get them from the active camera in renderer)
 		//context.Dispatch(width, height, 1);
