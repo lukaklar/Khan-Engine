@@ -1,6 +1,7 @@
 #pragma once
 #include "core/boundingvolume.h"
 #include <thirdparty/entt/entt.hpp>
+#include <thirdparty/glm/gtx/quaternion.hpp>
 
 namespace Khan
 {

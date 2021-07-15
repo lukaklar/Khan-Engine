@@ -1,5 +1,6 @@
 #include "core/precomp.h"
 #include "core/boundingvolume.h"
+#include <thirdparty/glm/gtx/transform.hpp>
 
 namespace Khan
 {

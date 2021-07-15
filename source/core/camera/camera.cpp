@@ -1,5 +1,7 @@
 #include "core/precomp.h"
 #include "core/camera/camera.h"
+#include <thirdparty/glm/glm.hpp>
+#include <thirdparty/glm/gtx/transform.hpp>
 
 namespace Khan
 {

@@ -54,8 +54,6 @@ namespace Khan
 
 	TileFrustumCalculationPass::TileFrustumCalculationPass()
 		: RenderPass(QueueType_Compute, "TileFrustumCalculationPass")
-		, m_DispatchParams(2 * sizeof(glm::uvec4))
-		, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
 	{
 		ComputePipelineDescription desc;
 		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("tilefrustumcalculation_CS", "CS_ComputeFrustums");
@@ -77,19 +75,16 @@ namespace Khan
 
 	void TileFrustumCalculationPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_PerTileFrustums);
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 
-		// TODO: Update constant buffers or better yet move them to Renderer so they can be shared between passes that use them
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_DispatchParams);
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &m_ScreenToViewParams);
+		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_PerTileFrustums);
 
 		// TODO: context.Dispatch(...);
 	}
 
 	LightCullingPass::LightCullingPass()
 		: RenderPass(QueueType_Compute, "LightCullingPass")
-		, m_DispatchParams(2 * sizeof(glm::uvec4))
-		, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
 	{
 		ComputePipelineDescription desc;
 		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("tileddeferredculling_CS", "CS_CullLights");
@@ -178,6 +173,9 @@ namespace Khan
 
 	void LightCullingPass::Execute(RenderContext& context, Renderer& renderer)
 	{
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
+
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_DepthTexture);
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 1, m_PerTileFrustums);
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 2, m_Lights);
@@ -189,16 +187,11 @@ namespace Khan
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 4, m_OpaqueLightGrid);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 5, m_TransparentLightGrid);
 
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_DispatchParams);
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &m_ScreenToViewParams);
-
 		// TODO: context.Dispatch(...);
 	}
 
 	TiledDeferredLightingPass::TiledDeferredLightingPass()
 		: RenderPass(QueueType_Compute, "TiledDeferredLightingPass")
-		, m_DispatchParams(2 * sizeof(glm::uvec4))
-		, m_GBufferUnpackParams(sizeof(glm::vec4) + sizeof(glm::mat4))
 	{
 		ComputePipelineDescription desc;
 		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("tileddeferredlighting_CS", "CS_TiledDeferredLighting");
@@ -269,16 +262,8 @@ namespace Khan
 
 	void TiledDeferredLightingPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		uint32_t width = m_LightingResult->GetTexture().GetDesc().m_Width;
-		uint32_t height = m_LightingResult->GetTexture().GetDesc().m_Height;
-
-		glm::uvec3 numThreads(glm::ceil(width / 16), glm::ceil(height / 16), 1);
-		glm::uvec3 numThreadGroups(glm::ceil(numThreads.x / 16), glm::ceil(numThreads.y / 16), 1);
-
-		m_DispatchParams.UpdateConstantData(&numThreadGroups[0], 0, sizeof(glm::uvec3));
-		m_DispatchParams.UpdateConstantData(&numThreads[0], sizeof(glm::uvec4), sizeof(glm::uvec3));
-
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_DispatchParams);
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 
 		// TODO: Set parameters for GBuffer unpacking 1, 2
 
@@ -288,6 +273,7 @@ namespace Khan
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 3, m_GBuffer_MetallicAndRoughness);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 4, m_GBuffer_Depth);
 
-		context.Dispatch(numThreads.x, numThreads.y, numThreads.z);
+		// TODO: these should be equal to the screen dimensions (get them from the active camera in renderer)
+		//context.Dispatch(width, height, 1);
 	}
 }

@@ -73,6 +73,7 @@ namespace Khan
 
 		VK_ASSERT(vkCreateSwapchainKHR(m_Device.VulkanDevice(), &swapchainInfo, nullptr, &m_Swapchain), "[VULKAN] Failed to create swapchain.");
 
+		// TODO: This can be removed but it should be profiled when recreating the swapchain if it is faster with or without this check
 		if (oldSwapchain != VK_NULL_HANDLE)
 		{
 			vkDestroySwapchainKHR(m_Device.VulkanDevice(), oldSwapchain, nullptr);

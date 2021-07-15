@@ -1,4 +1,5 @@
 #pragma once
+#include <thirdparty/glm/glm.hpp>
 
 namespace Khan
 {

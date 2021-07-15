@@ -1,4 +1,5 @@
 #pragma once
+#include "core/camera/camera.h"
 #include "graphics/hal/constantbuffer.hpp"
 #include "graphics/passes/depthpasses.hpp"
 #include "graphics/passes/finalpasses.hpp"
@@ -9,7 +10,6 @@
 #include "graphics/posteffects/hdr.hpp"
 #include "graphics/resourceblackboard.hpp"
 #include "system/threadpool.hpp"
-#include <thirdparty/glm/glm.hpp>
 
 namespace Khan
 {
@@ -46,6 +46,12 @@ namespace Khan
 
 		inline std::vector<ShaderLightData>& GetActiveLightData() { return m_ActiveLightData; }
 
+		const Camera* GetActiveCamera() const { return m_ActiveCamera; }
+		void SetActiveCamera(const Camera* camera) { m_ActiveCamera = camera; }
+
+		ConstantBuffer& GetTiledDeferredDispatchParams() { return m_TiledDeferredDispatchParams; }
+		ConstantBuffer& GetScreenToViewParams() { return m_ScreenToViewParams; }
+
 		inline uint32_t GetScreenTileSize() const { return K_TILE_SIZE; }
 
 	private:
@@ -67,18 +73,17 @@ namespace Khan
 		ResourceBlackboard m_ResourceBlackboard;
 		ThreadPool m_ThreadPool;
 
-		std::vector<ShaderLightData> m_ActiveLightData;
-
 		std::vector<Mesh*> m_OpaqueMeshes;
 		//std::map<float, Mesh*> m_TransparentMeshes;
 
-		uint32_t m_ScreenWidth, m_ScreenHeight;
-		glm::mat4 m_ViewMatrix;
-		glm::mat4 m_ProjectionMatrix;
-		glm::mat4 m_InverseViewMatrix;
-		glm::mat4 m_InverseProjectionMatrix;
+		std::vector<ShaderLightData> m_ActiveLightData;
+
+		const Camera* m_ActiveCamera;
 
 		bool m_ScreenDimensionsChanged;
+
+		ConstantBuffer m_TiledDeferredDispatchParams;
+		ConstantBuffer m_ScreenToViewParams;
 
 		inline static constexpr uint32_t K_TILE_SIZE = 16;
 	};

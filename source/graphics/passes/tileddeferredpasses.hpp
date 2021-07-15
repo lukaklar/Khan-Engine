@@ -32,10 +32,6 @@ namespace Khan
 		BufferView* m_PerTileFrustums;
 
 		RenderPipelineState* m_PipelineState;
-
-		// TODO: Move these up to renderer so they can be shared between passes
-		ConstantBuffer m_DispatchParams;
-		ConstantBuffer m_ScreenToViewParams;
 	};
 
 	class LightCullingPass : public RenderPass
@@ -61,10 +57,6 @@ namespace Khan
 		TextureView* m_TransparentLightGrid;
 
 		RenderPipelineState* m_PipelineState;
-
-		// TODO: Move these up to renderer so they can be shared between passes
-		ConstantBuffer m_DispatchParams;
-		ConstantBuffer m_ScreenToViewParams;
 	};
 
 	class TiledDeferredLightingPass : public RenderPass
@@ -91,9 +83,5 @@ namespace Khan
 		TextureView* m_LightingResult;
 
 		RenderPipelineState* m_PipelineState;
-
-		// TODO: Move these up to renderer so they can be shared between passes
-		ConstantBuffer m_DispatchParams;
-		ConstantBuffer m_GBufferUnpackParams;
 	};
 }

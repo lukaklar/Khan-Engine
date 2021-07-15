@@ -337,7 +337,8 @@ namespace Khan
 
 	void RenderContext::UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size, uint32_t offset)
 	{
-
+		m_CommandType == CommandType::Update;
+		// TODO: Implement
 	}
 
 	void RenderContext::ResetFrame(uint32_t frameIndex)

@@ -14,6 +14,8 @@ namespace Khan
 {
 	Renderer::Renderer()
 		: m_ThreadPool(1)
+		, m_TiledDeferredDispatchParams(2 * sizeof(glm::vec4))
+		, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
 		, m_ScreenDimensionsChanged(true)
 	{
 	}
