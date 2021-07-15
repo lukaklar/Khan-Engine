@@ -5,6 +5,9 @@ namespace Khan
 	enum CommandType
 	{
 		Draw,
-		Dispatch
+		Dispatch,
+		//Copy,
+		Update,
+		//Query
 	};
 }

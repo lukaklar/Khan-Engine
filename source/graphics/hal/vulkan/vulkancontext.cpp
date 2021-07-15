@@ -335,6 +335,11 @@ namespace Khan
 		vkCmdDispatch(m_CommandBuffer, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 	}
 
+	void RenderContext::UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size, uint32_t offset)
+	{
+
+	}
+
 	void RenderContext::ResetFrame(uint32_t frameIndex)
 	{
 		m_CurrentFramebuffers = &m_Framebuffers[frameIndex];

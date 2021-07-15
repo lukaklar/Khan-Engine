@@ -14,7 +14,7 @@ namespace Khan
 {
 	Renderer::Renderer()
 		: m_ThreadPool(1)
-		, m_ScreenSizeChanged(true)
+		, m_ScreenDimensionsChanged(true)
 	{
 	}
 
@@ -26,7 +26,7 @@ namespace Khan
 	void Renderer::PreRender()
 	{
 		m_ResourceBlackboard.m_Persistent.m_FinalOutput = RenderBackend::g_Swapchain->GetCurrentBackBuffer();
-		// TODO: Possibly also perform frustum culling and node processing in general in a separate thread to pass scheduling and rendergraph compilation
+		
 		SchedulePasses();
 	}
 
@@ -44,7 +44,7 @@ namespace Khan
 	{
 		RenderGraph& rg = RenderBackend::g_Device->GetRenderGraph();
 
-		/*if (m_ScreenSizeChanged)
+		/*if (m_ScreenDimensionsChanged)
 		{
 			RecreateScreenFrustumBuffer();
 			rg.AddPass(m_TileFrustumCalculationPass);

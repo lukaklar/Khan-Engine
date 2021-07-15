@@ -22,6 +22,36 @@ m_GBuffer_##target = renderGraph.DeclareResourceDependency(temp, viewDesc, state
 
 namespace Khan
 {
+	LightDataUploadPass::LightDataUploadPass()
+		: RenderPass(QueueType_Copy, "LightDataUploadPass")
+	{
+	}
+
+	void LightDataUploadPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
+	{
+		BufferDesc desc;
+		desc.m_Size = static_cast<uint32_t>(renderer.GetActiveLightData().size());
+		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
+
+		Buffer* temp = renderGraph.CreateManagedResource(desc);
+		renderer.GetResourceBlackboard().m_Transient.m_ActiveSceneLights = temp;
+
+		BufferViewDesc viewDesc;
+		viewDesc.m_Offset = 0;
+		viewDesc.m_Range = desc.m_Size;
+		viewDesc.m_Format = PF_NONE;
+
+		m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_CopyDestination);
+	}
+
+	void LightDataUploadPass::Execute(RenderContext& context, Renderer& renderer)
+	{
+		std::vector<ShaderLightData>& lights = renderer.GetActiveLightData();
+		uint32_t sizeInBytes = static_cast<uint32_t>(lights.size() * sizeof(ShaderLightData));
+
+		context.UpdateBufferFromHost(&m_LightData->GetBuffer(), lights.data(), sizeInBytes);
+	}
+
 	TileFrustumCalculationPass::TileFrustumCalculationPass()
 		: RenderPass(QueueType_Compute, "TileFrustumCalculationPass")
 		, m_DispatchParams(2 * sizeof(glm::uvec4))
@@ -90,7 +120,7 @@ namespace Khan
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			m_PerTileFrustums = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
-			temp = renderer.GetResourceBlackboard().m_Persistent.m_SceneLights;
+			temp = renderer.GetResourceBlackboard().m_Transient.m_ActiveSceneLights;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
@@ -178,48 +208,69 @@ namespace Khan
 
 	void TiledDeferredLightingPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
-		Texture* temp;
+		{
+			Buffer* temp = renderer.GetResourceBlackboard().m_Transient.m_ActiveSceneLights;
 
-		TextureDesc desc;
-		desc.m_Type = TextureType_2D;
-		desc.m_Width = 1280;
-		desc.m_Height = 720;
-		desc.m_Depth = 1;
-		desc.m_ArrayLayers = 1;
-		desc.m_MipLevels = 1;
-		//desc.m_SampleCount;
-		desc.m_Format = PF_R16G16B16A16_FLOAT;
-		desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowRenderTarget | TextureFlag_AllowUnorderedAccess;
+			BufferViewDesc viewDesc;
+			viewDesc.m_Offset = 0;
+			viewDesc.m_Range = temp->GetDesc().m_Size;
+			viewDesc.m_Format = PF_NONE;
+			m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
-		temp = renderGraph.CreateManagedResource(desc);
-		KH_DEBUGONLY(temp->SetDebugName("LightAccumulationBuffer"));
-		renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer = temp;
+			// TODO: light grid and indices
+			temp = renderer.GetResourceBlackboard().m_Transient.m_OpaqueLightIndexList;
+			viewDesc.m_Range = temp->GetDesc().m_Size;
+			m_LightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+		}
 
-		TextureViewDesc viewDesc;
-		viewDesc.m_Type = TextureViewType_2D;
-		viewDesc.m_BaseArrayLayer = 0;
-		viewDesc.m_LayerCount = 1;
-		viewDesc.m_BaseMipLevel = 0;
-		viewDesc.m_LevelCount = 1;
+		{
+			Texture* temp;
 
-		DECLARE_GBUFFER_INPUT(Albedo, ResourceState_NonPixelShaderAccess);
-		DECLARE_GBUFFER_INPUT(Normals, ResourceState_NonPixelShaderAccess);
-		DECLARE_GBUFFER_INPUT(Emissive, ResourceState_NonPixelShaderAccess);
-		DECLARE_GBUFFER_INPUT(SpecularReflectance, ResourceState_NonPixelShaderAccess);
-		DECLARE_GBUFFER_INPUT(MetallicAndRoughness, ResourceState_NonPixelShaderAccess);
-		DECLARE_GBUFFER_INPUT(MotionVectors, ResourceState_NonPixelShaderAccess);
-		DECLARE_GBUFFER_INPUT(Depth, ResourceState_NonPixelShaderAccess);
+			TextureDesc desc;
+			desc.m_Type = TextureType_2D;
+			desc.m_Width = 1280;
+			desc.m_Height = 720;
+			desc.m_Depth = 1;
+			desc.m_ArrayLayers = 1;
+			desc.m_MipLevels = 1;
+			//desc.m_SampleCount;
+			desc.m_Format = PF_R16G16B16A16_FLOAT;
+			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowRenderTarget | TextureFlag_AllowUnorderedAccess;
 
-		// TODO: Will need a shadow map
+			temp = renderGraph.CreateManagedResource(desc);
+			KH_DEBUGONLY(temp->SetDebugName("LightAccumulationBuffer"));
+			renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer = temp;
 
-		viewDesc.m_Format = PF_R16G16B16A16_FLOAT;
-		m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer, viewDesc, ResourceState_UnorderedAccess);
+			TextureViewDesc viewDesc;
+			viewDesc.m_Type = TextureViewType_2D;
+			viewDesc.m_BaseArrayLayer = 0;
+			viewDesc.m_LayerCount = 1;
+			viewDesc.m_BaseMipLevel = 0;
+			viewDesc.m_LevelCount = 1;
+
+			DECLARE_GBUFFER_INPUT(Albedo, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(Normals, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(Emissive, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(SpecularReflectance, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(MetallicAndRoughness, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(MotionVectors, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(Depth, ResourceState_NonPixelShaderAccess);
+
+			temp = renderer.GetResourceBlackboard().m_Transient.m_OpaqueLightGrid;
+			viewDesc.m_Format = temp->GetDesc().m_Format;
+			m_LightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+
+			// TODO: Will need a shadow map
+
+			viewDesc.m_Format = PF_R16G16B16A16_FLOAT;
+			m_LightingResult = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer, viewDesc, ResourceState_UnorderedAccess);
+		}
 	}
 
 	void TiledDeferredLightingPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		uint32_t width = m_LightAccumulationBuffer->GetTexture().GetDesc().m_Width;
-		uint32_t height = m_LightAccumulationBuffer->GetTexture().GetDesc().m_Height;
+		uint32_t width = m_LightingResult->GetTexture().GetDesc().m_Width;
+		uint32_t height = m_LightingResult->GetTexture().GetDesc().m_Height;
 
 		glm::uvec3 numThreads(glm::ceil(width / 16), glm::ceil(height / 16), 1);
 		glm::uvec3 numThreadGroups(glm::ceil(numThreads.x / 16), glm::ceil(numThreads.y / 16), 1);

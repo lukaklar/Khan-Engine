@@ -3,10 +3,10 @@
 #include "graphics/passes/depthpasses.hpp"
 #include "graphics/passes/finalpasses.hpp"
 #include "graphics/passes/gbufferpasses.hpp"
+#include "graphics/passes/testpasses.hpp"
 #include "graphics/passes/tileddeferredpasses.hpp"
 #include "graphics/passes/transparentpasses.hpp"
 #include "graphics/posteffects/hdr.hpp"
-#include "graphics/passes/testpasses.hpp"
 #include "graphics/resourceblackboard.hpp"
 #include "system/threadpool.hpp"
 #include <thirdparty/glm/glm.hpp>
@@ -16,6 +16,17 @@ namespace Khan
 	class Buffer;
 	class BufferView;
 	class Mesh;
+
+	struct ShaderLightData
+	{
+		uint32_t m_Type;
+		glm::vec3 m_PositionVS;
+		glm::vec3 m_DirectionVS;
+		float m_Range;
+		glm::vec3 m_Color;
+		float m_Luminance;
+		float m_SpotlightAngle;
+	};
 
 	class Renderer
 	{
@@ -32,6 +43,8 @@ namespace Khan
 
 		inline std::vector<Mesh*>& GetOpaqueMeshes() { return m_OpaqueMeshes; }
 		//inline std::map<float, Mesh*>& GetTransparentMeshes() { return m_TransparentMeshes; }
+
+		inline std::vector<ShaderLightData>& GetActiveLightData() { return m_ActiveLightData; }
 
 		inline uint32_t GetScreenTileSize() const { return K_TILE_SIZE; }
 
@@ -54,6 +67,8 @@ namespace Khan
 		ResourceBlackboard m_ResourceBlackboard;
 		ThreadPool m_ThreadPool;
 
+		std::vector<ShaderLightData> m_ActiveLightData;
+
 		std::vector<Mesh*> m_OpaqueMeshes;
 		//std::map<float, Mesh*> m_TransparentMeshes;
 
@@ -63,7 +78,7 @@ namespace Khan
 		glm::mat4 m_InverseViewMatrix;
 		glm::mat4 m_InverseProjectionMatrix;
 
-		bool m_ScreenSizeChanged;
+		bool m_ScreenDimensionsChanged;
 
 		inline static constexpr uint32_t K_TILE_SIZE = 16;
 	};

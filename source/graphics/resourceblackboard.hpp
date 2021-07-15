@@ -10,14 +10,12 @@ namespace Khan
 		struct
 		{
 			Buffer* m_ScreenFrustums = nullptr;
-			// TODO: Create this in the renderer
-			Buffer* m_SceneLights = nullptr;
-
 			Texture* m_FinalOutput = nullptr;
 		} m_Persistent;
 
 		struct
 		{
+			Buffer* m_ActiveSceneLights = nullptr;
 			Buffer* m_OpaqueLightIndexList = nullptr;
 			Buffer* m_TransparentLightIndexList = nullptr;
 			Texture* m_OpaqueLightGrid = nullptr;

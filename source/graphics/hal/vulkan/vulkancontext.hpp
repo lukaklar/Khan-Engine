@@ -61,6 +61,10 @@ namespace Khan
 		void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ);
 		// TODO: DispatchIndirect
 
+		void UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size, uint32_t offset = 0);
+		// TODO: Create this function
+		//void UpdateTextureFromHost(Texture* dst, uint32_t width, uint32_t height, uint32_t depth, uint32_t texelSizeBytes, uint32_t mipLevel, uint32_t arrayLayer, const void* srcData, uint32_t size);
+
 		void ResetFrame(uint32_t frameIndex);
 
 	private:

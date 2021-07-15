@@ -8,6 +8,18 @@ namespace Khan
 	class BufferView;
 	class TextureView;
 
+	class LightDataUploadPass : public RenderPass
+	{
+	public:
+		LightDataUploadPass();
+
+		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
+		virtual void Execute(RenderContext& context, Renderer& renderer) override;
+
+	private:
+		BufferView* m_LightData;
+	};
+
 	class TileFrustumCalculationPass : public RenderPass
 	{
 	public:
@@ -64,6 +76,10 @@ namespace Khan
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
+		BufferView* m_LightIndexList;
+		BufferView* m_LightData;
+		TextureView* m_LightGrid;
+
 		TextureView* m_GBuffer_Albedo;
 		TextureView* m_GBuffer_Normals;
 		TextureView* m_GBuffer_Emissive;
@@ -72,7 +88,7 @@ namespace Khan
 		TextureView* m_GBuffer_MotionVectors;
 		TextureView* m_GBuffer_Depth;
 
-		TextureView* m_LightAccumulationBuffer;
+		TextureView* m_LightingResult;
 
 		RenderPipelineState* m_PipelineState;
 
