@@ -52,6 +52,7 @@ namespace Khan
 		m_PipelineStateManager.Create(m_Device);
 		m_TransientResourceManager.Create(m_MemoryManager.VulkanMemoryAllocator());
 		m_UniformBufferAllocator.Create(m_MemoryManager.VulkanMemoryAllocator());
+		m_UploadManager.Create(m_MemoryManager.VulkanMemoryAllocator());
 		m_SemaphoreAllocator.Create(m_Device);
 
 		// TODO: Create a couple of these (maybe equal to the number of CPU cores)
@@ -66,6 +67,7 @@ namespace Khan
 		}
 
 		m_SemaphoreAllocator.Destroy();
+		m_UploadManager.Destroy();
 		m_UniformBufferAllocator.Destroy(m_MemoryManager.VulkanMemoryAllocator());
 		m_PipelineStateManager.Destroy(m_Device);
 		m_PhysicalRenderPassManager.Destroy(m_Device);

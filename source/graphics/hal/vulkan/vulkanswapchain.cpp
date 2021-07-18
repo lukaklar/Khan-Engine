@@ -17,7 +17,7 @@ namespace Khan
 		, m_FrameIndex(0)
 	{
 		// TODO: Remove these hardcoded values
-		CreateSwapchain(1280, 720, true, false);
+		CreateSwapchain(1280, 720, false, false);
 		CreateSynchronizationPrimitives();
 
 		VK_ASSERT(vkAcquireNextImageKHR(m_Device.VulkanDevice(), m_Swapchain, UINT64_MAX, m_PresentCompleteSemaphores[m_FrameIndex], VK_NULL_HANDLE, &m_CurrentImageIndex), "Failed to acquire next image.");

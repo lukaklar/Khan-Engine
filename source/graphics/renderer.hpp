@@ -62,6 +62,7 @@ namespace Khan
 
 		DepthPrePass m_DepthPrePass;
 		GBufferPass m_GBufferPass;
+		LightDataUploadPass m_LightDataUploadPass;
 		TileFrustumCalculationPass m_TileFrustumCalculationPass;
 		LightCullingPass m_LightCullingPass;
 		TiledDeferredLightingPass m_TiledDeferredLightingPass;

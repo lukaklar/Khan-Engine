@@ -4,6 +4,7 @@
 #include "system/window.hpp"
 #include "graphics/hal/renderbackend.hpp"
 #include <chrono>
+#include <string>
 
 namespace Khan
 {
@@ -25,6 +26,7 @@ namespace Khan
 			timer += elapsed_seconds.count();
 			if (timer > 1.0)
 			{
+				OutputDebugString((std::to_string(frames) + "\n").c_str());
 				timer = 0.0;
 				frames = 0;
 			}

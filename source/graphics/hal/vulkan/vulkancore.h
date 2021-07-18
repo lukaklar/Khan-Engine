@@ -7,6 +7,7 @@ do\
 	if (call != VK_SUCCESS)\
 	{\
 		MessageBox(NULL, message, "Error!", MB_ICONERROR);\
+		__debugbreak();\
 		exit(-1);\
 	}\
 } while (0)

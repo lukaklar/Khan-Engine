@@ -3,13 +3,14 @@
 #ifdef KH_GFXAPI_VULKAN
 
 #include "graphics/hal/queuetype.hpp"
-#include "graphics/rendergraph.hpp"
 #include "graphics/hal/vulkan/vulkandevicememorymanager.hpp"
 #include "graphics/hal/vulkan/vulkanphysicalrenderpassmanager.hpp"
 #include "graphics/hal/vulkan/vulkanpipelinestatemanager.hpp"
 #include "graphics/hal/vulkan/vulkansemaphoreallocator.hpp"
 #include "graphics/hal/vulkan/vulkantransientresourcemanager.hpp"
 #include "graphics/hal/vulkan/vulkanuniformbufferallocator.hpp"
+#include "graphics/hal/vulkan/vulkanuploadmanager.hpp"
+#include "graphics/rendergraph.hpp"
 
 namespace Khan
 {
@@ -77,6 +78,7 @@ namespace Khan
 		VulkanPhysicalRenderPassManager m_PhysicalRenderPassManager;
 		VulkanPipelineStateManager m_PipelineStateManager;
 		VulkanUniformBufferAllocator m_UniformBufferAllocator;
+		VulkanUploadManager m_UploadManager;
 		VulkanSemaphoreAllocator m_SemaphoreAllocator;
 
 		RenderGraph m_RenderGraph;

@@ -335,10 +335,21 @@ namespace Khan
 		vkCmdDispatch(m_CommandBuffer, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 	}
 
-	void RenderContext::UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size, uint32_t offset)
+	void RenderContext::UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size)
 	{
-		m_CommandType == CommandType::Update;
-		// TODO: Implement
+		m_CommandType = CommandType::Update;
+		
+		m_Device.m_UploadManager.Upload(src, size);
+
+		VulkanBuffer* buffer = reinterpret_cast<VulkanBuffer*>(dst);
+
+		m_BarrierRecorder.RecordBarrier(*buffer, ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
+		m_BarrierRecorder.Flush(m_CommandBuffer);
+
+		VkBufferCopy copy = {};
+		copy.size = size;
+		
+		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), buffer->GetVulkanBuffer(), 1, &copy);
 	}
 
 	void RenderContext::ResetFrame(uint32_t frameIndex)
@@ -416,7 +427,6 @@ namespace Khan
 				}
 			}
 		}
-
 	}
 
 	inline void RenderContext::BindResources()
