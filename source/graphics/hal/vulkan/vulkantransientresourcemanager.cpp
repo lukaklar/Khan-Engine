@@ -58,7 +58,7 @@ namespace Khan
 		return value;
 	}
 
-	BufferView* VulkanTransientResourceManager::FindOrCreateBufferView(const RenderPass* pass, Buffer* buffer, const BufferViewDesc& desc)
+	BufferView* VulkanTransientResourceManager::FindOrCreateBufferView(Buffer* buffer, const BufferViewDesc& desc)
 	{
 		VkBufferView bufferView;
 
@@ -123,7 +123,7 @@ namespace Khan
 		return value;
 	}
 
-	TextureView* VulkanTransientResourceManager::FindOrCreateTextureView(const RenderPass* pass, Texture* texture, const TextureViewDesc& desc)
+	TextureView* VulkanTransientResourceManager::FindOrCreateTextureView(Texture* texture, const TextureViewDesc& desc)
 	{
 		VkImageView imageView;
 

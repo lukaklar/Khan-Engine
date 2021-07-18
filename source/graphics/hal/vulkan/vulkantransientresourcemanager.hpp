@@ -19,9 +19,9 @@ namespace Khan
 		void Destroy();
 
 		virtual Buffer* FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc) override;
-		virtual BufferView* FindOrCreateBufferView(const RenderPass* pass, Buffer* buffer, const BufferViewDesc& desc) override;
+		virtual BufferView* FindOrCreateBufferView(Buffer* buffer, const BufferViewDesc& desc) override;
 		virtual Texture* FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc) override;
-		virtual TextureView* FindOrCreateTextureView(const RenderPass* pass, Texture* texture, const TextureViewDesc& desc) override;
+		virtual TextureView* FindOrCreateTextureView(Texture* texture, const TextureViewDesc& desc) override;
 
 		void ResetFrame(uint32_t frameIndex);
 

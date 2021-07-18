@@ -40,9 +40,9 @@ namespace Khan
         }
 
         virtual Buffer* FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc) = 0;
-        virtual BufferView* FindOrCreateBufferView(const RenderPass* pass, Buffer* buffer, const BufferViewDesc& desc) = 0;
+        virtual BufferView* FindOrCreateBufferView(Buffer* buffer, const BufferViewDesc& desc) = 0;
         virtual Texture* FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc) = 0;
-        virtual TextureView* FindOrCreateTextureView(const RenderPass* pass, Texture* texture, const TextureViewDesc& desc) = 0;
+        virtual TextureView* FindOrCreateTextureView(Texture* texture, const TextureViewDesc& desc) = 0;
 
         inline RenderDevice& GetDevice() const { return m_Device; }
 

@@ -93,7 +93,7 @@ namespace Khan
 
 	BufferView* RenderGraph::DeclareResourceDependency(Buffer* buffer, const BufferViewDesc& desc, ResourceState startState, ResourceState endState, bool keepContent)
 	{
-		BufferView* view = m_TransientResourceManager->FindOrCreateBufferView(m_ActivePassNode.first, buffer, desc);		
+		BufferView* view = m_TransientResourceManager->FindOrCreateBufferView(buffer, desc);		
 		uint64_t resourceID = pair_hash{}(std::pair(buffer, desc));
 
 		Node* node = m_ActivePassNode.second;
@@ -124,7 +124,7 @@ namespace Khan
 
 	TextureView* RenderGraph::DeclareResourceDependency(Texture* texture, const TextureViewDesc& desc, ResourceState startState, ResourceState endState, bool keepContent)
 	{
-		TextureView* view = m_TransientResourceManager->FindOrCreateTextureView(m_ActivePassNode.first, texture, desc);
+		TextureView* view = m_TransientResourceManager->FindOrCreateTextureView(texture, desc);
 		uint64_t resourceID = pair_hash{}(std::pair(texture, desc));
 
 		Node* node = m_ActivePassNode.second;
