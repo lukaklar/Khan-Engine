@@ -56,6 +56,8 @@ namespace Khan
 		m_Lock.unlock();
 
 		std::memcpy(m_CurrentStagingBuffer->m_MappedMemory + startOffset, src, size);
+
+		return startOffset;
 	}
 
 	KH_FORCE_INLINE void VulkanUploadManager::ResetFrame(uint32_t frameIndex)

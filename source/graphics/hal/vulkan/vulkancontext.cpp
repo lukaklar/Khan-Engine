@@ -339,14 +339,16 @@ namespace Khan
 	{
 		m_CommandType = CommandType::Update;
 		
-		m_Device.m_UploadManager.Upload(src, size);
+		uint32_t offset = m_Device.m_UploadManager.Upload(src, size);
 
 		VulkanBuffer* buffer = reinterpret_cast<VulkanBuffer*>(dst);
 
 		m_BarrierRecorder.RecordBarrier(*buffer, ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
 		m_BarrierRecorder.Flush(m_CommandBuffer);
 
-		VkBufferCopy copy = {};
+		VkBufferCopy copy;
+		copy.srcOffset = offset;
+		copy.dstOffset = 0;
 		copy.size = size;
 		
 		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), buffer->GetVulkanBuffer(), 1, &copy);
