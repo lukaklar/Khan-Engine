@@ -52,11 +52,11 @@ project "Graphics"
 	}
 
 	links {
-		"../../../extern/VulkanSDK/Lib/vulkan-1.lib"
+		"../../../extern/windows/VulkanSDK/Lib/vulkan-1.lib"
 	}
 
 	includedirs {
-		"../../../extern/VulkanSDK/Include"
+		"../../../extern/windows/VulkanSDK/Include"
 	}
 
 	filter "configurations:Debug"
