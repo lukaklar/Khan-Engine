@@ -2,6 +2,8 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "system/assert.h"
+
 // TODO: Move this to core somewhere
 #define KH_ALIGN(num, alignment) ((num + alignment - 1) & ~(alignment - 1))
 
@@ -62,8 +64,13 @@ namespace Khan
 
 	KH_FORCE_INLINE void VulkanUploadManager::ResetFrame(uint32_t frameIndex)
 	{
+		if (m_CurrentStagingBuffer != nullptr)
+		{
+			m_UsedStagingBuffers[m_CurrentFrameIndex].push_back(m_CurrentStagingBuffer);
+			m_CurrentStagingBuffer = nullptr;
+		}
 		m_CurrentFrameIndex = frameIndex;
-		m_CurrentStagingBuffer = nullptr;
+		
 		for (StagingBuffer* stagingBuffer : m_UsedStagingBuffers[frameIndex])
 		{
 			stagingBuffer->m_Offset = 0;
@@ -74,6 +81,7 @@ namespace Khan
 
 	KH_FORCE_INLINE VkBuffer VulkanUploadManager::CurrentBuffer() const
 	{
+		KH_ASSERT(m_CurrentStagingBuffer != nullptr, "Staging buffer was nullptr at the time of request.");
 		return m_CurrentStagingBuffer->m_Buffer;
 	}
 }
