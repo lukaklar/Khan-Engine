@@ -57,10 +57,9 @@ namespace Khan
         uint32_t m_TexturePoolIndex = 0;
         uint32_t m_TextureViewPoolIndex[K_MAX_FRAMES_IN_FLIGHT] = {};
 
-        //std::unordered_map<std::pair<const RenderPass*, BufferDesc>, Buffer*, pair_hash> m_DescToBufferMap;
-        std::unordered_map<std::pair<const RenderPass*, std::pair<Buffer*, BufferViewDesc>>, BufferView*, double_pair_hash> m_DescToBufferViewMap;
-        //std::unordered_map<std::pair<const RenderPass*, TextureDesc>, Texture*, pair_hash> m_DescToTextureMap;
-        std::unordered_map<std::pair<const RenderPass*, std::pair<Texture*, TextureViewDesc>>, TextureView*, double_pair_hash> m_DescToTextureViewMap;
+        std::unordered_map<std::pair<const RenderPass*, BufferDesc>, Buffer*, pair_hash> m_DescToBufferMap;
+        std::unordered_map<std::pair<const RenderPass*, TextureDesc>, Texture*, pair_hash> m_DescToTextureMap;
+        
 
         RenderDevice& m_Device;
 	};

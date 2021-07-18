@@ -31,6 +31,9 @@ namespace Khan
 		VulkanBuffer m_BufferPool[K_BUFFER_POOL_SIZE];
 		VulkanTexture m_TexturePool[K_TEXTURE_POOL_SIZE];
 
+		std::unordered_map<std::pair<Buffer*, BufferViewDesc>, VkBufferView, pair_hash> m_BufferViewMap;
+		std::unordered_map<std::pair<Texture*, TextureViewDesc>, VkImageView, pair_hash> m_ImageViewMap;
+
 		VulkanBuffer m_DummyBufferPool[K_MAX_FRAMES_IN_FLIGHT][K_BUFFER_VIEW_POOL_SIZE];
 		VulkanBufferView m_BufferViewPool[K_MAX_FRAMES_IN_FLIGHT][K_BUFFER_VIEW_POOL_SIZE];
 		VulkanTexture m_DummyTexturePool[K_MAX_FRAMES_IN_FLIGHT][K_TEXTURE_VIEW_POOL_SIZE];

@@ -27,6 +27,14 @@ namespace Khan
 	{
 		m_CommandPools[0].Destroy();
 		m_CommandPools[1].Destroy();
+
+		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			for (VkFramebuffer framebuffer : m_Framebuffers[i])
+			{
+				vkDestroyFramebuffer(m_Device.VulkanDevice(), framebuffer, nullptr);
+			}
+		}
 	}
 
 	void RenderContext::BeginRecording(const RenderPass& pass)

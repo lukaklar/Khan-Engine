@@ -69,6 +69,7 @@ namespace Khan
 		m_SemaphoreAllocator.Destroy();
 		m_UploadManager.Destroy();
 		m_UniformBufferAllocator.Destroy(m_MemoryManager.VulkanMemoryAllocator());
+		m_TransientResourceManager.Destroy();
 		m_PipelineStateManager.Destroy(m_Device);
 		m_PhysicalRenderPassManager.Destroy(m_Device);
 		m_MemoryManager.Destroy();

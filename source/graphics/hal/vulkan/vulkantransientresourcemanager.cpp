@@ -20,49 +20,82 @@ namespace Khan
 
 	void VulkanTransientResourceManager::Destroy()
 	{
+		for (auto& it : m_BufferViewMap)
+		{
+			vkDestroyBufferView(m_Device.VulkanDevice(), it.second, nullptr);
+		}
+
+		for (auto& it : m_ImageViewMap)
+		{
+			vkDestroyImageView(m_Device.VulkanDevice(), it.second, nullptr);
+		}
 	}
 
 	Buffer* VulkanTransientResourceManager::FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc)
 	{
-		/*std::pair key(pass, desc);
+		std::pair key(pass, desc);
 		auto it = m_DescToBufferMap.find(key);
 		if (it != m_DescToBufferMap.end())
 		{
 			return it->second;
-		}*/
+		}
+
+		VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+		bufferInfo.size = desc.m_Size;
+		bufferInfo.usage = BufferFlagsToVulkanBufferUsageFlags(desc.m_Flags);
+
+		VmaAllocationCreateInfo allocInfo = {};
+		allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+
+		VkBuffer buffer;
+		VmaAllocation allocation;
+		VK_ASSERT(vmaCreateBuffer(m_Allocator, &bufferInfo, &allocInfo, &buffer, &allocation, nullptr), "[VULKAN] Failed to create buffer.");
 
 		KH_ASSERT(m_BufferPoolIndex < K_BUFFER_POOL_SIZE, "Buffer pool too small, you should increase its size.");
-		Buffer* value = new(&m_BufferPool[m_BufferPoolIndex++])VulkanBuffer(VK_NULL_HANDLE, nullptr, desc);
-		//m_DescToBufferMap.insert({ key, value });
+		Buffer* value = new(&m_BufferPool[m_BufferPoolIndex++])VulkanBuffer(buffer, allocation, desc);
+		m_DescToBufferMap.insert({ key, value });
 
 		return value;
 	}
 
 	BufferView* VulkanTransientResourceManager::FindOrCreateBufferView(const RenderPass* pass, Buffer* buffer, const BufferViewDesc& desc)
 	{
-		std::pair<const RenderPass*, std::pair<Buffer*, BufferViewDesc>> key(pass, { buffer, desc });
-		auto it = m_DescToBufferViewMap.find(key);
-		if (it != m_DescToBufferViewMap.end())
+		VkBufferView bufferView;
+
+		std::pair key(buffer, desc);
+		auto it = m_BufferViewMap.find(key);
+		if (it != m_BufferViewMap.end())
 		{
-			return it->second;
+			bufferView = it->second;
+		}
+		else
+		{
+			VkBufferViewCreateInfo viewInfo = { VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO };
+			viewInfo.buffer = reinterpret_cast<VulkanBuffer*>(buffer)->GetVulkanBuffer();
+			viewInfo.format = PixelFormatToVulkanFormat(desc.m_Format);
+			viewInfo.offset = desc.m_Offset;
+			viewInfo.range = desc.m_Range;
+
+			VK_ASSERT(vkCreateBufferView(m_Device.VulkanDevice(), &viewInfo, nullptr, &bufferView), "[VULKAN] Failed to create buffer view.");
+
+			m_BufferViewMap.insert({ key, bufferView });
 		}
 
 		KH_ASSERT(m_BufferViewPoolIndex[m_CurrentFrameIndex] < K_BUFFER_VIEW_POOL_SIZE, "Buffer view pool too small, you should increase its size.");
 		VulkanBuffer* dummyBuffer = new(&m_DummyBufferPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]])VulkanBuffer(*reinterpret_cast<VulkanBuffer*>(buffer));
-		VulkanBufferView* value = new(&m_BufferViewPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]++])VulkanBufferView(VK_NULL_HANDLE, *dummyBuffer, desc);
-		m_DescToBufferViewMap.insert({ key, value });
+		VulkanBufferView* view = new(&m_BufferViewPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]++])VulkanBufferView(VK_NULL_HANDLE, *dummyBuffer, desc);
 
-		return value;
+		return view;
 	}
 
 	Texture* VulkanTransientResourceManager::FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc)
 	{
-		/*std::pair key(pass, desc);
+		std::pair key(pass, desc);
 		auto it = m_DescToTextureMap.find(key);
 		if (it != m_DescToTextureMap.end())
 		{
 			return it->second;
-		}*/
+		}
 
 		VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
 		imageInfo.flags = desc.m_Flags & TextureFlag_CubeMap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
@@ -85,39 +118,43 @@ namespace Khan
 
 		KH_ASSERT(m_TexturePoolIndex < K_TEXTURE_POOL_SIZE, "Texture pool too small, you should increase its size.");
 		VulkanTexture* value = new(&m_TexturePool[m_TexturePoolIndex++])VulkanTexture(image, allocation, desc);
-		//m_DescToTextureMap.insert({ key, value });
+		m_DescToTextureMap.insert({ key, value });
 
 		return value;
 	}
 
 	TextureView* VulkanTransientResourceManager::FindOrCreateTextureView(const RenderPass* pass, Texture* texture, const TextureViewDesc& desc)
 	{
-		/*std::pair<const RenderPass*, std::pair<Texture*, TextureViewDesc>> key(pass, { texture, desc });
-		auto it = m_DescToTextureViewMap.find(key);
-		if (it != m_DescToTextureViewMap.end())
-		{
-			return it->second;
-		}*/
-
-		VkImageViewCreateInfo viewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-		viewInfo.image = reinterpret_cast<VulkanTexture*>(texture)->VulkanImage();
-		viewInfo.viewType = TextureViewTypeToVulkanImageViewType(desc.m_Type);
-		viewInfo.format = PixelFormatToVulkanFormat(desc.m_Format);
-		viewInfo.subresourceRange.aspectMask = PixelFormatToVulkanAspectMask(desc.m_Format);
-		viewInfo.subresourceRange.baseMipLevel = desc.m_BaseMipLevel;
-		viewInfo.subresourceRange.levelCount = desc.m_LevelCount;
-		viewInfo.subresourceRange.baseArrayLayer = desc.m_BaseArrayLayer;
-		viewInfo.subresourceRange.layerCount = desc.m_LayerCount;
-
 		VkImageView imageView;
-		VK_ASSERT(vkCreateImageView(m_Device.VulkanDevice(), &viewInfo, nullptr, &imageView), "[VULKAN] Failed to create image view.");
-		ResourceState s = texture->GetState();
+
+		std::pair key(texture, desc);
+		auto it = m_ImageViewMap.find(key);
+		if (it != m_ImageViewMap.end())
+		{
+			imageView = it->second;
+		}
+		else
+		{
+			VkImageViewCreateInfo viewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+			viewInfo.image = reinterpret_cast<VulkanTexture*>(texture)->VulkanImage();
+			viewInfo.viewType = TextureViewTypeToVulkanImageViewType(desc.m_Type);
+			viewInfo.format = PixelFormatToVulkanFormat(desc.m_Format);
+			viewInfo.subresourceRange.aspectMask = PixelFormatToVulkanAspectMask(desc.m_Format);
+			viewInfo.subresourceRange.baseMipLevel = desc.m_BaseMipLevel;
+			viewInfo.subresourceRange.levelCount = desc.m_LevelCount;
+			viewInfo.subresourceRange.baseArrayLayer = desc.m_BaseArrayLayer;
+			viewInfo.subresourceRange.layerCount = desc.m_LayerCount;
+
+			VK_ASSERT(vkCreateImageView(m_Device.VulkanDevice(), &viewInfo, nullptr, &imageView), "[VULKAN] Failed to create image view.");
+
+			m_ImageViewMap.insert({ key, imageView });
+		}
+		
 		KH_ASSERT(m_TextureViewPoolIndex[m_CurrentFrameIndex] < K_TEXTURE_VIEW_POOL_SIZE, "Texture view pool too small, you should increase its size.");
 		VulkanTexture* dummyTexture = new(&m_DummyTexturePool[m_CurrentFrameIndex][m_TextureViewPoolIndex[m_CurrentFrameIndex]])VulkanTexture(*reinterpret_cast<VulkanTexture*>(texture));
-		VulkanTextureView* value = new(&m_TextureViewPool[m_CurrentFrameIndex][m_TextureViewPoolIndex[m_CurrentFrameIndex]++])VulkanTextureView(imageView, *dummyTexture, desc);
-		//m_DescToTextureViewMap.insert({ key, value });
+		VulkanTextureView* view = new(&m_TextureViewPool[m_CurrentFrameIndex][m_TextureViewPoolIndex[m_CurrentFrameIndex]++])VulkanTextureView(imageView, *dummyTexture, desc);
 
-		return value;
+		return view;
 	}
 
 	void VulkanTransientResourceManager::ResetFrame(uint32_t frameIndex)
@@ -126,7 +163,6 @@ namespace Khan
 
 		for (uint32_t i = 0; i < m_BufferViewPoolIndex[frameIndex]; ++i)
 		{
-			vkDestroyBufferView(m_Device.VulkanDevice(), m_BufferViewPool[frameIndex][i].GetVulkanBufferView(), nullptr);
 			m_DummyBufferPool[frameIndex][i].~VulkanBuffer();
 			m_BufferViewPool[frameIndex][i].~VulkanBufferView();
 		}
@@ -141,7 +177,6 @@ namespace Khan
 
 		for (uint32_t i = 0; i < m_TextureViewPoolIndex[frameIndex]; ++i)
 		{
-			vkDestroyImageView(m_Device.VulkanDevice(), m_TextureViewPool[frameIndex][i].VulkanImageView(), nullptr);
 			m_DummyTexturePool[frameIndex][i].~VulkanTexture();
 			m_TextureViewPool[frameIndex][i].~VulkanTextureView();
 		}
