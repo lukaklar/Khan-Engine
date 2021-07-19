@@ -27,13 +27,13 @@ namespace Khan
 	{
 		TextureViewDesc viewDesc;
 		viewDesc.m_Type = TextureViewType_2D;
-		viewDesc.m_Format = renderer.GetResourceBlackboard().m_Persistent.m_FinalOutput->GetDesc().m_Format;
+		viewDesc.m_Format = renderer.GetResourceBoard().m_Persistent.m_FinalOutput->GetDesc().m_Format;
 		viewDesc.m_BaseArrayLayer = 0;
 		viewDesc.m_LayerCount = 1;
 		viewDesc.m_BaseMipLevel = 0;
 		viewDesc.m_LevelCount = 1;
 
-		m_FinalOutput = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Persistent.m_FinalOutput, viewDesc, ResourceState_Present);
+		m_FinalOutput = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Persistent.m_FinalOutput, viewDesc, ResourceState_Present);
 	}
 
 	void FinalPass::Execute(RenderContext& context, Renderer& renderer)

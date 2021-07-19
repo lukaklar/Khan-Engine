@@ -27,7 +27,7 @@ namespace Khan
 
 	void Renderer::PreRender()
 	{
-		m_ResourceBlackboard.m_Persistent.m_FinalOutput = RenderBackend::g_Swapchain->GetCurrentBackBuffer();
+		m_ResourceBoard.m_Persistent.m_FinalOutput = RenderBackend::g_Swapchain->GetCurrentBackBuffer();
 		
 		SchedulePasses();
 	}
@@ -74,14 +74,14 @@ namespace Khan
 		BufferDesc desc;
 		desc.m_Size = 4 * 4 * sizeof(float) * Window::g_Width / K_TILE_SIZE * Window::g_Height / K_TILE_SIZE;
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
-		m_ResourceBlackboard.m_Persistent.m_ScreenFrustums = RenderBackend::g_Device->CreateBuffer(desc);
+		m_ResourceBoard.m_Persistent.m_ScreenFrustums = RenderBackend::g_Device->CreateBuffer(desc);
 	}
 
 	inline void Renderer::DestroyScreenFrustumBuffer()
 	{
-		if (m_ResourceBlackboard.m_Persistent.m_ScreenFrustums)
+		if (m_ResourceBoard.m_Persistent.m_ScreenFrustums)
 		{
-			RenderBackend::g_Device->DestroyBuffer(m_ResourceBlackboard.m_Persistent.m_ScreenFrustums);
+			RenderBackend::g_Device->DestroyBuffer(m_ResourceBoard.m_Persistent.m_ScreenFrustums);
 		}
 	}
 }

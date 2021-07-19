@@ -37,11 +37,11 @@ namespace Khan
 		viewDesc.m_BaseMipLevel = 0;
 		viewDesc.m_LevelCount = 1;
 
-		viewDesc.m_Format = renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer->GetDesc().m_Format;
-		m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Transient.m_LightAccumulationBuffer, viewDesc, ResourceState_NonPixelShaderAccess);
+		viewDesc.m_Format = renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer->GetDesc().m_Format;
+		m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer, viewDesc, ResourceState_NonPixelShaderAccess);
 
-		viewDesc.m_Format = renderer.GetResourceBlackboard().m_Persistent.m_FinalOutput->GetDesc().m_Format;
-		m_FinalOutput = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Persistent.m_FinalOutput, viewDesc, ResourceState_UnorderedAccess);
+		viewDesc.m_Format = renderer.GetResourceBoard().m_Persistent.m_FinalOutput->GetDesc().m_Format;
+		m_FinalOutput = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Persistent.m_FinalOutput, viewDesc, ResourceState_UnorderedAccess);
 	}
 
 	void HDRPass::Execute(RenderContext& context, Renderer& renderer)

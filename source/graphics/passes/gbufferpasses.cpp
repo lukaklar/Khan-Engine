@@ -20,7 +20,7 @@
 desc.m_Format = format;\
 temp = renderGraph.CreateManagedResource(desc);\
 KH_DEBUGONLY(temp->SetDebugName(#target);)\
-renderer.GetResourceBlackboard().m_Transient.m_GBuffer.m_##target = temp;\
+renderer.GetResourceBoard().m_Transient.m_GBuffer.m_##target = temp;\
 viewDesc.m_Format = format;\
 m_GBuffer_##target = renderGraph.DeclareResourceDependency(temp, viewDesc, state);
 
@@ -86,7 +86,7 @@ namespace Khan
 		DECLARE_GBUFFER_OUTPUT(MotionVectors, PF_R16G16_FLOAT, ResourceState_RenderTarget);
 		
 		viewDesc.m_Format = PF_D32_FLOAT;
-		m_GBuffer_Depth = renderGraph.DeclareResourceDependency(renderer.GetResourceBlackboard().m_Transient.m_GBuffer.m_Depth, viewDesc, ResourceState_DepthWriteStencilWrite);
+		m_GBuffer_Depth = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth, viewDesc, ResourceState_DepthWriteStencilWrite);
 	}
 
 	void GBufferPass::Execute(RenderContext& context, Renderer& renderer)

@@ -8,7 +8,7 @@
 #include "graphics/passes/tileddeferredpasses.hpp"
 #include "graphics/passes/transparentpasses.hpp"
 #include "graphics/posteffects/hdr.hpp"
-#include "graphics/resourceblackboard.hpp"
+#include "graphics/resourceboard.hpp"
 #include "system/threadpool.hpp"
 
 namespace Khan
@@ -38,7 +38,7 @@ namespace Khan
 		void Render();
 		void PostRender();
 
-		inline ResourceBlackboard& GetResourceBlackboard() { return m_ResourceBlackboard; }
+		inline ResourceBoard& GetResourceBoard() { return m_ResourceBoard; }
 		inline ThreadPool& GetThreadPool() { return m_ThreadPool; }
 
 		inline std::vector<Mesh*>& GetOpaqueMeshes() { return m_OpaqueMeshes; }
@@ -71,7 +71,7 @@ namespace Khan
 		TestPass m_TestPass;
 		FinalPass m_FinalPass;
 
-		ResourceBlackboard m_ResourceBlackboard;
+		ResourceBoard m_ResourceBoard;
 		ThreadPool m_ThreadPool;
 
 		std::vector<Mesh*> m_OpaqueMeshes;

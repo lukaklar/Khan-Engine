@@ -5,7 +5,7 @@ namespace Khan
 	class Buffer;
 	class Texture;
 
-	struct ResourceBlackboard
+	struct ResourceBoard
 	{
 		struct
 		{
