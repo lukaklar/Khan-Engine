@@ -20,6 +20,37 @@ namespace Khan
 
 	void VulkanTransientResourceManager::Destroy()
 	{
+		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			for (uint32_t j = 0; j < m_BufferViewPoolIndex[i]; ++j)
+			{
+				m_DummyBufferPool[i][j].~VulkanBuffer();
+				m_BufferViewPool[i][j].~VulkanBufferView();
+			}
+			m_BufferViewPoolIndex[i] = 0;
+
+			for (uint32_t j = 0; j < m_TextureViewPoolIndex[i]; ++j)
+			{
+				m_DummyTexturePool[i][j].~VulkanTexture();
+				m_TextureViewPool[i][j].~VulkanTextureView();
+			}
+			m_TextureViewPoolIndex[i] = 0;
+		}
+
+		for (uint32_t i = 0; i < m_BufferPoolIndex; ++i)
+		{
+			vmaDestroyBuffer(m_Allocator, m_BufferPool[i].GetVulkanBuffer(), m_BufferPool[i].VulkanAllocation());
+			m_BufferPool[i].~VulkanBuffer();
+		}
+		m_BufferPoolIndex = 0;
+
+		for (uint32_t i = 0; i < m_TexturePoolIndex; ++i)
+		{
+			vmaDestroyImage(m_Allocator, m_TexturePool[i].VulkanImage(), m_TexturePool[i].VulkanAllocation());
+			m_TexturePool[i].~VulkanTexture();
+		}
+		m_TexturePoolIndex = 0;
+
 		for (auto& it : m_BufferViewMap)
 		{
 			vkDestroyBufferView(m_Device.VulkanDevice(), it.second, nullptr);
@@ -168,12 +199,12 @@ namespace Khan
 		}
 		m_BufferViewPoolIndex[frameIndex] = 0;
 
-		for (uint32_t i = 0; i < m_BufferPoolIndex; ++i)
+		/*for (uint32_t i = 0; i < m_BufferPoolIndex; ++i)
 		{
 			vmaDestroyBuffer(m_Allocator, m_BufferPool[i].GetVulkanBuffer(), m_BufferPool[i].VulkanAllocation());
 			m_BufferPool[i].~VulkanBuffer();
 		}
-		m_BufferPoolIndex = 0;
+		m_BufferPoolIndex = 0;*/
 
 		for (uint32_t i = 0; i < m_TextureViewPoolIndex[frameIndex]; ++i)
 		{
@@ -182,12 +213,12 @@ namespace Khan
 		}
 		m_TextureViewPoolIndex[frameIndex] = 0;
 
-		for (uint32_t i = 0; i < m_TexturePoolIndex; ++i)
+		/*for (uint32_t i = 0; i < m_TexturePoolIndex; ++i)
 		{
 			vmaDestroyImage(m_Allocator, m_TexturePool[i].VulkanImage(), m_TexturePool[i].VulkanAllocation());
 			m_TexturePool[i].~VulkanTexture();
 		}
-		m_TexturePoolIndex = 0;
+		m_TexturePoolIndex = 0;*/
 	}
 }
 
