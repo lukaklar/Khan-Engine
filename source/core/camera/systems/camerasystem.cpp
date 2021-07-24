@@ -21,6 +21,8 @@ namespace Khan
 
 		if (!camera) return;
 
+		// TODO: Update the camera
+
 		for (Entity* entity : m_World.GetEntities())
 		{
 			entity->SetInFrustum(!camera->GetFrustum().Cull(entity->GetBoundingVolume()));
