@@ -3,6 +3,7 @@
 #include "graphics/hal/config.h"
 #include "graphics/hal/pixelformats.hpp"
 #include "system/assert.h"
+#include <thirdparty/glm/glm.hpp>
 
 namespace Khan
 {

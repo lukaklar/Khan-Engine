@@ -40,6 +40,7 @@ namespace Khan
 	void Renderer::PostRender()
 	{
 		RenderBackend::g_Swapchain->Flip();
+		// TODO: Clear transient and opaque resource lists
 	}
 
 	inline void Renderer::SchedulePasses()

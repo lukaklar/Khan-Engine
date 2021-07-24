@@ -1,5 +1,5 @@
 #pragma once
-#include "core/camera/camera.h"
+#include "core/camera/camera.hpp"
 #include "graphics/hal/constantbuffer.hpp"
 #include "graphics/passes/depthpasses.hpp"
 #include "graphics/passes/finalpasses.hpp"

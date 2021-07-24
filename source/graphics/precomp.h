@@ -61,5 +61,3 @@
 //#define NOMINMAX
 //#define STRICT
 #include <Windows.h>
-
-#include <thirdparty/glm/glm.hpp>
