@@ -1,5 +1,5 @@
 #pragma once
-#include "core/camera/camerafrustum.h"
+#include "core/camera/camerafrustum.hpp"
 
 namespace Khan
 {

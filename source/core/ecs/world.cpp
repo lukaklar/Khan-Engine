@@ -1,18 +1,17 @@
 #include "core/precomp.h"
-#include "core/ecs/world.h"
-#include "core/ecs/entity.h"
+#include "core/ecs/world.hpp"
+#include "core/ecs/entity.hpp"
 
 namespace Khan
 {
-	World::World(const std::string& name)
+	World::World(const char* name)
 		: m_Name(name)
 	{
-		// TODO: Load the world
 	}
 
 	World::~World()
 	{
-		for (auto& it : m_Entities)
+		for (auto& it : m_EntityMap)
 		{
 			delete it.second;
 		}
@@ -21,14 +20,16 @@ namespace Khan
 	Entity* World::CreateEntity()
 	{
 		Entity* entity = new Entity(m_Registry.create(), this);
-		m_Entities.emplace(entity->m_EntityHandle, entity);
+		m_EntityMap.emplace(entity->m_EntityHandle, entity);
+		m_Entities.push_back(entity);
 		return entity;
 	}
 
 	void World::DestroyEntity(Entity* entity)
 	{
 		m_Registry.destroy(entity->m_EntityHandle);
-		m_Entities.erase(entity->m_EntityHandle);
+		m_EntityMap.erase(entity->m_EntityHandle);
+		m_Entities.erase(std::find(m_Entities.begin(), m_Entities.end(), entity));
 		delete entity;
 	}
 }

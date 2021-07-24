@@ -1,5 +1,5 @@
 #include "core/precomp.h"
-#include "core/camera/camerafrustum.h"
+#include "core/camera/camerafrustum.hpp"
 #include "core/boundingvolume.h"
 
 namespace Khan

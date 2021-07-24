@@ -1,7 +1,7 @@
 #include "core/precomp.h"
-#include "core/ecs/entity.h"
-#include "core/ecs/world.h"
-#include "core/ecs/component.h"
+#include "core/ecs/entity.hpp"
+#include "core/ecs/world.hpp"
+#include "core/ecs/component.hpp"
 
 namespace Khan
 {
