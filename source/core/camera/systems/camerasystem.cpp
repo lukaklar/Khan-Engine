@@ -1,27 +1,29 @@
 #include "core/precomp.h"
-#include "core/camera/systems/frustumcullingsystem.hpp"
+#include "core/camera/systems/camerasystem.hpp"
 #include "core/camera/components/cameracomponent.hpp"
 #include "core/ecs/entity.hpp"
 
 namespace Khan
 {
-	void FrustumCullingSystem::Update(float dt)
+	void CameraSystem::Update(float dt)
 	{
-		Camera* camera = nullptr;
+		Entity* cameraEntity = nullptr;
 
+		auto group = m_World.GetEntityGroup<CameraComponent>();
+
+		for (Entity* entity : group->GetEntites())
 		{
-			auto group = m_World.GetEntityGroup<CameraComponent>();
-
-			for (Entity* entity : group->GetEntites())
-			{
-				camera = entity->GetComponent<CameraComponent>().m_Camera;
-				break;
-			}
+			// TODO: Find the active camera (the only one that should be updated and used in frustum culling and other calculations
+			// which for now it is the first and only one)
+			cameraEntity = entity;
+			break;
 		}
 
-		if (!camera) return;
+		if (!cameraEntity) return;
 
-		// TODO: Update the camera
+		Camera* camera = cameraEntity->GetComponent<CameraComponent>().m_Camera;
+
+		camera->Update(dt);
 
 		for (Entity* entity : m_World.GetEntities())
 		{

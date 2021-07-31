@@ -4,7 +4,7 @@ namespace Khan
 {
 	enum BlendFactor;
 	enum BlendOperation;
-	class RenderPipelineState;
+	struct RenderPipelineState;
 	class Shader;
 	class TextureView;
 

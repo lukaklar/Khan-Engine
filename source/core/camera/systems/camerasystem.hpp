@@ -3,7 +3,7 @@
 
 namespace Khan
 {
-	class FrustumCullingSystem : public System
+	class CameraSystem : public System
 	{
 	public:
 		virtual void Update(float dt) override;
