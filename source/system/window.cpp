@@ -1,5 +1,6 @@
 #include "system/precomp.h"
 #include "system/window.hpp"
+#include "system/input/inputmanager.hpp"
 
 namespace Khan
 {
@@ -16,6 +17,67 @@ namespace Khan
 		{
 			switch (message)
 			{
+			case WM_KEYDOWN:
+			{
+				bool prevState = (lparam & (1 << 30)) != 0;
+				InputManager::Get()->OnKeyPressed(wparam, LOWORD(lparam), prevState ? InputType::Repeat : InputType::Press);
+				break;
+			}
+			case WM_KEYUP:
+			{
+				InputManager::Get()->OnKeyPressed(wparam, LOWORD(lparam), InputType::Release);
+				break;
+			}
+			case WM_MOUSEMOVE:
+			{
+				InputManager::Get()->OnCursorMoved(LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_LBUTTONDOWN:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Left, ClickType::Single, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_LBUTTONUP:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Left, ClickType::Release, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_LBUTTONDBLCLK:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Left, ClickType::Double, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_RBUTTONDOWN:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Right, ClickType::Single, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_RBUTTONUP:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Right, ClickType::Release, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_RBUTTONDBLCLK:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Right, ClickType::Double, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_MBUTTONDOWN:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Middle, ClickType::Single, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_MBUTTONUP:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Middle, ClickType::Release, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_MBUTTONDBLCLK:
+			{
+				InputManager::Get()->OnMouseButtonPressed(MouseButton::Middle, ClickType::Double, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
 			case WM_DESTROY:
 			case WM_CLOSE:
 			{

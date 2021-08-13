@@ -2,6 +2,7 @@
 #include "engine/engine.h"
 #include "engine/mainloop.h"
 #include "system/commandlineoptions.h"
+#include "system/input/inputmanager.hpp"
 #include "system/splashscreen.hpp"
 #include "system/window.hpp"
 #include "graphics/hal/renderbackend.hpp"
@@ -77,6 +78,7 @@ namespace Khan
 		void Run()
 		{
 			//if (!Initialize()) return;
+			InputManager::CreateSingleton();
 			Window::Initialize("Khan Engine", 1280u, 720u);
 			RenderBackend::Initialize(true);
 			ShaderManager::CreateSingleton();
@@ -86,6 +88,7 @@ namespace Khan
 			ShaderManager::DestroySingleton();
 			RenderBackend::Shutdown();
 			Window::Shutdown();
+			InputManager::DestroySingleton();
 			//Shutdown();
 		}
 	}
