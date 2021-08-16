@@ -1,9 +1,10 @@
 #pragma once
 #include "graphics/renderpass.hpp"
+#include "graphics/hal/constantbuffer.hpp"
 
 namespace Khan
 {
-	class PhysicalRenderPass;
+	class BufferView;
 	class TextureView;
 	struct RenderPipelineState;
 
@@ -16,8 +17,16 @@ namespace Khan
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
+		ConstantBuffer m_DownScaleConstants;
+		ConstantBuffer m_TonemapConstants;
+
+		BufferView* m_IntermediateLuminanceValues;
+		BufferView* m_AverageLuminanceValue;
+
 		TextureView* m_LightAccumulationBuffer;
-		TextureView* m_FinalOutput;
-		RenderPipelineState* m_PipelineState;
+		TextureView* m_HDROutput;
+		RenderPipelineState* m_DownScalePass1PipelineState;
+		RenderPipelineState* m_DownScalePass2PipelineState;
+		RenderPipelineState* m_TonemapPassPipelineState;
 	};
 }

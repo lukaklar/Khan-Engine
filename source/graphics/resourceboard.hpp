@@ -33,6 +33,7 @@ namespace Khan
 			} m_GBuffer;
 
 			Texture* m_LightAccumulationBuffer = nullptr;
+			Texture* m_PostFxTemp;
 		} m_Transient;
 	};
 }
