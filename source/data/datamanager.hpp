@@ -19,8 +19,6 @@ namespace Khan
 		DataManager();
 		~DataManager();
 
-		TextureView* LoadTextureFromFile(const char* fileName);
-
 		//SQLiteDatabase m_Database;
 
 		static constexpr char* ms_AssetPath = "..\\..\\assets\\";

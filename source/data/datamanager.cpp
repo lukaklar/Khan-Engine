@@ -5,13 +5,12 @@
 #include "core/ecs/entity.hpp"
 #include "core/ecs/world.hpp"
 #include "data/stb_image/stb_image.h"
+#include "data/texturemanager.hpp"
 #include "graphics/components/lightcomponent.hpp"
 #include "graphics/components/visualcomponent.hpp"
 #include "graphics/hal/pixelformats.hpp"
 #include "graphics/hal/renderbackend.hpp"
 #include "graphics/hal/renderdevice.hpp"
-#include "graphics/hal/texture.hpp"
-#include "graphics/hal/textureview.hpp"
 #include "graphics/materials/material.hpp"
 #include "graphics/objects/light.hpp"
 #include "graphics/objects/mesh.hpp"
@@ -25,11 +24,13 @@ namespace Khan
 	DataManager::DataManager()
 	{
 		//m_Database.Open("");
+		TextureManager::CreateSingleton();
 	}
 
 	DataManager::~DataManager()
 	{
 		//m_Database.Close();
+		TextureManager::DestroySingleton();
 	}
 
 	World* DataManager::LoadWorldFromFile(const char* fileName)
@@ -115,7 +116,7 @@ namespace Khan
 						{
 							std::string textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
-							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
 						}
 
@@ -123,7 +124,7 @@ namespace Khan
 						{
 							std::string textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
-							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
 						}
 
@@ -131,14 +132,14 @@ namespace Khan
 						{
 							std::string textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
-							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
 						}
 						else if (mat.GetTextureCount(aiTextureType_HEIGHT) > 0 && mat.GetTexture(aiTextureType_HEIGHT, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
 							std::string textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
-							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
 						}
 
@@ -146,7 +147,7 @@ namespace Khan
 						{
 							std::string textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
-							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
 						}
 					}
@@ -229,43 +230,5 @@ namespace Khan
 		// TODO: MovementComponent and input handling system and Camera updating (threadpool and dependencies between systems)
 
 		return world;
-	}
-
-	TextureView* DataManager::LoadTextureFromFile(const char* fileName)
-	{
-		int32_t width, height, channels;
-		unsigned char* data = stbi_load(fileName, &width, &height, &channels, STBI_rgb_alpha);
-
-		Texture* texture;
-		{
-			TextureDesc desc;
-			desc.m_Type = TextureType_2D;
-			desc.m_Width = static_cast<uint32_t>(width);
-			desc.m_Height = static_cast<uint32_t>(height);
-			desc.m_Depth = 1;
-			desc.m_ArrayLayers = 1;
-			desc.m_MipLevels = 1;
-			desc.m_Format = PF_R8G8B8A8_UNORM;
-			desc.m_Flags = TextureFlag_AllowUnorderedAccess;
-
-			texture = RenderBackend::g_Device->CreateTexture(desc);
-		}
-
-		// TODO: Upload texture data
-
-		TextureView* view;
-		{
-			TextureViewDesc desc;
-			desc.m_Type = TextureViewType_2D;
-			desc.m_Format = PF_R8G8B8A8_UNORM;
-			desc.m_BaseArrayLayer = 0;
-			desc.m_LayerCount = 1;
-			desc.m_BaseMipLevel = 0;
-			desc.m_LevelCount = 1;
-
-			view = RenderBackend::g_Device->CreateTextureView(texture, desc);
-		}
-
-		return view;
 	}
 }
