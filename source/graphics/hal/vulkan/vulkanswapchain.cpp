@@ -10,11 +10,10 @@
 
 namespace Khan
 {
-	Swapchain::Swapchain(RenderDevice& device, Display& display)
+	VulkanSwapchain::VulkanSwapchain(RenderDevice& device, Display& display)
 		: m_Swapchain(VK_NULL_HANDLE)
-		, m_Device(device)
+		, m_Device(reinterpret_cast<VulkanRenderDevice&>(device))
 		, m_Display(display)
-		, m_FrameIndex(0)
 	{
 		// TODO: Remove these hardcoded values
 		CreateSwapchain(1280, 720, false, false);
@@ -23,7 +22,7 @@ namespace Khan
 		VK_ASSERT(vkAcquireNextImageKHR(m_Device.VulkanDevice(), m_Swapchain, UINT64_MAX, m_PresentCompleteSemaphores[m_FrameIndex], VK_NULL_HANDLE, &m_CurrentImageIndex), "Failed to acquire next image.");
 	}
 
-	Swapchain::~Swapchain()
+	VulkanSwapchain::~VulkanSwapchain()
 	{
 		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
 		{
@@ -32,15 +31,15 @@ namespace Khan
 			vkDestroySemaphore(m_Device.VulkanDevice(), m_RenderCompleteSemaphores[i], nullptr);
 		}
 
-		for (VulkanTexture* texture : m_BackBuffers)
+		for (Texture* texture : m_BackBuffers)
 		{
-			delete texture;
+			delete reinterpret_cast<VulkanTexture*>(texture);
 		}
 
 		vkDestroySwapchainKHR(m_Device.VulkanDevice(), m_Swapchain, nullptr);
 	}
 
-	void Swapchain::CreateSwapchain(uint32_t width, uint32_t height, bool vsync, bool hdr)
+	void VulkanSwapchain::CreateSwapchain(uint32_t width, uint32_t height, bool vsync, bool hdr)
 	{
 		VkSwapchainKHR oldSwapchain = m_Swapchain;
 
@@ -79,9 +78,9 @@ namespace Khan
 			vkDestroySwapchainKHR(m_Device.VulkanDevice(), oldSwapchain, nullptr);
 		}
 
-		for (VulkanTexture* texture : m_BackBuffers)
+		for (Texture* texture : m_BackBuffers)
 		{
-			delete texture;
+			delete reinterpret_cast<VulkanTexture*>(texture);
 		}
 
 		uint32_t swapchainImageCount;
@@ -107,7 +106,7 @@ namespace Khan
 		}
 	}
 
-	inline void Swapchain::CreateSynchronizationPrimitives()
+	inline void VulkanSwapchain::CreateSynchronizationPrimitives()
 	{
 		VkSemaphoreCreateInfo semaphoreInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 		VkFenceCreateInfo fenceInfo = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
@@ -121,7 +120,7 @@ namespace Khan
 		}
 	}
 
-	void Swapchain::Flip()
+	void VulkanSwapchain::Flip()
 	{
 		m_Device.FlushCommands();
 

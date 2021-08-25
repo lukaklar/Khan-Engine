@@ -1,19 +1,18 @@
 #include "graphics/precomp.h"
 #include "graphics/passes/tileddeferredpasses.hpp"
+#include "graphics/hal/buffer.hpp"
+#include "graphics/hal/bufferview.hpp"
 #include "graphics/hal/pixelformats.hpp"
 #include "graphics/hal/queuetype.hpp"
 #include "graphics/hal/renderbackend.hpp"
-#include "graphics/hal/shadermanager.hpp"
+#include "graphics/hal/rendercontext.hpp"
+#include "graphics/hal/resourcebindfrequency.hpp"
 #include "graphics/hal/texture.hpp"
 #include "graphics/hal/textureview.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/rendergraph.hpp"
+#include "graphics/shadermanager.hpp"
 #include "core/defines.h"
-
-#ifdef KH_GFXAPI_VULKAN
-#include "graphics/hal/vulkan/vulkancontext.hpp"
-#include "graphics/hal/vulkan/vulkandevice.hpp"
-#endif // KH_GFXAPI_VULKAN
 
 #define DECLARE_GBUFFER_INPUT(target, state)\
 temp = renderer.GetResourceBoard().m_Transient.m_GBuffer.m_##target;\
@@ -49,7 +48,7 @@ namespace Khan
 		std::vector<ShaderLightData>& lights = renderer.GetActiveLightData();
 		uint32_t sizeInBytes = static_cast<uint32_t>(lights.size() * sizeof(ShaderLightData));
 
-		context.UpdateBufferFromHost(&m_LightData->GetBuffer(), lights.data(), sizeInBytes);
+		//context.UpdateBufferFromHost(&m_LightData->GetBuffer(), lights.data(), sizeInBytes);
 	}
 
 	TileFrustumCalculationPass::TileFrustumCalculationPass()

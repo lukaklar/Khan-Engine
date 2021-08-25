@@ -1,8 +1,5 @@
 #include "data/precomp.h"
 #include "data/datamanager.hpp"
-
-//#define KH_GFXAPI_VULKAN
-
 #include "core/camera/camera.hpp"
 #include "core/camera/components/cameracomponent.hpp"
 #include "core/ecs/entity.hpp"
@@ -11,11 +8,13 @@
 #include "graphics/components/lightcomponent.hpp"
 #include "graphics/components/visualcomponent.hpp"
 #include "graphics/hal/pixelformats.hpp"
+#include "graphics/hal/renderbackend.hpp"
+#include "graphics/hal/renderdevice.hpp"
 #include "graphics/hal/texture.hpp"
 #include "graphics/hal/textureview.hpp"
-#include "graphics/hal/renderbackend.hpp"
-//#include "graphics/hal/vulkan/vulkandevice.hpp"
+#include "graphics/materials/material.hpp"
 #include "graphics/objects/light.hpp"
+#include "graphics/objects/mesh.hpp"
 #include "system/assert.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -46,7 +45,7 @@ namespace Khan
 		World* world = new World(fileName);
 		std::unordered_map<const aiNode*, Entity*> nodeToEntityMap;
 
-		std::function<void(aiNode*,Entity*)> processNode = [scene, world, &nodeToEntityMap, &processNode](const aiNode* node, Entity* parent)
+		std::function<void(aiNode*,Entity*)> processNode = [this, scene, world, &nodeToEntityMap, &processNode](const aiNode* node, Entity* parent)
 		{
 			Entity* entity = world->CreateEntity();
 
@@ -77,7 +76,7 @@ namespace Khan
 				for (uint32_t i = 0; i < node->mNumMeshes; ++i)
 				{
 					const aiMesh& mesh = *scene->mMeshes[node->mMeshes[i]];
-					std::vector<float> vertices;
+					/*std::vector<float> vertices;
 					std::vector<uint32_t> indices;
 
 					uint32_t vertexSizeInFloats = 3 + 2 + 3 + 3 + 3;
@@ -103,48 +102,53 @@ namespace Khan
 
 					bvMax.x = std::max(bvMax.x, mesh.mAABB.mMax.x);
 					bvMax.y = std::max(bvMax.y, mesh.mAABB.mMax.y);
-					bvMax.z = std::max(bvMax.z, mesh.mAABB.mMax.z);
+					bvMax.z = std::max(bvMax.z, mesh.mAABB.mMax.z);*/
 
 					if (mesh.mMaterialIndex >= 0)
 					{
 						const aiMaterial& mat = *scene->mMaterials[mesh.mMaterialIndex];
+						Material* material = new Material();
 						aiString aiTexturePath;
-						uint32_t count = 0;
+						uint32_t binding = 0;
 
-						// Load emissive textures.
-						//if (mat.GetTextureCount(aiTextureType_EMISSIVE) > 0 &&
-						//	mat.GetTexture(aiTextureType_EMISSIVE, 0, &aiTexturePath) == aiReturn_SUCCESS)
-						//{
-						//	fs::path texturePath(aiTexturePath.C_Str());
-						//	std::shared_ptr<Texture> pTexture = CreateTexture((parentPath / texturePath).wstring());
-						//	pMaterial->SetTexture(Material::TextureType::Emissive, pTexture);
-						//}
+						if (mat.GetTextureCount(aiTextureType_DIFFUSE) > 0 && mat.GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath) == aiReturn_SUCCESS)
+						{
+							std::string textureFilePath = ms_AssetPath;
+							textureFilePath += aiTexturePath.C_Str();
+							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							material->AddTexture(binding++, texture);
+						}
 
-						//// Load diffuse textures.
-						//if (material.GetTextureCount(aiTextureType_DIFFUSE) > 0 &&
-						//	material.GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath, nullptr, nullptr, &blendFactor, &aiBlendOperation) == aiReturn_SUCCESS)
-						//{
-						//	fs::path texturePath(aiTexturePath.C_Str());
-						//	std::shared_ptr<Texture> pTexture = CreateTexture((parentPath / texturePath).wstring());
-						//	pMaterial->SetTexture(Material::TextureType::Diffuse, pTexture);
-						//}
+						if (mat.GetTextureCount(aiTextureType_SPECULAR) > 0 && mat.GetTexture(aiTextureType_SPECULAR, 0, &aiTexturePath) == aiReturn_SUCCESS)
+						{
+							std::string textureFilePath = ms_AssetPath;
+							textureFilePath += aiTexturePath.C_Str();
+							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							material->AddTexture(binding++, texture);
+						}
 
-						//// Load specular texture.
-						//if (material.GetTextureCount(aiTextureType_SPECULAR) > 0 &&
-						//	material.GetTexture(aiTextureType_SPECULAR, 0, &aiTexturePath, nullptr, nullptr, &blendFactor, &aiBlendOperation) == aiReturn_SUCCESS)
-						//{
-						//	fs::path texturePath(aiTexturePath.C_Str());
-						//	std::shared_ptr<Texture> pTexture = CreateTexture((parentPath / texturePath).wstring());
-						//	pMaterial->SetTexture(Material::TextureType::Specular, pTexture);
-						//}
+						if (mat.GetTextureCount(aiTextureType_NORMALS) > 0 && mat.GetTexture(aiTextureType_NORMALS, 0, &aiTexturePath) == aiReturn_SUCCESS)
+						{
+							std::string textureFilePath = ms_AssetPath;
+							textureFilePath += aiTexturePath.C_Str();
+							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							material->AddTexture(binding++, texture);
+						}
+						else if (mat.GetTextureCount(aiTextureType_HEIGHT) > 0 && mat.GetTexture(aiTextureType_HEIGHT, 0, &aiTexturePath) == aiReturn_SUCCESS)
+						{
+							std::string textureFilePath = ms_AssetPath;
+							textureFilePath += aiTexturePath.C_Str();
+							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							material->AddTexture(binding++, texture);
+						}
 
-						//mat.GetTexture(aiTextureType_DIFFUSE, 0, &path);
-
-						//mat.GetTexture()
-
-						//mat.GetTexture(aiTextureType_HEIGHT, 0, &path);
-
-						OutputDebugString("asdasda\n");
+						if (mat.GetTextureCount(aiTextureType_EMISSIVE) > 0 && mat.GetTexture(aiTextureType_EMISSIVE, 0, &aiTexturePath) == aiReturn_SUCCESS)
+						{
+							std::string textureFilePath = ms_AssetPath;
+							textureFilePath += aiTexturePath.C_Str();
+							TextureView* texture = LoadTextureFromFile(textureFilePath.c_str());
+							material->AddTexture(binding++, texture);
+						}
 					}
 				}
 
@@ -227,43 +231,41 @@ namespace Khan
 		return world;
 	}
 
-	//TextureView* DataManager::LoadTextureFromFile(const char* fileName)
-	//{
-	//	int32_t width, height, channels;
-	//	unsigned char* data = stbi_load(fileName, &width, &height, &channels, STBI_rgb_alpha);
+	TextureView* DataManager::LoadTextureFromFile(const char* fileName)
+	{
+		int32_t width, height, channels;
+		unsigned char* data = stbi_load(fileName, &width, &height, &channels, STBI_rgb_alpha);
 
-	//	Texture* texture;
-	//	{
-	//		TextureDesc desc;
-	//		desc.m_Type = TextureType_2D;
-	//		desc.m_Width = static_cast<uint32_t>(width);
-	//		desc.m_Height = static_cast<uint32_t>(height);
-	//		desc.m_Depth = 1;
-	//		desc.m_ArrayLayers = 1;
-	//		desc.m_MipLevels = 1;
-	//		desc.m_Format = PF_R8G8B8A8_UNORM;
-	//		desc.m_Flags = TextureFlag_AllowUnorderedAccess;
+		Texture* texture;
+		{
+			TextureDesc desc;
+			desc.m_Type = TextureType_2D;
+			desc.m_Width = static_cast<uint32_t>(width);
+			desc.m_Height = static_cast<uint32_t>(height);
+			desc.m_Depth = 1;
+			desc.m_ArrayLayers = 1;
+			desc.m_MipLevels = 1;
+			desc.m_Format = PF_R8G8B8A8_UNORM;
+			desc.m_Flags = TextureFlag_AllowUnorderedAccess;
 
-	//		texture = RenderBackend::g_Device->CreateTexture(desc);
-	//	}
+			texture = RenderBackend::g_Device->CreateTexture(desc);
+		}
 
-	//	// TODO: Upload texture data
+		// TODO: Upload texture data
 
-	//	TextureView* view;
-	//	{
-	//		TextureViewDesc desc;
-	//		desc.m_Type = TextureViewType_2D;
-	//		desc.m_Format = PF_R8G8B8A8_UNORM;
-	//		desc.m_BaseArrayLayer = 0;
-	//		desc.m_LayerCount = 1;
-	//		desc.m_BaseMipLevel = 0;
-	//		desc.m_LevelCount = 1;
+		TextureView* view;
+		{
+			TextureViewDesc desc;
+			desc.m_Type = TextureViewType_2D;
+			desc.m_Format = PF_R8G8B8A8_UNORM;
+			desc.m_BaseArrayLayer = 0;
+			desc.m_LayerCount = 1;
+			desc.m_BaseMipLevel = 0;
+			desc.m_LevelCount = 1;
 
-	//		view = RenderBackend::g_Device->CreateTextureView(texture, desc);
-	//	}
+			view = RenderBackend::g_Device->CreateTextureView(texture, desc);
+		}
 
-	//	return view;
-	//}
+		return view;
+	}
 }
-
-//#undef KH_GFXAPI_VULKAN

@@ -10,6 +10,8 @@
 
 namespace Khan
 {
+	class VulkanRenderDevice;
+
 	class VulkanTransientResourceManager : public TransientResourceManager
 	{
 	public:
@@ -17,6 +19,8 @@ namespace Khan
 
 		void Create(VmaAllocator allocator);
 		void Destroy();
+
+		virtual RenderDevice& GetDevice() const override;
 
 		virtual Buffer* FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc) override;
 		virtual BufferView* FindOrCreateBufferView(Buffer* buffer, const BufferViewDesc& desc) override;
@@ -26,6 +30,8 @@ namespace Khan
 		void ResetFrame(uint32_t frameIndex);
 
 	private:
+		VulkanRenderDevice& m_Device;
+
 		VmaAllocator m_Allocator;
 
 		VulkanBuffer m_BufferPool[K_BUFFER_POOL_SIZE];

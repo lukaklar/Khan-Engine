@@ -2,6 +2,7 @@
 
 #include "graphics/hal/buffer.hpp"
 #include "graphics/hal/bufferview.hpp"
+#include "graphics/hal/config.h"
 #include "graphics/hal/texture.hpp"
 #include "graphics/hal/textureview.hpp"
 
@@ -24,17 +25,12 @@ namespace Khan
 	class TransientResourceManager
 	{
 	public:
-        TransientResourceManager(RenderDevice& device)
-            : m_Device(device)
-        {
-        }
+        virtual RenderDevice& GetDevice() const = 0;
 
         virtual Buffer* FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc) = 0;
         virtual BufferView* FindOrCreateBufferView(Buffer* buffer, const BufferViewDesc& desc) = 0;
         virtual Texture* FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc) = 0;
         virtual TextureView* FindOrCreateTextureView(Texture* texture, const TextureViewDesc& desc) = 0;
-
-        inline RenderDevice& GetDevice() const { return m_Device; }
 
 	protected:
         static constexpr uint32_t K_BUFFER_POOL_SIZE = 32;
@@ -49,8 +45,5 @@ namespace Khan
 
         std::unordered_map<std::pair<const RenderPass*, BufferDesc>, Buffer*, pair_hash> m_DescToBufferMap;
         std::unordered_map<std::pair<const RenderPass*, TextureDesc>, Texture*, pair_hash> m_DescToTextureMap;
-        
-
-        RenderDevice& m_Device;
 	};
 }

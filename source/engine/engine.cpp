@@ -4,7 +4,7 @@
 #include "core/ecs/world.hpp"
 #include "data/datamanager.hpp"
 #include "graphics/hal/renderbackend.hpp"
-#include "graphics/hal/shadermanager.hpp"
+#include "graphics/shadermanager.hpp"
 #include "system/commandlineoptions.h"
 #include "system/input/inputmanager.hpp"
 #include "system/splashscreen.hpp"

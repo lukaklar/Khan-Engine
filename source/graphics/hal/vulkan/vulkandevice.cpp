@@ -10,11 +10,9 @@
 
 namespace Khan
 {
-	RenderDevice::RenderDevice(const DisplayAdapter& adapter)
-		: m_Adapter(adapter)
+	VulkanRenderDevice::VulkanRenderDevice(const DisplayAdapter& adapter)
+		: RenderDevice(adapter, &m_TransientResourceManager)
 		, m_TransientResourceManager(*this)
-		, m_RenderGraph(&m_TransientResourceManager)
-		, m_FrameCounter(0)
 	{
 		VkDeviceQueueCreateInfo queueInfos[QueueType_Count];
 		float queuePriority = 1.0f;
@@ -56,10 +54,10 @@ namespace Khan
 		m_SemaphoreAllocator.Create(m_Device);
 
 		// TODO: Create a couple of these (maybe equal to the number of CPU cores)
-		m_Contexts.push_back(new RenderContext(*this));
+		m_Contexts.push_back(new VulkanRenderContext(*this));
 	}
 
-	RenderDevice::~RenderDevice()
+	VulkanRenderDevice::~VulkanRenderDevice()
 	{
 		for (RenderContext* context : m_Contexts)
 		{
@@ -76,12 +74,12 @@ namespace Khan
 		vkDestroyDevice(m_Device, nullptr);
 	}
 
-	Buffer* RenderDevice::CreateBuffer(const BufferDesc& desc)
+	Buffer* VulkanRenderDevice::CreateBuffer(const BufferDesc& desc)
 	{
 		return m_MemoryManager.CreateBuffer(desc);
 	}
 
-	BufferView* RenderDevice::CreateBufferView(Buffer* buffer, const BufferViewDesc& desc)
+	BufferView* VulkanRenderDevice::CreateBufferView(Buffer* buffer, const BufferViewDesc& desc)
 	{
 		VkBufferViewCreateInfo viewInfo = { VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO };
 		viewInfo.buffer = reinterpret_cast<VulkanBuffer*>(buffer)->GetVulkanBuffer();
@@ -95,12 +93,12 @@ namespace Khan
 		return new VulkanBufferView(bufferView, *buffer, desc);
 	}
 
-	Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
+	Texture* VulkanRenderDevice::CreateTexture(const TextureDesc& desc)
 	{
 		return m_MemoryManager.CreateTexture(desc);
 	}
 
-	TextureView* RenderDevice::CreateTextureView(Texture* texture, const TextureViewDesc& desc)
+	TextureView* VulkanRenderDevice::CreateTextureView(Texture* texture, const TextureViewDesc& desc)
 	{
 		VkImageViewCreateInfo viewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
 		viewInfo.image = reinterpret_cast<VulkanTexture*>(texture)->VulkanImage();
@@ -118,7 +116,7 @@ namespace Khan
 		return new VulkanTextureView(imageView, *texture, desc);
 	}
 
-	Shader* RenderDevice::CreateShader(const ShaderDesc& desc)
+	Shader* VulkanRenderDevice::CreateShader(const ShaderDesc& desc)
 	{
 		VkShaderModuleCreateInfo shaderModuleInfo = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
 		shaderModuleInfo.codeSize = desc.m_BytecodeSize;
@@ -138,46 +136,46 @@ namespace Khan
 		return new VulkanShader(shaderStageInfo, reflection, desc.m_EntryPoint, desc.m_Type);
 	}
 
-	PhysicalRenderPass* RenderDevice::CreatePhysicalRenderPass(const PhysicalRenderPassDescription& desc)
+	PhysicalRenderPass* VulkanRenderDevice::CreatePhysicalRenderPass(const PhysicalRenderPassDescription& desc)
 	{
 		return m_PhysicalRenderPassManager.FindOrCreatePhysicalRenderPass(m_Device, desc);
 	}
 
-	RenderPipelineState* RenderDevice::CreateGraphicsPipelineState(const GraphicsPipelineDescription& desc)
+	RenderPipelineState* VulkanRenderDevice::CreateGraphicsPipelineState(const GraphicsPipelineDescription& desc)
 	{
 		return m_PipelineStateManager.FindOrCreateGraphicsPipelineState(m_Device, desc);
 	}
 
-	RenderPipelineState* RenderDevice::CreateComputePipelineState(const ComputePipelineDescription& desc)
+	RenderPipelineState* VulkanRenderDevice::CreateComputePipelineState(const ComputePipelineDescription& desc)
 	{
 		return m_PipelineStateManager.FindOrCreateComputePipelineState(m_Device, desc);
 	}
 
-	void RenderDevice::DestroyBuffer(Buffer* buffer)
+	void VulkanRenderDevice::DestroyBuffer(Buffer* buffer)
 	{
 		m_MemoryManager.DestroyBuffer(reinterpret_cast<VulkanBuffer*>(buffer));
 	}
 
-	void RenderDevice::DestroyBufferView(BufferView* view)
+	void VulkanRenderDevice::DestroyBufferView(BufferView* view)
 	{
 		VulkanBufferView* vulkanView = reinterpret_cast<VulkanBufferView*>(view);
 		vkDestroyBufferView(m_Device, vulkanView->GetVulkanBufferView(), nullptr);
 		delete vulkanView;
 	}
 
-	void RenderDevice::DestroyTexture(Texture* texture)
+	void VulkanRenderDevice::DestroyTexture(Texture* texture)
 	{
 		m_MemoryManager.DestroyTexture(reinterpret_cast<VulkanTexture*>(texture));
 	}
 
-	void RenderDevice::DestroyTextureView(TextureView* view)
+	void VulkanRenderDevice::DestroyTextureView(TextureView* view)
 	{
 		VulkanTextureView* vulkanView = reinterpret_cast<VulkanTextureView*>(view);
 		vkDestroyImageView(m_Device, vulkanView->VulkanImageView(), nullptr);
 		delete vulkanView;
 	}
 
-	void RenderDevice::DestroyShader(Shader* shader)
+	void VulkanRenderDevice::DestroyShader(Shader* shader)
 	{
 		VulkanShader* vulkanShader = reinterpret_cast<VulkanShader*>(shader);
 		spvReflectDestroyShaderModule(&vulkanShader->GetReflection());
@@ -185,7 +183,12 @@ namespace Khan
 		delete vulkanShader;
 	}
 
-	void RenderDevice::OnFlip(uint32_t frameIndex)
+	void VulkanRenderDevice::WaitIdle()
+	{
+		VK_ASSERT(vkDeviceWaitIdle(m_Device), "[VULKAN] Failed to wait device idle.");
+	}
+
+	void VulkanRenderDevice::OnFlip(uint32_t frameIndex)
 	{
 		++m_FrameCounter;
 
@@ -203,7 +206,7 @@ namespace Khan
 		m_BufferIdToSemaphoreMap.clear();
 	}
 
-	void RenderDevice::SubmitCommands(VkCommandBuffer commandBuffer, const RenderGraph::Node* rgSubmitInfo)
+	void VulkanRenderDevice::SubmitCommands(VkCommandBuffer commandBuffer, const RenderGraph::Node* rgSubmitInfo)
 	{
 		std::lock_guard lock(m_CommandSubmitLock);
 
@@ -214,7 +217,7 @@ namespace Khan
 		}
 	}
 
-	void RenderDevice::FlushCommands()
+	void VulkanRenderDevice::FlushCommands()
 	{
 		// TODO: Tweak this function to submit more submit infos instead of just one each time synchronization is needed
 		static const VkPipelineStageFlags s_WaitStagesForQueues[QueueType_Count] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT };

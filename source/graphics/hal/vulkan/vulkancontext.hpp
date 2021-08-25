@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "graphics/hal/rendercontext.hpp"
 #include "graphics/hal/vulkan/vulkanbarrierrecorder.hpp"
 #include "graphics/hal/vulkan/vulkancommandpool.hpp"
 #include "graphics/hal/vulkan/vulkandescriptorpool.hpp"
@@ -11,61 +12,48 @@ namespace Khan
 {
 	enum QueueType;
 	enum CommandType;
-	class RenderDevice;
-	class Buffer;
-	class BufferView;
-	class VulkanBuffer;
+	struct VulkanPipelineState;
 	class VulkanBufferView;
-	class ConstantBuffer;
-	class PhysicalRenderPass;
-	class RenderPass;
-	class Texture;
-	class TextureView;
+	class VulkanRenderDevice;
 	class VulkanTexture;
 	class VulkanTextureView;
-	struct RenderPipelineState;
-	struct VulkanPipelineState;
 
-	class RenderContext
+	class VulkanRenderContext : public RenderContext
 	{
 	public:
-		RenderContext(RenderDevice& device);
-		~RenderContext();
+		VulkanRenderContext(RenderDevice& device);
+		virtual ~VulkanRenderContext();
 
-		inline RenderDevice& GetDevice() const { return m_Device; }
+		virtual RenderDevice& GetDevice() const override;
 
-		void BeginRecording(const RenderPass& pass);
-		void EndRecording();
+		virtual void BeginRecording(const RenderPass& pass) override;
+		virtual void EndRecording() override;
 
-		void BeginPhysicalRenderPass(const PhysicalRenderPass& renderPass, TextureView* renderTargets[], TextureView* depthStencilBuffer);
-		void EndPhysicalRenderPass();
+		virtual void BeginPhysicalRenderPass(const PhysicalRenderPass& renderPass, TextureView* renderTargets[], TextureView* depthStencilBuffer) override;
+		virtual void EndPhysicalRenderPass() override;
 
-		void SetVertexBuffer(uint32_t location, Buffer* vertexBuffer, uint32_t offset);
-		void SetIndexBuffer(Buffer* indexBuffer, uint32_t offset, bool useTwoByteIndex);
+		virtual void SetVertexBuffer(uint32_t location, Buffer* vertexBuffer, uint32_t offset) override;
+		virtual void SetIndexBuffer(Buffer* indexBuffer, uint32_t offset, bool useTwoByteIndex) override;
 
-		void SetConstantBuffer(ResourceBindFrequency frequency, uint32_t binding, ConstantBuffer* cbuffer);
-		void SetSRVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture);
-		void SetSRVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer);
-		void SetUAVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture);
-		void SetUAVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer);
+		virtual void SetConstantBuffer(ResourceBindFrequency frequency, uint32_t binding, ConstantBuffer* cbuffer) override;
+		virtual void SetSRVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture) override;
+		virtual void SetSRVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer) override;
+		virtual void SetUAVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture) override;
+		virtual void SetUAVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer) override;
 		// TODO: void SetSampler();
 
-		void SetPipelineState(const RenderPipelineState& pipelineState);
+		virtual void SetPipelineState(const RenderPipelineState& pipelineState) override;
 
-		void SetViewport(float left, float top, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f);
-		void SetScissor(int32_t left, int32_t top, uint32_t width, uint32_t height);
+		virtual void SetViewport(float left, float top, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f) override;
+		virtual void SetScissor(int32_t left, int32_t top, uint32_t width, uint32_t height) override;
 
-		void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance);
-		void DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance);
+		virtual void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
+		virtual void DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) override;
 		// TODO: DrawIndirect
-		void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ);
+		virtual void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
 		// TODO: DispatchIndirect
 
-		void UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size);
-		// TODO: Create this function
-		//void UpdateTextureFromHost(Texture* dst, uint32_t width, uint32_t height, uint32_t depth, uint32_t texelSizeBytes, uint32_t mipLevel, uint32_t arrayLayer, const void* srcData, uint32_t size);
-
-		void ResetFrame(uint32_t frameIndex);
+		virtual void ResetFrame(uint32_t frameIndex) override;
 
 	private:
 		void BindPipeline();
@@ -73,7 +61,7 @@ namespace Khan
 		void BindDynamicStates();
 		void BindResources();
 
-		RenderDevice& m_Device;
+		VulkanRenderDevice& m_Device;
 
 		VkCommandBuffer m_CommandBuffer;
 		const RenderPass* m_ExecutingPass;

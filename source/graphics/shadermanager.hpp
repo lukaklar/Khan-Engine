@@ -1,11 +1,8 @@
 #pragma once
 #include "graphics/hal/shader.hpp"
 #include "graphics/hal/renderbackend.hpp"
+#include "graphics/hal/renderdevice.hpp"
 #include "core/singleton.h"
-
-#ifdef KH_GFXAPI_VULKAN
-#include "graphics/hal/vulkan/vulkandevice.hpp"
-#endif // KH_GFXAPI_VULKAN
 
 #include <fstream>
 

@@ -12,18 +12,18 @@
 
 namespace Khan
 {
-	RenderContext::RenderContext(RenderDevice& device)
-		: m_Device(device)
-		, m_BarrierRecorder(device.GetAdapter())
-		, m_DescriptorPool(device.VulkanDevice())
-		, m_DescriptorUpdater(device.VulkanDevice())
+	VulkanRenderContext::VulkanRenderContext(RenderDevice& device)
+		: m_Device(reinterpret_cast<VulkanRenderDevice&>(device))
+		, m_BarrierRecorder(m_Device.GetAdapter())
+		, m_DescriptorPool(m_Device.VulkanDevice())
+		, m_DescriptorUpdater(m_Device.VulkanDevice())
 		, m_CurrentFramebuffers(&m_Framebuffers[0])
 	{
-		m_CommandPools[0].Create(device.VulkanDevice(), device.GetAdapter().GetQueueFamilyIndices()[QueueType_Graphics]);
-		m_CommandPools[1].Create(device.VulkanDevice(), device.GetAdapter().GetQueueFamilyIndices()[QueueType_Compute]);
+		m_CommandPools[0].Create(m_Device.VulkanDevice(), m_Device.GetAdapter().GetQueueFamilyIndices()[QueueType_Graphics]);
+		m_CommandPools[1].Create(m_Device.VulkanDevice(), m_Device.GetAdapter().GetQueueFamilyIndices()[QueueType_Compute]);
 	}
 
-	RenderContext::~RenderContext()
+	VulkanRenderContext::~VulkanRenderContext()
 	{
 		m_CommandPools[0].Destroy();
 		m_CommandPools[1].Destroy();
@@ -37,7 +37,12 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::BeginRecording(const RenderPass& pass)
+	RenderDevice& VulkanRenderContext::GetDevice() const
+	{
+		return m_Device;
+	}
+
+	void VulkanRenderContext::BeginRecording(const RenderPass& pass)
 	{
 		m_ExecutingPass = &pass;
 
@@ -89,7 +94,7 @@ namespace Khan
 		VK_ASSERT(vkBeginCommandBuffer(m_CommandBuffer, &beginInfo), "[VULKAN] Failed to begin command buffer.");
 	}
 
-	void RenderContext::EndRecording()
+	void VulkanRenderContext::EndRecording()
 	{
 		RenderGraph::Node* rgNode = m_Device.GetRenderGraph().GetPassNode(m_ExecutingPass);
 
@@ -112,7 +117,7 @@ namespace Khan
 		m_Device.SubmitCommands(m_CommandBuffer, rgNode);
 	}
 
-	void RenderContext::BeginPhysicalRenderPass(const PhysicalRenderPass& renderPass, TextureView* renderTargets[], TextureView* depthStencilBuffer)
+	void VulkanRenderContext::BeginPhysicalRenderPass(const PhysicalRenderPass& renderPass, TextureView* renderTargets[], TextureView* depthStencilBuffer)
 	{
 		KH_ASSERT(!m_IsRenderPassInProgress, "Render pass already in progress. Cannot begin another render pass until the first one ends.");
 #ifdef KH_DEBUG
@@ -199,7 +204,7 @@ namespace Khan
 		vkCmdBeginRenderPass(m_CommandBuffer, &renderPassBegin, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	void RenderContext::EndPhysicalRenderPass()
+	void VulkanRenderContext::EndPhysicalRenderPass()
 	{
 		KH_ASSERT(m_IsRenderPassInProgress, "No render pass is in progress. You cannot end a render pass that hasn't begun yet.");
 #ifdef KH_DEBUG
@@ -209,7 +214,7 @@ namespace Khan
 		vkCmdEndRenderPass(m_CommandBuffer);
 	}
 
-	void RenderContext::SetVertexBuffer(uint32_t location, Buffer* vertexBuffer, uint32_t offset)
+	void VulkanRenderContext::SetVertexBuffer(uint32_t location, Buffer* vertexBuffer, uint32_t offset)
 	{
 		VulkanBuffer* vb = reinterpret_cast<VulkanBuffer*>(vertexBuffer);
 		if (m_VertexBuffers[location] != vb)
@@ -220,7 +225,7 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::SetIndexBuffer(Buffer* indexBuffer, uint32_t offset, bool useTwoByteIndex)
+	void VulkanRenderContext::SetIndexBuffer(Buffer* indexBuffer, uint32_t offset, bool useTwoByteIndex)
 	{
 		VulkanBuffer* ib = reinterpret_cast<VulkanBuffer*>(indexBuffer);
 		if (m_IndexBuffer != ib)
@@ -232,7 +237,7 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::SetConstantBuffer(ResourceBindFrequency frequency, uint32_t binding, ConstantBuffer* cbuffer)
+	void VulkanRenderContext::SetConstantBuffer(ResourceBindFrequency frequency, uint32_t binding, ConstantBuffer* cbuffer)
 	{
 		if (m_CBuffers[frequency][binding] != cbuffer)
 		{
@@ -241,7 +246,7 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::SetSRVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture)
+	void VulkanRenderContext::SetSRVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture)
 	{
 		if (m_SRVTextures[frequency][binding] != texture)
 		{
@@ -251,7 +256,7 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::SetSRVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer)
+	void VulkanRenderContext::SetSRVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer)
 	{
 		if (m_SRVBuffers[frequency][binding] != buffer)
 		{
@@ -261,7 +266,7 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::SetUAVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture)
+	void VulkanRenderContext::SetUAVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture)
 	{
 		if (m_UAVTextures[frequency][binding] != texture)
 		{
@@ -271,7 +276,7 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::SetUAVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer)
+	void VulkanRenderContext::SetUAVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer)
 	{
 		if (m_UAVBuffers[frequency][binding] != buffer)
 		{
@@ -281,7 +286,7 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::SetPipelineState(const RenderPipelineState& pipelineState)
+	void VulkanRenderContext::SetPipelineState(const RenderPipelineState& pipelineState)
 	{
 		if (m_PipelineState != &pipelineState)
 		{
@@ -290,7 +295,7 @@ namespace Khan
 		}
 	}
 
-	void RenderContext::SetViewport(float left, float top, float width, float height, float minDepth, float maxDepth)
+	void VulkanRenderContext::SetViewport(float left, float top, float width, float height, float minDepth, float maxDepth)
 	{
 		m_Viewport.x = left;
 		m_Viewport.y = top;
@@ -301,7 +306,7 @@ namespace Khan
 		m_ViewportDirty = true;
 	}
 
-	void RenderContext::SetScissor(int32_t left, int32_t top, uint32_t width, uint32_t height)
+	void VulkanRenderContext::SetScissor(int32_t left, int32_t top, uint32_t width, uint32_t height)
 	{
 		m_Scissor.offset.x = left;
 		m_Scissor.offset.y = top;
@@ -310,7 +315,7 @@ namespace Khan
 		m_ScissorDirty = true;
 	}
 
-	void RenderContext::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+	void VulkanRenderContext::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 	{
 		KH_ASSERT(m_IsRenderPassInProgress, "Cannot issue draw commands until a valid render pass is in progress. Please begin a render pass before drawing.");
 		m_CommandType = CommandType::Draw;
@@ -322,7 +327,7 @@ namespace Khan
 		vkCmdDraw(m_CommandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 	}
 
-	void RenderContext::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
+	void VulkanRenderContext::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
 	{
 		KH_ASSERT(m_IsRenderPassInProgress, "Cannot issue draw commands until a valid render pass is in progress. Please begin a render pass before drawing.");
 		m_CommandType = CommandType::Draw;
@@ -334,7 +339,7 @@ namespace Khan
 		vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
-	void RenderContext::Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ)
+	void VulkanRenderContext::Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ)
 	{
 		m_CommandType = CommandType::Dispatch;
 		BindPipeline();
@@ -343,7 +348,7 @@ namespace Khan
 		vkCmdDispatch(m_CommandBuffer, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 	}
 
-	void RenderContext::UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size)
+	/*void VulkanRenderContext::UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size)
 	{
 		m_CommandType = CommandType::Update;
 		
@@ -360,9 +365,9 @@ namespace Khan
 		copy.size = size;
 		
 		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), buffer->GetVulkanBuffer(), 1, &copy);
-	}
+	}*/
 
-	void RenderContext::ResetFrame(uint32_t frameIndex)
+	void VulkanRenderContext::ResetFrame(uint32_t frameIndex)
 	{
 		m_CurrentFramebuffers = &m_Framebuffers[frameIndex];
 		for (VkFramebuffer framebuffer : *m_CurrentFramebuffers)
@@ -379,7 +384,7 @@ namespace Khan
 		}
 	}
 
-	inline void RenderContext::InsertBarriers()
+	inline void VulkanRenderContext::InsertBarriers()
 	{
 		if (m_CommandType == CommandType::Draw)
 		{
@@ -439,7 +444,7 @@ namespace Khan
 		}
 	}
 
-	inline void RenderContext::BindResources()
+	inline void VulkanRenderContext::BindResources()
 	{
 		if (m_CommandType == CommandType::Draw)
 		{
@@ -571,7 +576,7 @@ namespace Khan
 		m_FirstDirtySet = ResourceBindFrequency_Count;
 	}
 
-	inline void RenderContext::BindPipeline()
+	inline void VulkanRenderContext::BindPipeline()
 	{
 		if (m_PipelineDirty)
 		{
@@ -581,7 +586,7 @@ namespace Khan
 		}
 	}
 
-	inline void RenderContext::BindDynamicStates()
+	inline void VulkanRenderContext::BindDynamicStates()
 	{
 		if (m_ViewportDirty)
 		{

@@ -19,7 +19,7 @@ namespace Khan
 		DataManager();
 		~DataManager();
 
-		//TextureView* LoadTextureFromFile(const char* fileName);
+		TextureView* LoadTextureFromFile(const char* fileName);
 
 		//SQLiteDatabase m_Database;
 

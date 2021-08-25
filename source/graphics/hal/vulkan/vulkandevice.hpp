@@ -3,6 +3,7 @@
 #ifdef KH_GFXAPI_VULKAN
 
 #include "graphics/hal/queuetype.hpp"
+#include "graphics/hal/renderdevice.hpp"
 #include "graphics/hal/vulkan/vulkandevicememorymanager.hpp"
 #include "graphics/hal/vulkan/vulkanphysicalrenderpassmanager.hpp"
 #include "graphics/hal/vulkan/vulkanpipelinestatemanager.hpp"
@@ -10,7 +11,6 @@
 #include "graphics/hal/vulkan/vulkantransientresourcemanager.hpp"
 #include "graphics/hal/vulkan/vulkanuniformbufferallocator.hpp"
 #include "graphics/hal/vulkan/vulkanuploadmanager.hpp"
-#include "graphics/rendergraph.hpp"
 
 namespace Khan
 {
@@ -22,46 +22,40 @@ namespace Khan
 	class Shader;
 	class TextureView;
 
-	class RenderDevice
+	class VulkanRenderDevice : public RenderDevice
 	{
-		friend class RenderContext;
-		friend class Swapchain;
+		friend class VulkanRenderContext;
+		friend class VulkanSwapchain;
 	public:
-		RenderDevice(const DisplayAdapter& adapter);
-		~RenderDevice();
+		VulkanRenderDevice(const DisplayAdapter& adapter);
+		virtual ~VulkanRenderDevice() override;
 
 		inline VkDevice VulkanDevice() const { return m_Device; }
 
-		inline const DisplayAdapter& GetAdapter() const { return m_Adapter; }
+		virtual Buffer* CreateBuffer(const BufferDesc& desc) override;
+		virtual BufferView* CreateBufferView(Buffer* buffer, const BufferViewDesc& desc) override;
 
-		inline const std::vector<RenderContext*>& GetContexts() const { return m_Contexts; }
+		virtual Texture* CreateTexture(const TextureDesc& desc);
+		virtual TextureView* CreateTextureView(Texture* texture, const TextureViewDesc& desc) override;
 
-		RenderGraph& GetRenderGraph() { return m_RenderGraph; }
+		virtual Shader* CreateShader(const ShaderDesc& desc) override;
 
-		Buffer* CreateBuffer(const BufferDesc& desc);
-		BufferView* CreateBufferView(Buffer* buffer, const BufferViewDesc& desc);
+		virtual PhysicalRenderPass* CreatePhysicalRenderPass(const PhysicalRenderPassDescription& desc) override;
 
-		Texture* CreateTexture(const TextureDesc& desc);
-		TextureView* CreateTextureView(Texture* texture, const TextureViewDesc& desc);
+		virtual RenderPipelineState* CreateGraphicsPipelineState(const GraphicsPipelineDescription& desc) override;
+		virtual RenderPipelineState* CreateComputePipelineState(const ComputePipelineDescription& desc) override;
 
-		Shader* CreateShader(const ShaderDesc& desc);
+		virtual void DestroyBuffer(Buffer* buffer) override;
+		virtual void DestroyBufferView(BufferView* view) override;
 
-		PhysicalRenderPass* CreatePhysicalRenderPass(const PhysicalRenderPassDescription& desc);
+		virtual void DestroyTexture(Texture* texture) override;
+		virtual void DestroyTextureView(TextureView* view) override;
 
-		RenderPipelineState* CreateGraphicsPipelineState(const GraphicsPipelineDescription& desc);
-		RenderPipelineState* CreateComputePipelineState(const ComputePipelineDescription& desc);
+		virtual void DestroyShader(Shader* shader) override;
 
-		void DestroyBuffer(Buffer* buffer);
-		void DestroyBufferView(BufferView* view);
+		virtual void WaitIdle() override;
 
-		void DestroyTexture(Texture* texture);
-		void DestroyTextureView(TextureView* view);
-
-		void DestroyShader(Shader* shader);
-
-		inline uint64_t FrameNumber() const { return m_FrameCounter; }
-
-		void OnFlip(uint32_t frameIndex);
+		virtual void OnFlip(uint32_t frameIndex) override;
 
 	private:
 		void SubmitCommands(VkCommandBuffer commandBuffer, const RenderGraph::Node* rgSubmitInfo);
@@ -69,9 +63,6 @@ namespace Khan
 
 		VkDevice m_Device;
 		VkQueue m_CommandQueues[QueueType_Count];
-		std::vector<RenderContext*> m_Contexts;
-		const DisplayAdapter& m_Adapter;
-		uint64_t m_FrameCounter;
 
 		VulkanDeviceMemoryManager m_MemoryManager;
 		VulkanTransientResourceManager m_TransientResourceManager;
@@ -81,7 +72,6 @@ namespace Khan
 		VulkanUploadManager m_UploadManager;
 		VulkanSemaphoreAllocator m_SemaphoreAllocator;
 
-		RenderGraph m_RenderGraph;
 		std::mutex m_CommandSubmitLock;
 		std::map<uint64_t, std::pair<VkCommandBuffer, const RenderGraph::Node*>> m_CommandSubmissions;
 		std::unordered_map<uint64_t, VkSemaphore> m_BufferIdToSemaphoreMap;

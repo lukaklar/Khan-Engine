@@ -9,7 +9,8 @@
 namespace Khan
 {
 	VulkanTransientResourceManager::VulkanTransientResourceManager(RenderDevice& device)
-		: TransientResourceManager(device)
+		: TransientResourceManager()
+		, m_Device(reinterpret_cast<VulkanRenderDevice&>(device))
 	{
 	}
 
@@ -60,6 +61,11 @@ namespace Khan
 		{
 			vkDestroyImageView(m_Device.VulkanDevice(), it.second, nullptr);
 		}
+	}
+
+	RenderDevice& VulkanTransientResourceManager::GetDevice() const
+	{
+		return m_Device;
 	}
 
 	Buffer* VulkanTransientResourceManager::FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc)

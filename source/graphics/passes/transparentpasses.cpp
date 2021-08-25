@@ -1,17 +1,15 @@
 #include "graphics/precomp.h"
 #include "graphics/passes/transparentpasses.hpp"
+#include "graphics/hal/physicalrenderpass.hpp"
 #include "graphics/hal/pixelformats.hpp"
 #include "graphics/hal/queuetype.hpp"
+#include "graphics/hal/renderbackend.hpp"
+#include "graphics/hal/rendercontext.hpp"
+#include "graphics/hal/renderdevice.hpp"
 #include "graphics/hal/texture.hpp"
 #include "graphics/hal/textureview.hpp"
-#include "graphics/hal/renderbackend.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/rendergraph.hpp"
-
-#ifdef KH_GFXAPI_VULKAN
-#include "graphics/hal/vulkan/vulkancontext.hpp"
-#include "graphics/hal/vulkan/vulkandevice.hpp"
-#endif // KH_GFXAPI_VULKAN
 
 namespace Khan
 {

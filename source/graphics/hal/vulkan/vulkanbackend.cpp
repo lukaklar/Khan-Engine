@@ -142,9 +142,9 @@ namespace Khan
 			CreateInstance(enableDebugMode);
 			EnumerateAdapters();
 
-			g_Device = new RenderDevice(*g_Adapters[0]);
+			g_Device = new VulkanRenderDevice(*g_Adapters[0]);
 			g_Display = new Display(g_Device->GetAdapter());
-			g_Swapchain = new Swapchain(*g_Device, *g_Display);
+			g_Swapchain = new VulkanSwapchain(*g_Device, *g_Display);
 		}
 
 		inline static void DestroyInstance()
@@ -164,7 +164,7 @@ namespace Khan
 
 		void Shutdown()
 		{
-			VK_ASSERT(vkDeviceWaitIdle(g_Device->VulkanDevice()), "[VULKAN] Failed to wait device idle.");
+			g_Device->WaitIdle();
 
 			delete g_Swapchain;
 			delete g_Display;

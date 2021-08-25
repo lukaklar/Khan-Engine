@@ -1,15 +1,12 @@
 #include "graphics/precomp.h"
 #include "graphics/rendergraph.hpp"
+#include "graphics/hal/buffer.hpp"
+#include "graphics/hal/renderdevice.hpp"
+#include "graphics/hal/texture.hpp"
+#include "graphics/hal/transientresourcemanager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/renderpass.hpp"
 #include "graphics/rendertask.hpp"
-#include "graphics/hal/buffer.hpp"
-#include "graphics/hal/texture.hpp"
-#include "graphics/hal/transientresourcemanager.hpp"
-
-#ifdef KH_GFXAPI_VULKAN
-#include "graphics/hal/vulkan/vulkandevice.hpp"
-#endif
 
 namespace Khan
 {

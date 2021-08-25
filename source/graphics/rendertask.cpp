@@ -1,10 +1,7 @@
 #include "graphics/precomp.h"
 #include "graphics/rendertask.hpp"
 #include "graphics/renderpass.hpp"
-
-#ifdef KH_GFXAPI_VULKAN
-#include "graphics/hal/vulkan/vulkancontext.hpp"
-#endif // KH_GFXAPI_VULKAN
+#include "graphics/hal/rendercontext.hpp"
 
 namespace Khan
 {

@@ -1,5 +1,5 @@
 #include "graphics/precomp.h"
-#include "graphics/hal/shadermanager.hpp"
+#include "graphics/shadermanager.hpp"
 
 namespace Khan
 {
