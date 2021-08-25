@@ -3,6 +3,8 @@
 
 namespace Khan
 {
+	class World;
+
 	namespace Engine
 	{
 		void Run();

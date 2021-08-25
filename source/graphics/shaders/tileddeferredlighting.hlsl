@@ -27,7 +27,6 @@ SurfaceData UnpackGBuffer(int3 location)
 {
 	SurfaceData Out;
     
-    //float linearDepth = LinearizeDepth(g_GBuffer_Depth.Load(location).r);
     float depth = g_GBuffer_Depth.Load(location).r;
     Out.m_PositionVS = ScreenToView(float4(location.xy, depth, 1.0)).xyz;
     

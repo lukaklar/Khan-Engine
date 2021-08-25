@@ -25,6 +25,7 @@ flags {
 defines {
 	"KH_FORCE_INLINE=__forceinline",
 	"GLM_FORCE_INTRINSICS",
+	"GLM_FORCE_SWIZZLE",
 	"GLM_ENABLE_EXPERIMENTAL"
 }
 
@@ -81,8 +82,10 @@ workspace "khan.engine.lib.vs2019.vulkan"
 
 	include "lib/zlib.lua"
 	include "lib/assimp.lua"
+	include "lib/yaml.lua"
 	include "lib/core.lua"
 	include "lib/system.lua"
 	include "lib/graphics_vulkan.lua"
+	include "lib/data.lua"
 	include "lib/engine.lua"
 	include "lib/main.lua"

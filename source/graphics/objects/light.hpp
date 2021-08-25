@@ -9,8 +9,9 @@ namespace Khan
 		enum Type
 		{
 			Directional,
-			Point,
-			Spot
+			Omni,
+			Spot,
+			Area
 		};
 
 		virtual ~Light() = 0;
@@ -44,19 +45,16 @@ namespace Khan
 		glm::vec3 m_Direction;
 	};
 
-	class PointLight : public Light
+	class OmniLight : public Light
 	{
 	public:
-		PointLight() : Light(Point) {}
+		OmniLight() : Light(Omni) {}
 
-		inline const glm::vec3& GetPosition() const { return m_Position; }
-		inline void SetPosition(const glm::vec3& value) { m_Position = value; }
-		inline float GetRange() const { return m_Range; }
-		inline void SetRange(float value) { m_Range = value; }
+		inline float GetRadius() const { return m_Radius; }
+		inline void SetRadius(float value) { m_Radius = value; }
 
 	private:
-		glm::vec3 m_Position;
-		float m_Range;
+		float m_Radius;
 	};
 
 	class SpotLight : public Light
@@ -64,8 +62,6 @@ namespace Khan
 	public:
 		SpotLight() : Light(Spot) {}
 
-		inline const glm::vec3& GetPosition() const { return m_Position; }
-		inline void SetPosition(const glm::vec3& value) { m_Position = value; }
 		inline float GetRange() const { return m_Range; }
 		inline void SetRange(float value) { m_Range = value; }
 		inline const glm::vec3& GetDirection() const { return m_Direction; }
@@ -74,9 +70,23 @@ namespace Khan
 		inline void SetAngle(float value) { m_Angle = value; }
 
 	private:
-		glm::vec3 m_Position;
-		float m_Range;
 		glm::vec3 m_Direction;
 		float m_Angle;
+		float m_Range;
+	};
+
+	class AreaLight : public Light
+	{
+	public:
+		AreaLight() : Light(Area) {}
+
+		inline float GetAreaWidth() const { return m_AreaWidth; }
+		inline void SetAreaWidth(float value) { m_AreaWidth = value; }
+		inline float GetAreaHeight() const { return m_AreaHeight; }
+		inline void SetAreaHeight(float value) { m_AreaHeight = value; }
+
+	private:
+		float m_AreaWidth;
+		float m_AreaHeight;
 	};
 }

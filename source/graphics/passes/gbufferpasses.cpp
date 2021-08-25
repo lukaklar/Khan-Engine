@@ -106,32 +106,27 @@ namespace Khan
 		auto& meshes = renderer.GetOpaqueMeshes();
 		for (auto* mesh : meshes)
 		{
-			context.SetVertexBuffer(0, mesh->GetVertexBuffer(), 0);
-			context.SetIndexBuffer(mesh->GetIndexBuffer(), 0, false);
+			Material* material = mesh->m_Material;
 
-			auto& submeshes = mesh->GetSubMeshData();
-			for (auto& submesh : submeshes)
+			if (!material->IsCompiled())
 			{
-				Material* material = submesh.m_Material;
+				m_PipelineDesc.m_PixelShader = material->GetPixelShader();
+				m_PipelineDesc.m_RasterizerState.m_CullMode = material->HasTwoSides() ? RasterizerState::CullMode::None : RasterizerState::CullMode::Back;
 
-				if (!material->IsCompiled())
-				{
-					m_PipelineDesc.m_PixelShader = material->GetPixelShader();
-					m_PipelineDesc.m_RasterizerState.m_CullMode = material->HasTwoSides() ? RasterizerState::CullMode::None : RasterizerState::CullMode::Back;
-
-					material->SetPipelineState(context.GetDevice().CreateGraphicsPipelineState(m_PipelineDesc));
-				}
-
-				context.SetPipelineState(*material->GetPipelineState());
-
-				auto& textures = material->GetTextures();
-				for (auto& texture : textures)
-				{
-					context.SetSRVTexture(ResourceBindFrequency_PerMaterial, texture.m_Binding, texture.m_Texture);
-				}
-
-				context.DrawIndexedInstanced(submesh.m_NumIndices, 1, submesh.m_IndexBufferOffset, submesh.m_VertexBufferOffset, 0);
+				material->SetPipelineState(context.GetDevice().CreateGraphicsPipelineState(m_PipelineDesc));
 			}
+
+			context.SetPipelineState(*material->GetPipelineState());
+
+			for (auto& texture : material->GetTextures())
+			{
+				context.SetSRVTexture(ResourceBindFrequency_PerMaterial, texture.m_Binding, texture.m_Texture);
+			}
+
+			context.SetVertexBuffer(0, mesh->m_VertexBuffer, 0);
+			context.SetIndexBuffer(mesh->m_IndexBuffer, 0, false);
+
+			context.DrawIndexedInstanced(mesh->m_IndexCount, 1, 0, 0, 0);
 		}
 
 		context.EndPhysicalRenderPass();

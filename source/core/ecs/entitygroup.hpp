@@ -1,10 +1,10 @@
 #pragma once
+#include <vector>
 
 namespace Khan
 {
 	class Entity;
 
-	template<typename... ComponentTypes>
 	class EntityGroup
 	{
 	public:

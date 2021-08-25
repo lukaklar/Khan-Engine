@@ -85,24 +85,20 @@ namespace Khan
 		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_DepthBuffer);
 		
 		auto& meshes = renderer.GetOpaqueMeshes();
-		for (auto* mesh : meshes)
+		for (auto mesh : meshes)
 		{
-			context.SetVertexBuffer(0, mesh->GetVertexBuffer(), 0);
-			context.SetIndexBuffer(mesh->GetIndexBuffer(), 0, false);
+			context.SetVertexBuffer(0, mesh->m_VertexBuffer, 0);
+			context.SetIndexBuffer(mesh->m_IndexBuffer, 0, false);
 
-			auto& submeshes = mesh->GetSubMeshData();
-			for (auto& submesh : submeshes)
-			{
-				Material* material = submesh.m_Material;
+			Material* material = mesh->m_Material;
 
-				// TODO: Get material and check if it has both faces and in accordance with that use the appropriate pipeline state
-				RenderPipelineState* pipelineState = material->HasTwoSides() ? m_PipelineStateNoCulling : m_PipelineStateBackfaceCulling;
+			RenderPipelineState* pipelineState = material->HasTwoSides() ? m_PipelineStateNoCulling : m_PipelineStateBackfaceCulling;
 
-				context.SetPipelineState(*pipelineState);
-				context.SetViewport(0.0f, 0.0f, (float)m_DepthBuffer->GetTexture().GetDesc().m_Width, (float)m_DepthBuffer->GetTexture().GetDesc().m_Height);
-				context.SetScissor(0, 0, m_DepthBuffer->GetTexture().GetDesc().m_Width, m_DepthBuffer->GetTexture().GetDesc().m_Height);
-				context.DrawIndexedInstanced(submesh.m_NumIndices, 1, submesh.m_IndexBufferOffset, submesh.m_VertexBufferOffset, 0);
-			}
+			context.SetPipelineState(*pipelineState);
+			context.SetViewport(0.0f, 0.0f, (float)m_DepthBuffer->GetTexture().GetDesc().m_Width, (float)m_DepthBuffer->GetTexture().GetDesc().m_Height);
+			context.SetScissor(0, 0, m_DepthBuffer->GetTexture().GetDesc().m_Width, m_DepthBuffer->GetTexture().GetDesc().m_Height);
+
+			context.DrawIndexedInstanced(mesh->m_IndexCount, 1, 0, 0, 0);
 		}
 
 		context.EndPhysicalRenderPass();

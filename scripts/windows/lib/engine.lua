@@ -13,7 +13,5 @@ project "Engine"
 	}
 
 	links {
-		"Core",
-		"System",
-		"Graphics"
+		"Data"
 	}

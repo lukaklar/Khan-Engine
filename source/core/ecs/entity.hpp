@@ -56,11 +56,11 @@ namespace Khan
 		inline const std::vector<Component*> GetComponents() const { return m_Components; }
 		inline const std::string& GetName() const { return m_Name; }
 		inline void SetName(const std::string& value) { m_Name = value; }
-		inline glm::vec4 GetGlobalPosition() const { return m_GlobalPosition; }
+		inline const glm::vec4& GetGlobalPosition() const { return m_GlobalPosition; }
 		inline void SetGlobalPosition(const glm::vec4& value) { m_GlobalPosition = value; }
-		inline glm::quat GetGlobalOrientation() const { return m_GlobalOrientation; }
+		inline const glm::quat& GetGlobalOrientation() const { return m_GlobalOrientation; }
 		inline void SetGlobalOrientation(const glm::quat& value) { m_GlobalOrientation = value; }
-		inline glm::mat4 GetGlobalTransform() const { return m_GlobalTransform; }
+		inline const glm::mat4& GetGlobalTransform() const { return m_GlobalTransform; }
 		inline void SetGlobalTransform(const glm::mat4& value) { m_GlobalTransform = value; }
 		inline const BoundingVolume& GetBoundingVolume() const { return m_BoundingVolume; }
 		inline void SetBoundingVolume(const BoundingVolume& value) { m_BoundingVolume = value; }
@@ -80,9 +80,9 @@ namespace Khan
 		glm::vec4 m_GlobalPosition;
 		glm::quat m_GlobalOrientation;
 		glm::mat4 m_GlobalTransform;
-		glm::vec4 m_LocalPosition;
-		glm::quat m_LocalOrientation;
-		glm::mat4 m_LocalTransform;
+		//glm::vec4 m_LocalPosition;
+		//glm::quat m_LocalOrientation;
+		//glm::mat4 m_LocalTransform;
 		BoundingVolume m_BoundingVolume;
 		bool m_InFrustum;
 	};

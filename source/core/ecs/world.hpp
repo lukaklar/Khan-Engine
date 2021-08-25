@@ -8,6 +8,9 @@ namespace Khan
 	{
 		friend class Entity;
 	public:
+		static World* GetCurrentWorld();
+		static void SetCurrentWorld(World* world);
+
 		World(const char* name);
 		~World();
 
@@ -17,7 +20,7 @@ namespace Khan
 		inline const std::vector<Entity*>& GetEntities() const { return m_Entities; }
 
 		template<typename... ComponentTypes>
-		std::shared_ptr<EntityGroup<ComponentTypes...>> GetEntityGroup()
+		std::shared_ptr<EntityGroup> GetEntityGroup()
 		{
 			std::vector<Entity*> entities;
 
@@ -27,12 +30,14 @@ namespace Khan
 				entities.push_back(m_EntityMap.find(id)->second);
 			}
 
-			return std::make_shared<EntityGroup<ComponentTypes...>>(std::move(entities));
+			return std::make_shared<EntityGroup>(std::move(entities));
 		}
 
 		inline const std::string& GetName() const { return m_Name; }
 
 	private:
+		static World* ms_CurrentWorld;
+
 		entt::registry m_Registry;
 		// Possibility to optimize: create default constructor for Entity and create a fixed size array where you would create Entities
 		std::map<entt::entity, Entity*> m_EntityMap;

@@ -15,7 +15,7 @@ namespace Khan
 {
 	class Buffer;
 	class BufferView;
-	class Mesh;
+	struct Mesh;
 
 	struct ShaderLightData
 	{

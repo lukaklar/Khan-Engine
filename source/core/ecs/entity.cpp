@@ -14,14 +14,15 @@ namespace Khan
 	void Entity::AddChild(Entity* child)
 	{
 		m_Children.insert(child);
+		child->SetParent(this);
 	}
 
 	void Entity::RemoveChild(Entity* child)
 	{
 		m_Children.erase(child);
-		if (child->m_ParentEntity == this)
+		if (child->GetParent() == this)
 		{
-			child->m_ParentEntity = nullptr;
+			child->SetParent(nullptr);
 		}
 	}
 }

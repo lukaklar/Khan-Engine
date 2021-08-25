@@ -1,12 +1,14 @@
 #include "engine/precomp.h"
 #include "engine/engine.h"
 #include "engine/mainloop.h"
+#include "core/ecs/world.hpp"
+#include "data/datamanager.hpp"
+#include "graphics/hal/renderbackend.hpp"
+#include "graphics/hal/shadermanager.hpp"
 #include "system/commandlineoptions.h"
 #include "system/input/inputmanager.hpp"
 #include "system/splashscreen.hpp"
 #include "system/window.hpp"
-#include "graphics/hal/renderbackend.hpp"
-#include "graphics/hal/shadermanager.hpp"
 
 namespace Khan
 {
@@ -83,7 +85,12 @@ namespace Khan
 			RenderBackend::Initialize(true);
 			ShaderManager::CreateSingleton();
 			g_Renderer = new Renderer();
+			DataManager::CreateSingleton();
+			World* world = DataManager::Get()->LoadWorldFromFile("sponza.obj");
+			World::SetCurrentWorld(world);
 			s_MainLoop.Run();
+			World::SetCurrentWorld(nullptr);
+			DataManager::DestroySingleton();
 			delete g_Renderer;
 			ShaderManager::DestroySingleton();
 			RenderBackend::Shutdown();

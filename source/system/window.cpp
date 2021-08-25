@@ -20,12 +20,12 @@ namespace Khan
 			case WM_KEYDOWN:
 			{
 				bool prevState = (lparam & (1 << 30)) != 0;
-				InputManager::Get()->OnKeyPressed(wparam, LOWORD(lparam), prevState ? InputType::Repeat : InputType::Press);
+				InputManager::Get()->OnKeyPressed(static_cast<int>(wparam), LOWORD(lparam), prevState ? InputType::Repeat : InputType::Press);
 				break;
 			}
 			case WM_KEYUP:
 			{
-				InputManager::Get()->OnKeyPressed(wparam, LOWORD(lparam), InputType::Release);
+				InputManager::Get()->OnKeyPressed(static_cast<int>(wparam), LOWORD(lparam), InputType::Release);
 				break;
 			}
 			case WM_MOUSEMOVE:

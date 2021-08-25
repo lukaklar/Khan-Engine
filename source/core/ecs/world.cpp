@@ -4,6 +4,19 @@
 
 namespace Khan
 {
+	World* World::ms_CurrentWorld = nullptr;
+
+	World* World::GetCurrentWorld()
+	{
+		return ms_CurrentWorld;
+	}
+
+	void World::SetCurrentWorld(World* world)
+	{
+		delete ms_CurrentWorld;
+		ms_CurrentWorld = world;
+	}
+
 	World::World(const char* name)
 		: m_Name(name)
 	{

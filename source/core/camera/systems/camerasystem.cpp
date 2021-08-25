@@ -1,5 +1,6 @@
 #include "core/precomp.h"
 #include "core/camera/systems/camerasystem.hpp"
+#include "core/camera/camera.hpp"
 #include "core/camera/components/cameracomponent.hpp"
 #include "core/ecs/entity.hpp"
 
