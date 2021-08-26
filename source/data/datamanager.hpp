@@ -4,8 +4,8 @@
 
 namespace Khan
 {
+	struct Mesh;
 	class World;
-	class TextureView;
 
 	class DataManager : public Singleton<DataManager>
 	{
@@ -20,6 +20,8 @@ namespace Khan
 		~DataManager();
 
 		//SQLiteDatabase m_Database;
+
+		std::map<uint32_t, Mesh*> m_Meshes;
 
 		static constexpr char* ms_AssetPath = "..\\..\\assets\\";
 	};

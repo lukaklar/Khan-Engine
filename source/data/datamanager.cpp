@@ -8,6 +8,7 @@
 #include "data/texturemanager.hpp"
 #include "graphics/components/lightcomponent.hpp"
 #include "graphics/components/visualcomponent.hpp"
+#include "graphics/hal/buffer.hpp"
 #include "graphics/hal/pixelformats.hpp"
 #include "graphics/hal/renderbackend.hpp"
 #include "graphics/hal/renderdevice.hpp"
@@ -23,12 +24,23 @@ namespace Khan
 {
 	DataManager::DataManager()
 	{
-		//m_Database.Open("");
 		TextureManager::CreateSingleton();
+		//m_Database.Open("");
 	}
 
 	DataManager::~DataManager()
 	{
+		for (auto& it : m_Meshes)
+		{
+			Mesh* mesh = it.second;
+
+			RenderBackend::g_Device->DestroyBuffer(mesh->m_VertexBuffer);
+			RenderBackend::g_Device->DestroyBuffer(mesh->m_IndexBuffer);
+			delete mesh->m_Material;
+
+			delete mesh;
+		}
+
 		//m_Database.Close();
 		TextureManager::DestroySingleton();
 	}
@@ -76,38 +88,92 @@ namespace Khan
 
 				for (uint32_t i = 0; i < node->mNumMeshes; ++i)
 				{
-					const aiMesh& mesh = *scene->mMeshes[node->mMeshes[i]];
-					/*std::vector<float> vertices;
-					std::vector<uint32_t> indices;
-
-					uint32_t vertexSizeInFloats = 3 + 2 + 3 + 3 + 3;
-					vertices.reserve(vertexSizeInFloats * mesh.mNumVertices);
-					for (uint32_t i = 0; i < mesh.mNumVertices; ++i)
+					auto it = m_Meshes.find(node->mMeshes[i]);
+					if (it != m_Meshes.end())
 					{
-
+						visualComponent.m_Meshes.push_back(it->second);
+						continue;
 					}
 
-					indices.reserve(mesh.mNumFaces * 3);
-					for (uint32_t i = 0; i < mesh.mNumFaces; ++i)
+					const aiMesh& aimesh = *scene->mMeshes[node->mMeshes[i]];
+
+					struct Vertex
 					{
-						const aiFace& face = mesh.mFaces[i];
+						glm::vec3 m_Position;
+						glm::vec2 m_TexCoord;
+						glm::vec3 m_Normal;
+						glm::vec3 m_Tangent;
+						glm::vec3 m_Bitangent;
+					};
+
+					std::vector<Vertex> vertices;
+					std::vector<uint32_t> indices;
+
+					vertices.reserve(aimesh.mNumVertices);
+					for (uint32_t i = 0; i < aimesh.mNumVertices; ++i)
+					{
+						Vertex vertex;
+						vertex.m_Position = *reinterpret_cast<glm::vec3*>(&aimesh.mVertices[i]);
+						vertex.m_TexCoord = *reinterpret_cast<glm::vec2*>(&aimesh.mTextureCoords[0][i]);
+						vertex.m_Normal = *reinterpret_cast<glm::vec3*>(&aimesh.mNormals[i]);
+						vertex.m_Tangent = *reinterpret_cast<glm::vec3*>(&aimesh.mTangents[i]);
+						vertex.m_Bitangent = *reinterpret_cast<glm::vec3*>(&aimesh.mBitangents[i]);
+
+						vertices.emplace_back(vertex);
+
+						bvMin.x = std::min(bvMin.x, vertex.m_Position.x);
+						bvMin.y = std::min(bvMin.y, vertex.m_Position.y);
+						bvMin.z = std::min(bvMin.z, vertex.m_Position.z);
+
+						bvMax.x = std::max(bvMax.x, vertex.m_Position.x);
+						bvMax.y = std::max(bvMax.y, vertex.m_Position.y);
+						bvMax.z = std::max(bvMax.z, vertex.m_Position.z);
+					}
+
+					indices.reserve(aimesh.mNumFaces * 3);
+					for (uint32_t i = 0; i < aimesh.mNumFaces; ++i)
+					{
+						const aiFace& face = aimesh.mFaces[i];
 						
 						indices.push_back(face.mIndices[0]);
 						indices.push_back(face.mIndices[1]);
 						indices.push_back(face.mIndices[2]);
 					}
 
-					bvMin.x = std::min(bvMin.x, mesh.mAABB.mMin.x);
-					bvMin.y = std::min(bvMin.y, mesh.mAABB.mMin.y);
-					bvMin.z = std::min(bvMin.z, mesh.mAABB.mMin.z);
-
-					bvMax.x = std::max(bvMax.x, mesh.mAABB.mMax.x);
-					bvMax.y = std::max(bvMax.y, mesh.mAABB.mMax.y);
-					bvMax.z = std::max(bvMax.z, mesh.mAABB.mMax.z);*/
-
-					if (mesh.mMaterialIndex >= 0)
+					if (aimesh.mAABB.mMin != aiVector3D(0) || aimesh.mAABB.mMax != aiVector3D(0))
 					{
-						const aiMaterial& mat = *scene->mMaterials[mesh.mMaterialIndex];
+						bvMin.x = std::min(bvMin.x, aimesh.mAABB.mMin.x);
+						bvMin.y = std::min(bvMin.y, aimesh.mAABB.mMin.y);
+						bvMin.z = std::min(bvMin.z, aimesh.mAABB.mMin.z);
+
+						bvMax.x = std::max(bvMax.x, aimesh.mAABB.mMax.x);
+						bvMax.y = std::max(bvMax.y, aimesh.mAABB.mMax.y);
+						bvMax.z = std::max(bvMax.z, aimesh.mAABB.mMax.z);
+					}
+
+					Mesh* mesh = new Mesh();
+
+					{
+						BufferDesc desc;
+						desc.m_Size = aimesh.mNumVertices * sizeof(Vertex);
+						desc.m_Flags = BufferFlag_AllowVertices;
+
+						mesh->m_VertexBuffer = RenderBackend::g_Device->CreateBuffer(desc);
+						mesh->m_VertexCount = aimesh.mNumVertices;
+					}
+
+					{
+						BufferDesc desc;
+						desc.m_Size = aimesh.mNumFaces * 3 * sizeof(uint32_t);
+						desc.m_Flags = BufferFlag_AllowIndices;
+
+						mesh->m_IndexBuffer = RenderBackend::g_Device->CreateBuffer(desc);
+						mesh->m_IndexCount = aimesh.mNumFaces * 3;
+					}
+
+					if (aimesh.mMaterialIndex >= 0)
+					{
+						const aiMaterial& mat = *scene->mMaterials[aimesh.mMaterialIndex];
 						Material* material = new Material();
 						aiString aiTexturePath;
 						uint32_t binding = 0;
@@ -150,6 +216,11 @@ namespace Khan
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
 						}
+
+						mesh->m_Material = material;
+
+						m_Meshes.emplace(node->mMeshes[i], mesh);
+						visualComponent.m_Meshes.push_back(mesh);
 					}
 				}
 
