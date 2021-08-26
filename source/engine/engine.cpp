@@ -1,9 +1,12 @@
 #include "engine/precomp.h"
 #include "engine/engine.h"
 #include "engine/mainloop.h"
+#include "engine/systemmanager.hpp"
+#include "core/camera/systems/camerasystem.hpp"
 #include "core/ecs/world.hpp"
 #include "data/datamanager.hpp"
 #include "graphics/graphicsmanager.hpp"
+#include "graphics/systems/meshcullingsystem.hpp"
 #include "system/commandlineoptions.h"
 #include "system/input/inputmanager.hpp"
 #include "system/splashscreen.hpp"
@@ -14,10 +17,8 @@ namespace Khan
 	namespace Engine
 	{
 		static MainLoop s_MainLoop;
-		static std::thread g_MainWindowThread;
+		//static std::thread g_MainWindowThread;
 		volatile bool g_Running;
-
-		Renderer* g_Renderer;
 
 		//	bool InitWindowAndGraphics()
 		//	{
@@ -83,10 +84,14 @@ namespace Khan
 			Window::Initialize("Khan Engine", 1280u, 720u);
 			GraphicsManager::CreateSingleton();
 			DataManager::CreateSingleton();
+			SystemManager::CreateSingleton();
+			SystemManager::Get()->AddSystem(new CameraSystem());
+			SystemManager::Get()->AddSystem(new MeshCullingSystem());
 			World* world = DataManager::Get()->LoadWorldFromFile("sponza.obj");
 			World::SetCurrentWorld(world);
 			s_MainLoop.Run();
 			World::SetCurrentWorld(nullptr);
+			SystemManager::DestroySingleton();
 			DataManager::DestroySingleton();
 			GraphicsManager::DestroySingleton();
 			Window::Shutdown();

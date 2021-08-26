@@ -1,6 +1,7 @@
 #include "graphics/precomp.h"
 #include "graphics/systems/meshcullingsystem.hpp"
 #include "graphics/components/visualcomponent.hpp"
+#include "graphics/graphicsmanager.hpp"
 #include "graphics/objects/mesh.hpp"
 #include "graphics/renderer.hpp"
 #include "core/camera/camera.hpp"
@@ -10,12 +11,7 @@
 
 namespace Khan
 {
-	MeshCullingSystem::MeshCullingSystem(Renderer& renderer)
-		: m_Renderer(renderer)
-	{
-	}
-
-	void MeshCullingSystem::Update(float dt)
+	void MeshCullingSystem::Update(float dt) const
 	{
 		Entity* cameraEntity = nullptr;
 		{
@@ -34,7 +30,8 @@ namespace Khan
 
 		Camera* camera = cameraEntity->GetComponent<CameraComponent>().m_Camera;
 
-		m_Renderer.SetActiveCamera(camera);
+		Renderer& renderer = GraphicsManager::Get()->GetRenderer();
+		renderer.SetActiveCamera(camera);
 
 		{
 			auto group = World::GetCurrentWorld()->GetEntityGroup<VisualComponent>();
@@ -49,7 +46,7 @@ namespace Khan
 					{
 						if (!camera->GetFrustum().Cull(mesh->m_AABB))
 						{
-							m_Renderer.GetOpaqueMeshes().push_back(mesh);
+							renderer.GetOpaqueMeshes().push_back(mesh);
 						}
 					}
 				}

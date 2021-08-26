@@ -6,6 +6,6 @@ namespace Khan
 	class CameraSystem : public System
 	{
 	public:
-		virtual void Update(float dt) override;
+		virtual void Update(float dt) const override;
 	};
 }

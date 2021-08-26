@@ -7,7 +7,7 @@
 
 namespace Khan
 {
-	void CameraSystem::Update(float dt)
+	void CameraSystem::Update(float dt) const
 	{
 		Entity* cameraEntity = nullptr;
 

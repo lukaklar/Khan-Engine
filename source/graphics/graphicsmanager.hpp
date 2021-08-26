@@ -10,6 +10,7 @@ namespace Khan
 		friend class Singleton<GraphicsManager>;
 	public:
 		void Render();
+		inline Renderer& GetRenderer() const { return *m_Renderer; }
 
 	private:
 		GraphicsManager();
