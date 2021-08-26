@@ -1,8 +1,7 @@
 #include "engine/precomp.h"
 #include "engine/mainloop.h"
-#include "engine/engine.h"
 #include "system/window.hpp"
-#include "graphics/hal/renderbackend.hpp"
+#include "graphics/graphicsmanager.hpp"
 #include <chrono>
 #include <string>
 
@@ -18,9 +17,7 @@ namespace Khan
 		{
 			auto start = std::chrono::steady_clock::now();
 			Window::HandleEvents();
-			Engine::g_Renderer->PreRender();
-			Engine::g_Renderer->Render();
-			Engine::g_Renderer->PostRender();
+			GraphicsManager::Get()->Render();
 			auto end = std::chrono::steady_clock::now();
 			std::chrono::duration<double> elapsed_seconds = end - start;
 			timer += elapsed_seconds.count();

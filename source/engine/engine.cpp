@@ -3,8 +3,7 @@
 #include "engine/mainloop.h"
 #include "core/ecs/world.hpp"
 #include "data/datamanager.hpp"
-#include "graphics/hal/renderbackend.hpp"
-#include "graphics/shadermanager.hpp"
+#include "graphics/graphicsmanager.hpp"
 #include "system/commandlineoptions.h"
 #include "system/input/inputmanager.hpp"
 #include "system/splashscreen.hpp"
@@ -82,18 +81,14 @@ namespace Khan
 			//if (!Initialize()) return;
 			InputManager::CreateSingleton();
 			Window::Initialize("Khan Engine", 1280u, 720u);
-			RenderBackend::Initialize(true);
-			ShaderManager::CreateSingleton();
-			g_Renderer = new Renderer();
+			GraphicsManager::CreateSingleton();
 			DataManager::CreateSingleton();
 			World* world = DataManager::Get()->LoadWorldFromFile("sponza.obj");
 			World::SetCurrentWorld(world);
 			s_MainLoop.Run();
 			World::SetCurrentWorld(nullptr);
 			DataManager::DestroySingleton();
-			delete g_Renderer;
-			ShaderManager::DestroySingleton();
-			RenderBackend::Shutdown();
+			GraphicsManager::DestroySingleton();
 			Window::Shutdown();
 			InputManager::DestroySingleton();
 			//Shutdown();
