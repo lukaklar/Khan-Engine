@@ -13,7 +13,7 @@ namespace Khan
 		{
 		}
 
-		inline const std::vector<Entity*>& GetEntites() const { return m_Entities; }
+		inline const std::vector<Entity*>& GetEntities() const { return m_Entities; }
 
 	private:
 		std::vector<Entity*> m_Entities;

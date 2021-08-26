@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include "core/boundingvolume.h"
 
 namespace Khan
 {
@@ -13,6 +13,7 @@ namespace Khan
 		uint32_t m_VertexCount;
 		uint32_t m_IndexCount;
 		Material* m_Material;
+		BoundingVolume m_AABB;
 		float m_DistanceFromCamera;
 	};
 }

@@ -109,6 +109,15 @@ namespace Khan
 					std::vector<Vertex> vertices;
 					std::vector<uint32_t> indices;
 
+					BoundingVolume meshBV;
+					meshBV.SetType(BoundingVolume::Type::AABBox);
+					meshBV.SetParentMatrixPtr(&entity->GetGlobalTransform());
+
+					glm::vec3 meshBVmin(FLT_MAX);
+					glm::vec3 meshBVmax(-FLT_MAX);
+
+					bool calcBV = aimesh.mAABB.mMin == aiVector3D(0) && aimesh.mAABB.mMax == aiVector3D(0);
+
 					vertices.reserve(aimesh.mNumVertices);
 					for (uint32_t i = 0; i < aimesh.mNumVertices; ++i)
 					{
@@ -121,13 +130,24 @@ namespace Khan
 
 						vertices.emplace_back(vertex);
 
-						bvMin.x = std::min(bvMin.x, vertex.m_Position.x);
-						bvMin.y = std::min(bvMin.y, vertex.m_Position.y);
-						bvMin.z = std::min(bvMin.z, vertex.m_Position.z);
+						if (calcBV)
+						{
+							meshBVmin.x = std::min(meshBVmin.x, vertex.m_Position.x);
+							meshBVmin.y = std::min(meshBVmin.y, vertex.m_Position.y);
+							meshBVmin.z = std::min(meshBVmin.z, vertex.m_Position.z);
 
-						bvMax.x = std::max(bvMax.x, vertex.m_Position.x);
-						bvMax.y = std::max(bvMax.y, vertex.m_Position.y);
-						bvMax.z = std::max(bvMax.z, vertex.m_Position.z);
+							meshBVmax.x = std::max(meshBVmax.x, vertex.m_Position.x);
+							meshBVmax.y = std::max(meshBVmax.y, vertex.m_Position.y);
+							meshBVmax.z = std::max(meshBVmax.z, vertex.m_Position.z);
+
+							bvMin.x = std::min(bvMin.x, vertex.m_Position.x);
+							bvMin.y = std::min(bvMin.y, vertex.m_Position.y);
+							bvMin.z = std::min(bvMin.z, vertex.m_Position.z);
+
+							bvMax.x = std::max(bvMax.x, vertex.m_Position.x);
+							bvMax.y = std::max(bvMax.y, vertex.m_Position.y);
+							bvMax.z = std::max(bvMax.z, vertex.m_Position.z);
+						}
 					}
 
 					indices.reserve(aimesh.mNumFaces * 3);
@@ -140,8 +160,11 @@ namespace Khan
 						indices.push_back(face.mIndices[2]);
 					}
 
-					if (aimesh.mAABB.mMin != aiVector3D(0) || aimesh.mAABB.mMax != aiVector3D(0))
+					if (!calcBV)
 					{
+						meshBVmin = *reinterpret_cast<const glm::vec3*>(&aimesh.mAABB.mMin);
+						meshBVmax = *reinterpret_cast<const glm::vec3*>(&aimesh.mAABB.mMax);
+
 						bvMin.x = std::min(bvMin.x, aimesh.mAABB.mMin.x);
 						bvMin.y = std::min(bvMin.y, aimesh.mAABB.mMin.y);
 						bvMin.z = std::min(bvMin.z, aimesh.mAABB.mMin.z);
@@ -151,7 +174,11 @@ namespace Khan
 						bvMax.z = std::max(bvMax.z, aimesh.mAABB.mMax.z);
 					}
 
+					meshBV.SetAABBoxMin(meshBVmin);
+					meshBV.SetAABBoxMax(meshBVmax);
+
 					Mesh* mesh = new Mesh();
+					mesh->m_AABB = meshBV;
 
 					{
 						BufferDesc desc;

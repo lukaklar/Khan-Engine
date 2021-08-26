@@ -3,6 +3,7 @@
 #include "core/camera/camera.hpp"
 #include "core/camera/components/cameracomponent.hpp"
 #include "core/ecs/entity.hpp"
+#include "core/ecs/world.hpp"
 
 namespace Khan
 {
@@ -10,9 +11,9 @@ namespace Khan
 	{
 		Entity* cameraEntity = nullptr;
 
-		auto group = m_World.GetEntityGroup<CameraComponent>();
+		auto group = World::GetCurrentWorld()->GetEntityGroup<CameraComponent>();
 
-		for (Entity* entity : group->GetEntites())
+		for (Entity* entity : group->GetEntities())
 		{
 			// TODO: Find the active camera (the only one that should be updated and used in frustum culling and other calculations
 			// which for now it is the first and only one)
@@ -26,7 +27,7 @@ namespace Khan
 
 		camera->Update(dt);
 
-		for (Entity* entity : m_World.GetEntities())
+		for (Entity* entity : World::GetCurrentWorld()->GetEntities())
 		{
 			entity->SetInFrustum(!camera->GetFrustum().Cull(entity->GetBoundingVolume()));
 		}
