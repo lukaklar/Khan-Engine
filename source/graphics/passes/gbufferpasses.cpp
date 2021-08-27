@@ -82,7 +82,7 @@ namespace Khan
 		DECLARE_GBUFFER_OUTPUT(Emissive, PF_R11G11B10_FLOAT, ResourceState_RenderTarget);
 		DECLARE_GBUFFER_OUTPUT(SpecularReflectance, PF_R8G8B8A8_SRGB, ResourceState_RenderTarget);
 		DECLARE_GBUFFER_OUTPUT(MetallicAndRoughness, PF_R16G16_FLOAT, ResourceState_RenderTarget);
-		DECLARE_GBUFFER_OUTPUT(MotionVectors, PF_R16G16_FLOAT, ResourceState_RenderTarget);
+		//DECLARE_GBUFFER_OUTPUT(MotionVectors, PF_R16G16_FLOAT, ResourceState_RenderTarget);
 		
 		viewDesc.m_Format = PF_D32_FLOAT;
 		m_GBuffer_Depth = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth, viewDesc, ResourceState_DepthWriteStencilWrite);
@@ -97,7 +97,7 @@ namespace Khan
 			m_GBuffer_Emissive,
 			m_GBuffer_SpecularReflectance,
 			m_GBuffer_MetallicAndRoughness,
-			m_GBuffer_MotionVectors
+			//m_GBuffer_MotionVectors
 		};
 
 		context.BeginPhysicalRenderPass(*m_PipelineDesc.m_PhysicalRenderPass, renderTargets, m_GBuffer_Depth);

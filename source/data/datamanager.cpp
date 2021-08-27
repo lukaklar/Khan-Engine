@@ -1,5 +1,8 @@
 #include "data/precomp.h"
 #include "data/datamanager.hpp"
+
+#define KH_GFXAPI_VULKAN
+
 #include "core/camera/camera.hpp"
 #include "core/camera/components/cameracomponent.hpp"
 #include "core/ecs/entity.hpp"
@@ -15,6 +18,7 @@
 #include "graphics/materials/material.hpp"
 #include "graphics/objects/light.hpp"
 #include "graphics/objects/mesh.hpp"
+#include "graphics/shadermanager.hpp"
 #include "system/assert.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -204,6 +208,7 @@ namespace Khan
 						Material* material = new Material();
 						aiString aiTexturePath;
 						uint32_t binding = 0;
+						bool hasNormalMap = false;
 
 						if (mat.GetTextureCount(aiTextureType_DIFFUSE) > 0 && mat.GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
@@ -227,6 +232,7 @@ namespace Khan
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
+							hasNormalMap = true;
 						}
 						else if (mat.GetTextureCount(aiTextureType_HEIGHT) > 0 && mat.GetTexture(aiTextureType_HEIGHT, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
@@ -234,6 +240,7 @@ namespace Khan
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
+							hasNormalMap = true;
 						}
 
 						if (mat.GetTextureCount(aiTextureType_EMISSIVE) > 0 && mat.GetTexture(aiTextureType_EMISSIVE, 0, &aiTexturePath) == aiReturn_SUCCESS)
@@ -242,6 +249,17 @@ namespace Khan
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
+						}
+
+						material->SetTwoSided(false);
+						material->SetTransparent(false);
+						if (hasNormalMap)
+						{
+							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_PS", "PS_Common"));
+						}
+						else
+						{
+							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_no_normals_PS", "PS_CommonNoNormals"));
 						}
 
 						mesh->m_Material = material;
@@ -330,3 +348,5 @@ namespace Khan
 		return world;
 	}
 }
+
+#undef KH_GFXAPI_VULKAN

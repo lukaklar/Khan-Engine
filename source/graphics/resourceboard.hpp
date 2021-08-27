@@ -28,7 +28,7 @@ namespace Khan
 				Texture* m_Emissive = nullptr;
 				Texture* m_SpecularReflectance = nullptr;
 				Texture* m_MetallicAndRoughness = nullptr;
-				Texture* m_MotionVectors = nullptr;
+				//Texture* m_MotionVectors = nullptr;
 				Texture* m_Depth = nullptr;
 			} m_GBuffer;
 

@@ -245,7 +245,7 @@ namespace Khan
 			DECLARE_GBUFFER_INPUT(Emissive, ResourceState_NonPixelShaderAccess);
 			DECLARE_GBUFFER_INPUT(SpecularReflectance, ResourceState_NonPixelShaderAccess);
 			DECLARE_GBUFFER_INPUT(MetallicAndRoughness, ResourceState_NonPixelShaderAccess);
-			DECLARE_GBUFFER_INPUT(MotionVectors, ResourceState_NonPixelShaderAccess);
+			//DECLARE_GBUFFER_INPUT(MotionVectors, ResourceState_NonPixelShaderAccess);
 			DECLARE_GBUFFER_INPUT(Depth, ResourceState_NonPixelShaderAccess);
 
 			temp = renderer.GetResourceBoard().m_Transient.m_OpaqueLightGrid;

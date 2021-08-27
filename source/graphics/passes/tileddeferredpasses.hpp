@@ -77,7 +77,7 @@ namespace Khan
 		TextureView* m_GBuffer_Emissive;
 		TextureView* m_GBuffer_SpecularReflectance;
 		TextureView* m_GBuffer_MetallicAndRoughness;
-		TextureView* m_GBuffer_MotionVectors;
+		//TextureView* m_GBuffer_MotionVectors;
 		TextureView* m_GBuffer_Depth;
 
 		TextureView* m_LightingResult;

@@ -2,8 +2,8 @@
 
 namespace Khan
 {
-	enum BlendFactor;
-	enum BlendOperation;
+	enum class BlendFactor;
+	enum class BlendOperation;
 	struct RenderPipelineState;
 	class Shader;
 	class TextureView;
@@ -21,7 +21,7 @@ namespace Khan
 		inline RenderPipelineState* GetPipelineState() const { return m_PipelineState; }
 		inline void SetPipelineState(RenderPipelineState* value) { m_PipelineState = value; }
 		inline const Shader* GetPixelShader() const { return m_PixelShader; }
-		inline void SetPixelShader(Shader* pixelShader) { m_PixelShader = pixelShader; }
+		inline void SetPixelShader(const Shader* pixelShader) { m_PixelShader = pixelShader; }
 		inline const std::vector<MaterialTexture>& GetTextures() const { return m_Textures; }
 		inline void AddTexture(uint32_t binding, TextureView* texture) { m_Textures.push_back({ binding, texture }); }
 		inline bool HasTwoSides() const { return m_TwoSided; }
