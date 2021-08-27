@@ -107,20 +107,27 @@ namespace Khan
 		}
 		else
 		{
-			VkBufferViewCreateInfo viewInfo = { VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO };
-			viewInfo.buffer = reinterpret_cast<VulkanBuffer*>(buffer)->GetVulkanBuffer();
-			viewInfo.format = PixelFormatToVulkanFormat(desc.m_Format);
-			viewInfo.offset = desc.m_Offset;
-			viewInfo.range = desc.m_Range;
+			if (desc.m_Format != PF_NONE)
+			{
+				VkBufferViewCreateInfo viewInfo = { VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO };
+				viewInfo.buffer = reinterpret_cast<VulkanBuffer*>(buffer)->GetVulkanBuffer();
+				viewInfo.format = PixelFormatToVulkanFormat(desc.m_Format);
+				viewInfo.offset = desc.m_Offset;
+				viewInfo.range = desc.m_Range;
 
-			VK_ASSERT(vkCreateBufferView(m_Device.VulkanDevice(), &viewInfo, nullptr, &bufferView), "[VULKAN] Failed to create buffer view.");
+				VK_ASSERT(vkCreateBufferView(m_Device.VulkanDevice(), &viewInfo, nullptr, &bufferView), "[VULKAN] Failed to create buffer view.");
+			}
+			else
+			{
+				bufferView = VK_NULL_HANDLE;
+			}
 
 			m_BufferViewMap.insert({ key, bufferView });
 		}
 
 		KH_ASSERT(m_BufferViewPoolIndex[m_CurrentFrameIndex] < K_BUFFER_VIEW_POOL_SIZE, "Buffer view pool too small, you should increase its size.");
 		VulkanBuffer* dummyBuffer = new(&m_DummyBufferPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]])VulkanBuffer(*reinterpret_cast<VulkanBuffer*>(buffer));
-		VulkanBufferView* view = new(&m_BufferViewPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]++])VulkanBufferView(VK_NULL_HANDLE, *dummyBuffer, desc);
+		VulkanBufferView* view = new(&m_BufferViewPool[m_CurrentFrameIndex][m_BufferViewPoolIndex[m_CurrentFrameIndex]++])VulkanBufferView(bufferView, *dummyBuffer, desc);
 
 		return view;
 	}

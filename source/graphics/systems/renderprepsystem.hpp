@@ -3,7 +3,7 @@
 
 namespace Khan
 {
-	class MeshCullingSystem : public System
+	class RenderPrepSystem : public System
 	{
 	public:
 		virtual void Update(float dt) const override;

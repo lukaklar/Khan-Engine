@@ -284,6 +284,15 @@ namespace Khan
 
 		processNode(scene->mRootNode, nullptr);
 
+		Entity* entity = world->CreateEntity();
+		LightComponent& lightComponent = entity->AddComponent<LightComponent>();
+		DirectionalLight* directional = new DirectionalLight();
+		directional->SetActive(true);
+		directional->SetColor({ 1.0f, 0.0f, 1.0f });
+		directional->SetLuminance(1.0f);
+		directional->SetDirection({ -1, -1, 0 });
+		lightComponent.m_Light = directional;
+
 		for (uint32_t i = 0; i < scene->mNumLights; ++i)
 		{
 			const aiLight& light = *scene->mLights[i];

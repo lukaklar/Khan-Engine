@@ -6,7 +6,7 @@
 #include "core/ecs/world.hpp"
 #include "data/datamanager.hpp"
 #include "graphics/graphicsmanager.hpp"
-#include "graphics/systems/meshcullingsystem.hpp"
+#include "graphics/systems/renderprepsystem.hpp"
 #include "system/commandlineoptions.h"
 #include "system/input/inputmanager.hpp"
 #include "system/splashscreen.hpp"
@@ -86,7 +86,7 @@ namespace Khan
 			DataManager::CreateSingleton();
 			SystemManager::CreateSingleton();
 			SystemManager::Get()->AddSystem(new CameraSystem());
-			SystemManager::Get()->AddSystem(new MeshCullingSystem());
+			SystemManager::Get()->AddSystem(new RenderPrepSystem());
 			World* world = DataManager::Get()->LoadWorldFromFile("sponza.obj");
 			World::SetCurrentWorld(world);
 			s_MainLoop.Run();

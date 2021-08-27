@@ -22,8 +22,8 @@ namespace Khan
 		inline const glm::mat4& GetViewProjection() const { return m_ViewProjection; }
 		inline const glm::mat4& GetInverseProjection() const { return m_InverseProjection; }
 
-		inline float GetViewportWidth() const { return m_ViewportWidth; }
-		inline float GetViewportHeight() const { return m_ViewportHeight; }
+		inline uint32_t GetViewportWidth() const { return m_ViewportWidth; }
+		inline uint32_t GetViewportHeight() const { return m_ViewportHeight; }
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 	protected:
@@ -37,6 +37,6 @@ namespace Khan
 		glm::mat4 m_InverseProjection;
 
 		float m_FOV, m_AspectRatio, m_NearClip, m_FarClip;
-		float m_ViewportWidth = 1280, m_ViewportHeight = 720;
+		uint32_t m_ViewportWidth = 1280, m_ViewportHeight = 720;
 	};
 }

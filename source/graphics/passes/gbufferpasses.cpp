@@ -34,13 +34,13 @@ namespace Khan
 		: RenderPass(QueueType_Graphics, "GBufferPass")
 	{
 		PhysicalRenderPassDescription desc;
-		desc.m_RenderTargetCount = 6;
+		desc.m_RenderTargetCount = 5;
 		POPULATE_RENDER_TARGET_DATA(0, PF_R8G8B8A8_SRGB, StartAccessType::Clear, EndAccessType::Keep);
 		POPULATE_RENDER_TARGET_DATA(1, PF_R11G11B10_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
 		POPULATE_RENDER_TARGET_DATA(2, PF_R11G11B10_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
 		POPULATE_RENDER_TARGET_DATA(3, PF_R8G8B8A8_SRGB, StartAccessType::Clear, EndAccessType::Keep);
 		POPULATE_RENDER_TARGET_DATA(4, PF_R16G16_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
-		POPULATE_RENDER_TARGET_DATA(5, PF_R16G16_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
+		//POPULATE_RENDER_TARGET_DATA(5, PF_R16G16_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
 		desc.m_DepthStencil.m_Format = PF_D32_FLOAT;
 		desc.m_DepthStencil.m_DepthStartAccess = StartAccessType::Keep;
 		desc.m_DepthStencil.m_DepthEndAccess = EndAccessType::Keep;
@@ -62,8 +62,8 @@ namespace Khan
 
 		TextureDesc desc;
 		desc.m_Type = TextureType_2D;
-		desc.m_Width = 1280;
-		desc.m_Height = 720;
+		desc.m_Width = renderer.GetActiveCamera()->GetViewportWidth();
+		desc.m_Height = renderer.GetActiveCamera()->GetViewportHeight();
 		desc.m_Depth = 1;
 		desc.m_ArrayLayers = 1;
 		desc.m_MipLevels = 1;
@@ -116,6 +116,8 @@ namespace Khan
 			}
 
 			context.SetPipelineState(*material->GetPipelineState());
+			context.SetViewport(0.0f, 0.0f, (float)m_GBuffer_Depth->GetTexture().GetDesc().m_Width, (float)m_GBuffer_Depth->GetTexture().GetDesc().m_Height);
+			context.SetScissor(0, 0, m_GBuffer_Depth->GetTexture().GetDesc().m_Width, m_GBuffer_Depth->GetTexture().GetDesc().m_Height);
 
 			for (auto& texture : material->GetTextures())
 			{

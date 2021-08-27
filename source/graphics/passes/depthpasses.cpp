@@ -53,8 +53,8 @@ namespace Khan
 	{
 		TextureDesc desc;
 		desc.m_Type = TextureType_2D;
-		desc.m_Width = 1280;
-		desc.m_Height = 720;
+		desc.m_Width = renderer.GetActiveCamera()->GetViewportWidth();
+		desc.m_Height = renderer.GetActiveCamera()->GetViewportHeight();
 		desc.m_Depth = 1;
 		desc.m_ArrayLayers = 1;
 		desc.m_MipLevels = 1;
@@ -67,7 +67,7 @@ namespace Khan
 
 		TextureViewDesc viewDesc;
 		viewDesc.m_Type = TextureViewType_2D;
-		viewDesc.m_Format = renderer.GetResourceBoard().m_Persistent.m_FinalOutput->GetDesc().m_Format;
+		viewDesc.m_Format = desc.m_Format;
 		viewDesc.m_BaseArrayLayer = 0;
 		viewDesc.m_LayerCount = 1;
 		viewDesc.m_BaseMipLevel = 0;

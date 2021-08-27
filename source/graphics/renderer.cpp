@@ -47,7 +47,7 @@ namespace Khan
 		{
 			RecreateScreenFrustumBuffer();
 			rg.AddPass(m_TileFrustumCalculationPass);
-			m_ScreenSizeChanged = false;
+			m_ScreenDimensionsChanged = false;
 		}
 
 		rg.AddPass(m_DepthPrePass);
@@ -69,7 +69,7 @@ namespace Khan
 		DestroyScreenFrustumBuffer();
 
 		BufferDesc desc;
-		desc.m_Size = 4 * 4 * sizeof(float) * Window::g_Width / K_TILE_SIZE * Window::g_Height / K_TILE_SIZE;
+		desc.m_Size = 4 * 4 * sizeof(float) * m_ActiveCamera->GetViewportWidth() / K_TILE_SIZE * m_ActiveCamera->GetViewportHeight() / K_TILE_SIZE;
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 		m_ResourceBoard.m_Persistent.m_ScreenFrustums = RenderBackend::g_Device->CreateBuffer(desc);
 	}

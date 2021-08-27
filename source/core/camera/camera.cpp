@@ -29,10 +29,10 @@ namespace Khan
 
 	void Camera::OnViewportResize(uint32_t width, uint32_t height)
 	{
-		m_ViewportHeight = static_cast<float>(width);
-		m_ViewportHeight = static_cast<float>(height);
+		m_ViewportHeight = width;
+		m_ViewportHeight = height;
 
-		m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
+		m_AspectRatio = static_cast<float>(m_ViewportWidth) / static_cast<float>(m_ViewportHeight);
 
 		m_Projection = glm::perspective(m_FOV, m_AspectRatio, m_NearClip, m_FarClip);
 		m_InverseProjection = glm::inverse(m_Projection);
