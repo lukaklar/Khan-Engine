@@ -193,6 +193,7 @@ namespace Khan
 		++m_FrameCounter;
 
 		m_SemaphoreAllocator.ResetFrame(frameIndex);
+		m_UploadManager.ResetFrame(frameIndex);
 		m_UniformBufferAllocator.ResetFrame(frameIndex);
 		m_TransientResourceManager.ResetFrame(frameIndex);
 

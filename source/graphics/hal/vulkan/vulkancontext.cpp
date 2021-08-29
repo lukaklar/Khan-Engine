@@ -320,6 +320,7 @@ namespace Khan
 		KH_ASSERT(m_IsRenderPassInProgress, "Cannot issue draw commands until a valid render pass is in progress. Please begin a render pass before drawing.");
 		m_CommandType = CommandType::Draw;
 		BindPipeline();
+		UploadResources();
 		InsertBarriers();
 		BindDynamicStates();
 		m_ShouldBindIndexBuffer = false;
@@ -332,6 +333,7 @@ namespace Khan
 		KH_ASSERT(m_IsRenderPassInProgress, "Cannot issue draw commands until a valid render pass is in progress. Please begin a render pass before drawing.");
 		m_CommandType = CommandType::Draw;
 		BindPipeline();
+		UploadResources();
 		InsertBarriers();
 		BindDynamicStates();
 		m_ShouldBindIndexBuffer = true;
@@ -343,29 +345,56 @@ namespace Khan
 	{
 		m_CommandType = CommandType::Dispatch;
 		BindPipeline();
+		UploadResources();
 		InsertBarriers();
 		BindResources();
 		vkCmdDispatch(m_CommandBuffer, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 	}
 
-	/*void VulkanRenderContext::UpdateBufferFromHost(Buffer* dst, const void* src, uint32_t size)
+	void VulkanRenderContext::UploadBufferFromHost(VulkanBuffer& dst)
 	{
-		m_CommandType = CommandType::Update;
-		
-		uint32_t offset = m_Device.m_UploadManager.Upload(src, size);
+		uint32_t offset = m_Device.m_UploadManager.Upload(dst.GetShadowData(), dst.GetDataSize());
 
-		VulkanBuffer* buffer = reinterpret_cast<VulkanBuffer*>(dst);
-
-		m_BarrierRecorder.RecordBarrier(*buffer, ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
+		m_BarrierRecorder.RecordBarrier(dst, ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
 		m_BarrierRecorder.Flush(m_CommandBuffer);
 
 		VkBufferCopy copy;
 		copy.srcOffset = offset;
 		copy.dstOffset = 0;
-		copy.size = size;
+		copy.size = dst.GetDataSize();
 		
-		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), buffer->GetVulkanBuffer(), 1, &copy);
-	}*/
+		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), dst.GetVulkanBuffer(), 1, &copy);
+
+		dst.SetDirty(false);
+	}
+
+	void VulkanRenderContext::UploadImageFromHost(VulkanTexture& dst)
+	{
+		uint32_t offset = m_Device.m_UploadManager.Upload(dst.GetShadowData(), dst.GetDataSize());
+
+		m_BarrierRecorder.RecordBarrier(dst, ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
+		m_BarrierRecorder.Flush(m_CommandBuffer);
+
+		VkBufferImageCopy copy;
+		copy.bufferOffset = offset;
+		copy.bufferRowLength = 0;
+		copy.bufferImageHeight = 0;
+		copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copy.imageSubresource.mipLevel = 0;
+		copy.imageSubresource.baseArrayLayer = 0;
+		copy.imageSubresource.layerCount = 1;
+		copy.imageOffset = { 0, 0, 0 };
+		copy.imageExtent =
+		{
+			dst.GetDesc().m_Width,
+			dst.GetDesc().m_Height,
+			1
+		};
+
+		vkCmdCopyBufferToImage(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), dst.VulkanImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+
+		dst.SetDirty(false);
+	}
 
 	void VulkanRenderContext::ResetFrame(uint32_t frameIndex)
 	{
@@ -597,6 +626,66 @@ namespace Khan
 		{
 			vkCmdSetScissor(m_CommandBuffer, 0, 1, &m_Scissor);
 			m_ScissorDirty = false;
+		}
+	}
+
+	inline void VulkanRenderContext::UploadResources()
+	{
+		if (m_CommandType == CommandType::Draw)
+		{
+			for (uint32_t i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
+			{
+				if (m_VertexBuffers[i] != nullptr && m_VBDirty[i] && m_VertexBuffers[i]->IsDirty())
+				{
+					UploadBufferFromHost(*m_VertexBuffers[i]);
+				}
+			}
+
+			if (m_IndexBuffer != nullptr && m_ShouldBindIndexBuffer && m_IndexBufferDirty)
+			{
+				UploadBufferFromHost(*m_IndexBuffer);
+			}
+		}
+
+		if (m_FirstDirtySet == ResourceBindFrequency_Count) return;
+
+		ResourceState srvResourceState = m_CommandType == CommandType::Dispatch ? ResourceState_NonPixelShaderAccess : ResourceState_PixelShaderAccess;
+		for (uint32_t set = m_FirstDirtySet; set < ResourceBindFrequency_Count; ++set)
+		{
+			for (uint32_t binding = 0; binding < K_MAX_SRV; ++binding)
+			{
+				VulkanTextureView* texture = m_SRVTextures[set][binding];
+				if (texture != nullptr && texture->GetTexture().IsDirty())
+				{
+					UploadImageFromHost(reinterpret_cast<VulkanTexture&>(texture->GetTexture()));
+					continue;
+				}
+
+				VulkanBufferView* buffer = m_SRVBuffers[set][binding];
+				if (buffer != nullptr && buffer->GetBuffer().IsDirty())
+				{
+					UploadBufferFromHost(reinterpret_cast<VulkanBuffer&>(buffer->GetBuffer()));
+				}
+			}
+
+			if (m_CommandType == CommandType::Dispatch)
+			{
+				for (uint32_t binding = 0; binding < K_MAX_UAV; ++binding)
+				{
+					VulkanTextureView* texture = m_UAVTextures[set][binding];
+					if (texture != nullptr && texture->GetTexture().IsDirty())
+					{
+						UploadImageFromHost(reinterpret_cast<VulkanTexture&>(texture->GetTexture()));
+						continue;
+					}
+
+					VulkanBufferView* buffer = m_UAVBuffers[set][binding];
+					if (buffer != nullptr && buffer->GetBuffer().IsDirty())
+					{
+						UploadBufferFromHost(reinterpret_cast<VulkanBuffer&>(buffer->GetBuffer()));
+					}
+				}
+			}
 		}
 	}
 }

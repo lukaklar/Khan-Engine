@@ -7,7 +7,7 @@ namespace Khan
 		Draw,
 		Dispatch,
 		//Copy,
-		Update,
+		//Update,
 		//Query
 	};
 }

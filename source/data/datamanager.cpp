@@ -187,18 +187,20 @@ namespace Khan
 					{
 						BufferDesc desc;
 						desc.m_Size = aimesh.mNumVertices * sizeof(Vertex);
-						desc.m_Flags = BufferFlag_AllowVertices;
+						desc.m_Flags = BufferFlag_AllowVertices | BufferFlag_Writable;
 
 						mesh->m_VertexBuffer = RenderBackend::g_Device->CreateBuffer(desc);
+						mesh->m_VertexBuffer->Update(vertices.data(), vertices.size() * sizeof(Vertex), 0);
 						mesh->m_VertexCount = aimesh.mNumVertices;
 					}
 
 					{
 						BufferDesc desc;
 						desc.m_Size = aimesh.mNumFaces * 3 * sizeof(uint32_t);
-						desc.m_Flags = BufferFlag_AllowIndices;
+						desc.m_Flags = BufferFlag_AllowIndices | BufferFlag_Writable;
 
 						mesh->m_IndexBuffer = RenderBackend::g_Device->CreateBuffer(desc);
+						mesh->m_IndexBuffer->Update(indices.data(), indices.size() * sizeof(uint32_t), 0);
 						mesh->m_IndexCount = aimesh.mNumFaces * 3;
 					}
 

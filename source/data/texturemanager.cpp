@@ -47,11 +47,12 @@ namespace Khan
 			desc.m_Depth = 1;
 			desc.m_ArrayLayers = 1;
 			desc.m_MipLevels = 1;
-			desc.m_Format = PF_R8G8B8A8_UNORM;
-			desc.m_Flags = TextureFlag_AllowUnorderedAccess;
+			desc.m_Format = PF_R8G8B8A8_SRGB;
+			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_Writable;
 
 			// TODO: Upload texture data
 			texture = RenderBackend::g_Device->CreateTexture(desc);
+			texture->Update(data, width * height * 4, 0);
 
 			stbi_image_free(data);
 		}
@@ -63,7 +64,7 @@ namespace Khan
 		{
 			TextureViewDesc desc;
 			desc.m_Type = TextureViewType_2D;
-			desc.m_Format = PF_R8G8B8A8_UNORM;
+			desc.m_Format = PF_R8G8B8A8_SRGB;
 			desc.m_BaseArrayLayer = 0;
 			desc.m_LayerCount = 1;
 			desc.m_BaseMipLevel = 0;

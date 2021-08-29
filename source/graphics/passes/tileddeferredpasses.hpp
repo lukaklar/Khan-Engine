@@ -1,24 +1,12 @@
 #pragma once
 #include "graphics/renderpass.hpp"
 #include "graphics/hal/constantbuffer.hpp"
-#include "graphics/hal/pipelinedescriptions.hpp"
 
 namespace Khan
 {
+	struct RenderPipelineState;
 	class BufferView;
 	class TextureView;
-
-	class LightDataUploadPass : public RenderPass
-	{
-	public:
-		LightDataUploadPass();
-
-		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
-		virtual void Execute(RenderContext& context, Renderer& renderer) override;
-
-	private:
-		BufferView* m_LightData;
-	};
 
 	class TileFrustumCalculationPass : public RenderPass
 	{

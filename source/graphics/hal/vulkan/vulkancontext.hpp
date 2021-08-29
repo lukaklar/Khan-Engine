@@ -57,9 +57,13 @@ namespace Khan
 
 	private:
 		void BindPipeline();
+		void UploadResources();
 		void InsertBarriers();
 		void BindDynamicStates();
 		void BindResources();
+
+		void UploadBufferFromHost(VulkanBuffer& dst);
+		void UploadImageFromHost(VulkanTexture& dst);
 
 		VulkanRenderDevice& m_Device;
 

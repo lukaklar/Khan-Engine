@@ -21,36 +21,6 @@ m_GBuffer_##target = renderGraph.DeclareResourceDependency(temp, viewDesc, state
 
 namespace Khan
 {
-	LightDataUploadPass::LightDataUploadPass()
-		: RenderPass(QueueType_Copy, "LightDataUploadPass")
-	{
-	}
-
-	void LightDataUploadPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
-	{
-		BufferDesc desc;
-		desc.m_Size = static_cast<uint32_t>(renderer.GetActiveLightData().size());
-		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
-
-		Buffer* temp = renderGraph.CreateManagedResource(desc);
-		renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights = temp;
-
-		BufferViewDesc viewDesc;
-		viewDesc.m_Offset = 0;
-		viewDesc.m_Range = desc.m_Size;
-		viewDesc.m_Format = PF_NONE;
-
-		m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_CopyDestination);
-	}
-
-	void LightDataUploadPass::Execute(RenderContext& context, Renderer& renderer)
-	{
-		std::vector<ShaderLightData>& lights = renderer.GetActiveLightData();
-		uint32_t sizeInBytes = static_cast<uint32_t>(lights.size() * sizeof(ShaderLightData));
-
-		//context.UpdateBufferFromHost(&m_LightData->GetBuffer(), lights.data(), sizeInBytes);
-	}
-
 	TileFrustumCalculationPass::TileFrustumCalculationPass()
 		: RenderPass(QueueType_Compute, "TileFrustumCalculationPass")
 	{
@@ -98,13 +68,27 @@ namespace Khan
 			BufferDesc desc;
 			BufferViewDesc viewDesc;
 
+			std::vector<ShaderLightData>& lights = renderer.GetActiveLightData();
+			uint32_t sizeInBytes = static_cast<uint32_t>(lights.size() * sizeof(ShaderLightData));
+
+			desc.m_Size = sizeInBytes;
+			desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_Writable;
+
+			temp = renderGraph.CreateManagedResource(desc);
+			temp->Update(lights.data(), sizeInBytes, 0);
+			renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights = temp;
+
+			viewDesc.m_Offset = 0;
+			viewDesc.m_Range = desc.m_Size;
+			viewDesc.m_Format = PF_NONE;
+			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+
 			desc.m_Size = sizeof(uint32_t);
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess;
 			temp = renderGraph.CreateManagedResource(desc);
 
 			viewDesc.m_Offset = 0;
 			viewDesc.m_Range = desc.m_Size;
-			viewDesc.m_Format = PF_NONE;
 			m_OpaqueLightIndexCounter = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			temp = renderGraph.CreateManagedResource(desc);
@@ -113,10 +97,6 @@ namespace Khan
 			temp = renderer.GetResourceBoard().m_Persistent.m_ScreenFrustums;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			m_PerTileFrustums = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
-
-			temp = renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights;
-			viewDesc.m_Range = temp->GetDesc().m_Size;
-			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
 			desc.m_Size = 10000;
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
