@@ -57,20 +57,16 @@ namespace Khan
 
 	private:
 		void BindPipeline();
-		void UploadResources();
 		void InsertBarriers();
 		void BindDynamicStates();
 		void BindResources();
-
-		void UploadBufferFromHost(VulkanBuffer& dst);
-		void UploadImageFromHost(VulkanTexture& dst);
 
 		VulkanRenderDevice& m_Device;
 
 		VkCommandBuffer m_CommandBuffer;
 		const RenderPass* m_ExecutingPass;
 		CommandType m_CommandType;
-		VulkanCommandPool m_CommandPools[2];
+		VulkanCommandPool m_CommandPools[QueueType_Count];
 		VulkanBarrierRecorder m_BarrierRecorder;
 
 		std::vector<VkFramebuffer> m_Framebuffers[K_MAX_FRAMES_IN_FLIGHT];

@@ -13,6 +13,7 @@ namespace Khan
 	VulkanRenderDevice::VulkanRenderDevice(const DisplayAdapter& adapter)
 		: RenderDevice(adapter, &m_TransientResourceManager)
 		, m_TransientResourceManager(*this)
+		, m_BarrierRecorder(adapter)
 	{
 		VkDeviceQueueCreateInfo queueInfos[QueueType_Count];
 		float queuePriority = 1.0f;
@@ -55,10 +56,16 @@ namespace Khan
 
 		// TODO: Create a couple of these (maybe equal to the number of CPU cores)
 		m_Contexts.push_back(new VulkanRenderContext(*this));
+
+		m_GraphicsCommandPool.Create(m_Device, m_Adapter.GetQueueFamilyIndices()[QueueType_Graphics]);
+		m_CopyCommandPool.Create(m_Device, m_Adapter.GetQueueFamilyIndices()[QueueType_Copy]);
 	}
 
 	VulkanRenderDevice::~VulkanRenderDevice()
 	{
+		m_CopyCommandPool.Destroy();
+		m_GraphicsCommandPool.Destroy();
+
 		for (RenderContext* context : m_Contexts)
 		{
 			delete context;
@@ -74,9 +81,78 @@ namespace Khan
 		vkDestroyDevice(m_Device, nullptr);
 	}
 
-	Buffer* VulkanRenderDevice::CreateBuffer(const BufferDesc& desc)
+	Buffer* VulkanRenderDevice::CreateBuffer(const BufferDesc& desc, const void* initData)
 	{
-		return m_MemoryManager.CreateBuffer(desc);
+		VulkanBuffer* buffer = m_MemoryManager.CreateBuffer(desc);
+
+		if (!initData)
+		{
+			return buffer;
+		}
+
+		VkCommandBuffer cpyCmdBuf = m_CopyCommandPool.AllocateCommandBuffer();
+
+		VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		VK_ASSERT(vkBeginCommandBuffer(cpyCmdBuf, &beginInfo), "[VULKAN] Failed to begin cpy command buffer.");
+
+		uint32_t offset = m_UploadManager.Upload(initData, desc.m_Size);
+
+		m_BarrierRecorder.RecordBarrier(*buffer, ResourceState_CopyDestination, QueueType_Copy);
+		m_BarrierRecorder.Flush(cpyCmdBuf);
+
+		VkBufferCopy copy;
+		copy.srcOffset = offset;
+		copy.dstOffset = 0;
+		copy.size = desc.m_Size;
+
+		vkCmdCopyBuffer(cpyCmdBuf, m_UploadManager.CurrentBuffer(), buffer->GetVulkanBuffer(), 1, &copy);
+
+		m_BarrierRecorder.RecordBarrier(*buffer, desc.m_Flags & BufferFlag_AllowVertices ? ResourceState_VertexBuffer : ResourceState_IndexBuffer, QueueType_Graphics);
+		m_BarrierRecorder.Flush(cpyCmdBuf);
+
+		VK_ASSERT(vkEndCommandBuffer(cpyCmdBuf), "[VULKAN] Failed to end cpy command buffer.");
+
+		//=========================================================================================================================================================
+
+		VkCommandBuffer gfxCmdBuf = m_GraphicsCommandPool.AllocateCommandBuffer();
+
+		//VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+		//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		VK_ASSERT(vkBeginCommandBuffer(gfxCmdBuf, &beginInfo), "[VULKAN] Failed to begin gfx command buffer.");
+
+		buffer->SetQueue(QueueType_Copy);
+		buffer->SetState(ResourceState_CopyDestination);
+
+		m_BarrierRecorder.RecordBarrier(*buffer, desc.m_Flags & BufferFlag_AllowVertices ? ResourceState_VertexBuffer : ResourceState_IndexBuffer, QueueType_Graphics);
+		m_BarrierRecorder.Flush(gfxCmdBuf);
+
+		VK_ASSERT(vkEndCommandBuffer(gfxCmdBuf), "[VULKAN] Failed to end gfx command buffer.");
+
+		//=========================================================================================================================================================
+
+		VkSemaphore semaphore = m_SemaphoreAllocator.AllocateSemaphore();
+
+		VkSubmitInfo cpySubmitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+		cpySubmitInfo.commandBufferCount = 1;
+		cpySubmitInfo.pCommandBuffers = &cpyCmdBuf;
+		cpySubmitInfo.signalSemaphoreCount = 1;
+		cpySubmitInfo.pSignalSemaphores = &semaphore;
+
+		VK_ASSERT(vkQueueSubmit(m_CommandQueues[QueueType_Copy], 1, &cpySubmitInfo, VK_NULL_HANDLE), "[VULKAN] Failed to submit cpy command buffer.");
+
+		VkPipelineStageFlags semaphoreStages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+		VkSubmitInfo gfxSubmitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+		gfxSubmitInfo.waitSemaphoreCount = 1;
+		gfxSubmitInfo.pWaitSemaphores = &semaphore;
+		gfxSubmitInfo.pWaitDstStageMask = &semaphoreStages;
+		gfxSubmitInfo.commandBufferCount = 1;
+		gfxSubmitInfo.pCommandBuffers = &gfxCmdBuf;
+
+		VK_ASSERT(vkQueueSubmit(m_CommandQueues[QueueType_Graphics], 1, &gfxSubmitInfo, VK_NULL_HANDLE), "[VULKAN] Failed to submit gfx command buffer.");
+
+		return buffer;
 	}
 
 	BufferView* VulkanRenderDevice::CreateBufferView(Buffer* buffer, const BufferViewDesc& desc)
@@ -93,9 +169,89 @@ namespace Khan
 		return new VulkanBufferView(bufferView, *buffer, desc);
 	}
 
-	Texture* VulkanRenderDevice::CreateTexture(const TextureDesc& desc)
+	Texture* VulkanRenderDevice::CreateTexture(const TextureDesc& desc, const void* initData)
 	{
-		return m_MemoryManager.CreateTexture(desc);
+		VulkanTexture* texture = m_MemoryManager.CreateTexture(desc);
+
+		if (!initData)
+		{
+			return texture;
+		}
+
+		VkCommandBuffer cpyCmdBuf = m_CopyCommandPool.AllocateCommandBuffer();
+
+		VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		VK_ASSERT(vkBeginCommandBuffer(cpyCmdBuf, &beginInfo), "[VULKAN] Failed to begin cpy command buffer.");
+
+		uint32_t offset = m_UploadManager.Upload(initData, desc.m_Width * desc.m_Height * 4);
+
+		m_BarrierRecorder.RecordBarrier(*texture, ResourceState_CopyDestination, QueueType_Copy);
+		m_BarrierRecorder.Flush(cpyCmdBuf);
+
+		VkBufferImageCopy copy;
+		copy.bufferOffset = offset;
+		copy.bufferRowLength = 0;
+		copy.bufferImageHeight = 0;
+		copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copy.imageSubresource.mipLevel = 0;
+		copy.imageSubresource.baseArrayLayer = 0;
+		copy.imageSubresource.layerCount = 1;
+		copy.imageOffset = { 0, 0, 0 };
+		copy.imageExtent =
+		{
+			desc.m_Width,
+			desc.m_Height,
+			1
+		};
+
+		vkCmdCopyBufferToImage(cpyCmdBuf, m_UploadManager.CurrentBuffer(), texture->VulkanImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+
+		m_BarrierRecorder.RecordBarrier(*texture, ResourceState_PixelShaderAccess, QueueType_Graphics);
+		m_BarrierRecorder.Flush(cpyCmdBuf);
+
+		VK_ASSERT(vkEndCommandBuffer(cpyCmdBuf), "[VULKAN] Failed to end cpy command buffer.");
+
+		//=========================================================================================================================================================
+
+		VkCommandBuffer gfxCmdBuf = m_GraphicsCommandPool.AllocateCommandBuffer();
+
+		//VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+		//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		VK_ASSERT(vkBeginCommandBuffer(gfxCmdBuf, &beginInfo), "[VULKAN] Failed to begin gfx command buffer.");
+
+		texture->SetQueue(QueueType_Copy);
+		texture->SetState(ResourceState_CopyDestination);
+
+		m_BarrierRecorder.RecordBarrier(*texture, ResourceState_PixelShaderAccess, QueueType_Graphics);
+		m_BarrierRecorder.Flush(gfxCmdBuf);
+
+		VK_ASSERT(vkEndCommandBuffer(gfxCmdBuf), "[VULKAN] Failed to end gfx command buffer.");
+
+		//=========================================================================================================================================================
+
+		VkSemaphore semaphore = m_SemaphoreAllocator.AllocateSemaphore();
+
+		VkSubmitInfo cpySubmitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+		cpySubmitInfo.commandBufferCount = 1;
+		cpySubmitInfo.pCommandBuffers = &cpyCmdBuf;
+		cpySubmitInfo.signalSemaphoreCount = 1;
+		cpySubmitInfo.pSignalSemaphores = &semaphore;
+
+		VK_ASSERT(vkQueueSubmit(m_CommandQueues[QueueType_Copy], 1, &cpySubmitInfo, VK_NULL_HANDLE), "[VULKAN] Failed to submit cpy command buffer.");
+
+		VkPipelineStageFlags semaphoreStages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+		VkSubmitInfo gfxSubmitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+		gfxSubmitInfo.waitSemaphoreCount = 1;
+		gfxSubmitInfo.pWaitSemaphores = &semaphore;
+		gfxSubmitInfo.pWaitDstStageMask = &semaphoreStages;
+		gfxSubmitInfo.commandBufferCount = 1;
+		gfxSubmitInfo.pCommandBuffers = &gfxCmdBuf;
+
+		VK_ASSERT(vkQueueSubmit(m_CommandQueues[QueueType_Graphics], 1, &gfxSubmitInfo, VK_NULL_HANDLE), "[VULKAN] Failed to submit gfx command buffer.");
+
+		return texture;
 	}
 
 	TextureView* VulkanRenderDevice::CreateTextureView(Texture* texture, const TextureViewDesc& desc)

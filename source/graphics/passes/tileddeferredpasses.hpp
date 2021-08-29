@@ -8,6 +8,18 @@ namespace Khan
 	class BufferView;
 	class TextureView;
 
+	class LightDataUploadPass : public RenderPass
+	{
+	public:
+		LightDataUploadPass();
+
+		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
+		virtual void Execute(RenderContext& context, Renderer& renderer) override;
+
+	private:
+		BufferView* m_LightData;
+	};
+
 	class TileFrustumCalculationPass : public RenderPass
 	{
 	public:

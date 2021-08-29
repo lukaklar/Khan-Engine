@@ -1,23 +1,25 @@
 #include "graphics/precomp.h"
 #include "graphics/passes/depthpasses.hpp"
 #include "graphics/hal/physicalrenderpass.hpp"
+#include "graphics/hal/pipelinedescriptions.hpp"
 #include "graphics/hal/pixelformats.hpp"
 #include "graphics/hal/queuetype.hpp"
 #include "graphics/hal/renderbackend.hpp"
 #include "graphics/hal/rendercontext.hpp"
+#include "graphics/hal/resourcebindfrequency.hpp"
 #include "graphics/hal/texture.hpp"
 #include "graphics/hal/textureview.hpp"
-#include "graphics/renderer.hpp"
-#include "graphics/rendergraph.hpp"
-#include "graphics/hal/pipelinedescriptions.hpp"
 #include "graphics/materials/material.hpp"
 #include "graphics/objects/mesh.hpp"
+#include "graphics/renderer.hpp"
+#include "graphics/rendergraph.hpp"
 #include "graphics/shadermanager.hpp"
 
 namespace Khan
 {
 	DepthPrePass::DepthPrePass()
 		: RenderPass(QueueType_Graphics, "DepthPrePass")
+		, m_ViewProjParams(sizeof(glm::mat4))
 	{
 		{
 			PhysicalRenderPassDescription desc;
@@ -79,9 +81,11 @@ namespace Khan
 	void DepthPrePass::Execute(RenderContext& context, Renderer& renderer)
 	{
 		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_DepthBuffer);
+
+		m_ViewProjParams.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_ViewProjParams);
 		
-		auto& meshes = renderer.GetOpaqueMeshes();
-		for (auto mesh : meshes)
+		for (auto mesh : renderer.GetOpaqueMeshes())
 		{
 			context.SetVertexBuffer(0, mesh->m_VertexBuffer, 0);
 			context.SetIndexBuffer(mesh->m_IndexBuffer, 0, false);
@@ -93,6 +97,7 @@ namespace Khan
 			context.SetPipelineState(*pipelineState);
 			context.SetViewport(0.0f, 0.0f, (float)m_DepthBuffer->GetTexture().GetDesc().m_Width, (float)m_DepthBuffer->GetTexture().GetDesc().m_Height);
 			context.SetScissor(0, 0, m_DepthBuffer->GetTexture().GetDesc().m_Width, m_DepthBuffer->GetTexture().GetDesc().m_Height);
+			context.SetConstantBuffer(ResourceBindFrequency_PerDraw, 0, &mesh->m_ParentTransform);
 
 			context.DrawIndexedInstanced(mesh->m_IndexCount, 1, 0, 0, 0);
 		}

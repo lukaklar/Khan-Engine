@@ -46,13 +46,15 @@ namespace Khan
 
 		inline std::vector<ShaderLightData>& GetActiveLightData() { return m_ActiveLightData; }
 
-		const Camera* GetActiveCamera() const { return m_ActiveCamera; }
-		void SetActiveCamera(const Camera* camera) { m_ActiveCamera = camera; }
+		inline const Camera* GetActiveCamera() const { return m_ActiveCamera; }
+		inline void SetActiveCamera(const Camera* camera) { m_ActiveCamera = camera; }
 
-		ConstantBuffer& GetTiledDeferredDispatchParams() { return m_TiledDeferredDispatchParams; }
-		ConstantBuffer& GetScreenToViewParams() { return m_ScreenToViewParams; }
+		inline ConstantBuffer& GetTiledDeferredDispatchParams() { return m_TiledDeferredDispatchParams; }
+		inline ConstantBuffer& GetScreenToViewParams() { return m_ScreenToViewParams; }
 
 		inline uint32_t GetScreenTileSize() const { return K_TILE_SIZE; }
+
+		inline const glm::uvec3& GetNumDispatchThreadGroups() const { return m_NumDispatchThreadGroups; }
 
 	private:
 		void SchedulePasses();
@@ -62,12 +64,13 @@ namespace Khan
 
 		DepthPrePass m_DepthPrePass;
 		GBufferPass m_GBufferPass;
+		LightDataUploadPass m_LightDataUploadPass;
 		TileFrustumCalculationPass m_TileFrustumCalculationPass;
 		LightCullingPass m_LightCullingPass;
 		TiledDeferredLightingPass m_TiledDeferredLightingPass;
 		//TransparentPass m_TransparentPass;
-		//HDRPass m_HDRPass;
-		TestPass m_TestPass;
+		HDRPass m_HDRPass;
+		//TestPass m_TestPass;
 		FinalPass m_FinalPass;
 
 		ResourceBoard m_ResourceBoard;
@@ -81,6 +84,9 @@ namespace Khan
 		const Camera* m_ActiveCamera;
 
 		bool m_ScreenDimensionsChanged;
+
+		glm::uvec3 m_NumDispatchThreadGroups;
+		glm::uvec3 m_NumDispatchThreads;
 
 		ConstantBuffer m_TiledDeferredDispatchParams;
 		ConstantBuffer m_ScreenToViewParams;

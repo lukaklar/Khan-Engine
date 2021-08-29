@@ -120,7 +120,12 @@ namespace Khan
 
 	KH_FORCE_INLINE void VulkanBarrierRecorder::RecordBarrier(VulkanBuffer& buffer, ResourceState state, QueueType queue)
 	{
-		if (!ResourceStateToWriteAccess(buffer.GetState()) && !ResourceStateToWriteAccess(state) && queue != buffer.GetQueue())
+		if (buffer.GetQueue() == QueueType_None)
+		{
+			buffer.SetQueue(queue);
+		}
+
+		if (!ResourceStateToWriteAccess(buffer.GetState()) && !ResourceStateToWriteAccess(state) && queue == buffer.GetQueue())
 		{
 			return;
 		}
@@ -154,6 +159,11 @@ namespace Khan
 
 	KH_FORCE_INLINE void VulkanBarrierRecorder::RecordBarrier(VulkanBufferView& bufferView, ResourceState state, QueueType queue)
 	{
+		if (bufferView.GetBuffer().GetQueue() == QueueType_None)
+		{
+			bufferView.GetBuffer().SetQueue(queue);
+		}
+
 		if (!ResourceStateToWriteAccess(bufferView.GetBuffer().GetState()) && !ResourceStateToWriteAccess(state) && queue == bufferView.GetBuffer().GetQueue())
 		{
 			return;
@@ -190,6 +200,11 @@ namespace Khan
 	{
 		VkImageLayout oldLayout = ResourceStateToVkImageLayout(texture.GetState());
 		VkImageLayout newLayout = ResourceStateToVkImageLayout(state);
+
+		if (texture.GetQueue() == QueueType_None)
+		{
+			texture.SetQueue(queue);
+		}
 
 		if (!ResourceStateToWriteAccess(texture.GetState()) && !ResourceStateToWriteAccess(state) && oldLayout == newLayout && texture.GetQueue() == queue)
 		{
@@ -234,6 +249,11 @@ namespace Khan
 	{
 		VkImageLayout oldLayout = ResourceStateToVkImageLayout(textureView.GetTexture().GetState());
 		VkImageLayout newLayout = ResourceStateToVkImageLayout(state);
+
+		if (textureView.GetTexture().GetQueue() == QueueType_None)
+		{
+			textureView.GetTexture().SetQueue(queue);
+		}
 
 		if (!ResourceStateToWriteAccess(textureView.GetTexture().GetState()) && !ResourceStateToWriteAccess(state) && oldLayout == newLayout && textureView.GetTexture().GetQueue() == queue)
 		{

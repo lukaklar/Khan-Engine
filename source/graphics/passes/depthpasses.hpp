@@ -1,5 +1,6 @@
 #pragma once
 #include "graphics/renderpass.hpp"
+#include "graphics/hal/constantbuffer.hpp"
 
 namespace Khan
 {
@@ -20,5 +21,6 @@ namespace Khan
 		PhysicalRenderPass* m_PhysicalRenderPass;
 		RenderPipelineState* m_PipelineStateNoCulling;
 		RenderPipelineState* m_PipelineStateBackfaceCulling;
+		ConstantBuffer m_ViewProjParams;
 	};
 }

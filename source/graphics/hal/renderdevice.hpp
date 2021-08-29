@@ -32,10 +32,10 @@ namespace Khan
 		inline RenderGraph& GetRenderGraph() { return m_RenderGraph; }
 		inline uint64_t FrameNumber() const { return m_FrameCounter; }
 
-		virtual Buffer* CreateBuffer(const BufferDesc& desc) = 0;
+		virtual Buffer* CreateBuffer(const BufferDesc& desc, const void* initData = nullptr) = 0;
 		virtual BufferView* CreateBufferView(Buffer* buffer, const BufferViewDesc& desc) = 0;
 
-		virtual Texture* CreateTexture(const TextureDesc& desc) = 0;
+		virtual Texture* CreateTexture(const TextureDesc& desc, const void* initData = nullptr) = 0;
 		virtual TextureView* CreateTextureView(Texture* texture, const TextureViewDesc& desc) = 0;
 
 		virtual Shader* CreateShader(const ShaderDesc& desc) = 0;

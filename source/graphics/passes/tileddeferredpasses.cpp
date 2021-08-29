@@ -17,10 +17,40 @@
 #define DECLARE_GBUFFER_INPUT(target, state)\
 temp = renderer.GetResourceBoard().m_Transient.m_GBuffer.m_##target;\
 viewDesc.m_Format = temp->GetDesc().m_Format;\
-m_GBuffer_##target = renderGraph.DeclareResourceDependency(temp, viewDesc, state);
+m_GBuffer_##target = renderGraph.DeclareResourceDependency(temp, viewDesc, state, true);
 
 namespace Khan
 {
+	LightDataUploadPass::LightDataUploadPass()
+		: RenderPass(QueueType_Copy, "LightDataUploadPass")
+	{
+	}
+
+	void LightDataUploadPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
+	{
+		BufferDesc desc;
+		desc.m_Size = static_cast<uint32_t>(renderer.GetActiveLightData().size());
+		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
+
+		Buffer* temp = renderGraph.CreateManagedResource(desc);
+		renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights = temp;
+
+		BufferViewDesc viewDesc;
+		viewDesc.m_Offset = 0;
+		viewDesc.m_Range = desc.m_Size;
+		viewDesc.m_Format = PF_NONE;
+
+		m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_CopyDestination);
+	}
+
+	void LightDataUploadPass::Execute(RenderContext& context, Renderer& renderer)
+	{
+		std::vector<ShaderLightData>& lights = renderer.GetActiveLightData();
+		uint32_t sizeInBytes = static_cast<uint32_t>(lights.size() * sizeof(ShaderLightData));
+
+		//context.UpdateBufferFromHost(&m_LightData->GetBuffer(), lights.data(), sizeInBytes);
+	}
+
 	TileFrustumCalculationPass::TileFrustumCalculationPass()
 		: RenderPass(QueueType_Compute, "TileFrustumCalculationPass")
 	{
@@ -44,12 +74,15 @@ namespace Khan
 
 	void TileFrustumCalculationPass::Execute(RenderContext& context, Renderer& renderer)
 	{
+		context.SetPipelineState(*m_PipelineState);
+
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 
 		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_PerTileFrustums);
 
-		// TODO: context.Dispatch(...);
+		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreadGroups();
+		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
 	}
 
 	LightCullingPass::LightCullingPass()
@@ -68,27 +101,13 @@ namespace Khan
 			BufferDesc desc;
 			BufferViewDesc viewDesc;
 
-			std::vector<ShaderLightData>& lights = renderer.GetActiveLightData();
-			uint32_t sizeInBytes = static_cast<uint32_t>(lights.size() * sizeof(ShaderLightData));
-
-			desc.m_Size = sizeInBytes;
-			desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_Writable;
-
-			temp = renderGraph.CreateManagedResource(desc);
-			temp->Update(lights.data(), sizeInBytes, 0);
-			renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights = temp;
-
-			viewDesc.m_Offset = 0;
-			viewDesc.m_Range = desc.m_Size;
-			viewDesc.m_Format = PF_NONE;
-			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
-
 			desc.m_Size = sizeof(uint32_t);
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess;
 			temp = renderGraph.CreateManagedResource(desc);
 
 			viewDesc.m_Offset = 0;
 			viewDesc.m_Range = desc.m_Size;
+			viewDesc.m_Format = PF_NONE;
 			m_OpaqueLightIndexCounter = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			temp = renderGraph.CreateManagedResource(desc);
@@ -96,7 +115,11 @@ namespace Khan
 
 			temp = renderer.GetResourceBoard().m_Persistent.m_ScreenFrustums;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
-			m_PerTileFrustums = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+			m_PerTileFrustums = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+
+			temp = renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights;
+			viewDesc.m_Range = temp->GetDesc().m_Size;
+			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
 
 			desc.m_Size = 10000;
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
@@ -146,12 +169,14 @@ namespace Khan
 
 			temp = renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth;
 			viewDesc.m_Format = temp->GetDesc().m_Format;
-			m_DepthTexture = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+			m_DepthTexture = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
 		}
 	}
 
 	void LightCullingPass::Execute(RenderContext& context, Renderer& renderer)
 	{
+		context.SetPipelineState(*m_PipelineState);
+
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 
@@ -166,7 +191,8 @@ namespace Khan
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 4, m_OpaqueLightGrid);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 5, m_TransparentLightGrid);
 
-		// TODO: context.Dispatch(...);
+		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreadGroups();
+		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
 	}
 
 	TiledDeferredLightingPass::TiledDeferredLightingPass()
@@ -241,6 +267,8 @@ namespace Khan
 
 	void TiledDeferredLightingPass::Execute(RenderContext& context, Renderer& renderer)
 	{
+		context.SetPipelineState(*m_PipelineState);
+
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 
@@ -253,7 +281,7 @@ namespace Khan
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 6, m_LightGrid);
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 7, m_LightData);
 
-		// TODO: these should be equal to the screen dimensions (get them from the active camera in renderer)
-		//context.Dispatch(width, height, 1);
+		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreadGroups();
+		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
 	}
 }

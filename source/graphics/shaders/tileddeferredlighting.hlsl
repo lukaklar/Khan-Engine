@@ -44,10 +44,10 @@ SurfaceData UnpackGBuffer(int3 location)
 }
 
 [numthreads(TILE_SIZE, TILE_SIZE, 1)]
-void CS_TiledDeferredLighting(uint3 groupID : SV_GroupID,
-                              uint3 groupThreadID : SV_GroupThreadID,
-                              uint3 dispatchThreadID : SV_DispatchThreadID,
-                              uint groupIndex : SV_GroupIndex)
+void CS_ComputeFrustums(uint3 groupID           : SV_GroupID,
+                        uint3 groupThreadID     : SV_GroupThreadID,
+                        uint3 dispatchThreadID  : SV_DispatchThreadID,
+                        uint  groupIndex        : SV_GroupIndex)
 {
     int3 texCoord = int3(dispatchThreadID.xy, 0);
     SurfaceData data = UnpackGBuffer(texCoord);

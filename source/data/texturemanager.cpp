@@ -50,9 +50,7 @@ namespace Khan
 			desc.m_Format = PF_R8G8B8A8_SRGB;
 			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_Writable;
 
-			// TODO: Upload texture data
-			texture = RenderBackend::g_Device->CreateTexture(desc);
-			texture->Update(data, width * height * 4, 0);
+			texture = RenderBackend::g_Device->CreateTexture(desc, data);
 
 			stbi_image_free(data);
 		}

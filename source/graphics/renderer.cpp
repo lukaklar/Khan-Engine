@@ -10,7 +10,7 @@ namespace Khan
 {
 	Renderer::Renderer()
 		: m_ThreadPool(1)
-		, m_TiledDeferredDispatchParams(2 * sizeof(glm::vec4))
+		, m_TiledDeferredDispatchParams(2 * sizeof(glm::uvec4))
 		, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
 		, m_ScreenDimensionsChanged(true)
 	{
@@ -43,20 +43,37 @@ namespace Khan
 	{
 		RenderGraph& rg = RenderBackend::g_Device->GetRenderGraph();
 
-		/*if (m_ScreenDimensionsChanged)
+		if (m_ScreenDimensionsChanged)
 		{
 			RecreateScreenFrustumBuffer();
 			rg.AddPass(m_TileFrustumCalculationPass);
 			m_ScreenDimensionsChanged = false;
+
+			glm::vec2 screenDimensions(m_ActiveCamera->GetViewportWidth(), m_ActiveCamera->GetViewportHeight());
+
+			m_NumDispatchThreads.x = (uint32_t)glm::ceil(screenDimensions.x / K_TILE_SIZE);
+			m_NumDispatchThreads.y = (uint32_t)glm::ceil(screenDimensions.y / K_TILE_SIZE);
+			m_NumDispatchThreads.z = 1;
+
+			m_NumDispatchThreadGroups.x = (uint32_t)glm::ceil((float)m_NumDispatchThreads.x / K_TILE_SIZE);
+			m_NumDispatchThreadGroups.y = (uint32_t)glm::ceil((float)m_NumDispatchThreads.y / K_TILE_SIZE);
+			m_NumDispatchThreadGroups.z = 1;
+
+			m_TiledDeferredDispatchParams.UpdateConstantData(&m_NumDispatchThreadGroups[0], 0, sizeof(glm::uvec3));
+			m_TiledDeferredDispatchParams.UpdateConstantData(&m_NumDispatchThreads[0], sizeof(glm::uvec4), sizeof(glm::uvec3));
+
+			m_ScreenToViewParams.UpdateConstantData(&m_ActiveCamera->GetInverseProjection(), 0, sizeof(glm::mat4));
+			m_ScreenToViewParams.UpdateConstantData(&screenDimensions[0], sizeof(glm::mat4), sizeof(glm::vec2));
 		}
 
 		rg.AddPass(m_DepthPrePass);
 		rg.AddPass(m_GBufferPass);
+		rg.AddPass(m_LightDataUploadPass);
 		rg.AddPass(m_LightCullingPass);
-		rg.AddPass(m_TiledDeferredLightingPass);*/
+		rg.AddPass(m_TiledDeferredLightingPass);
 		//rg.AddPass(m_TransparentPass);
-		//rg.AddPass(m_HDRPass);
-		rg.AddPass(m_TestPass);
+		rg.AddPass(m_HDRPass);
+		//rg.AddPass(m_TestPass);
 		rg.AddPass(m_FinalPass);
 
 		rg.Setup(*this);

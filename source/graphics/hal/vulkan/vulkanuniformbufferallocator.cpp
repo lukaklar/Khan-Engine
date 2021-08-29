@@ -36,6 +36,8 @@ namespace Khan
 		VK_ASSERT(vmaCreateBuffer(allocator, &info, &allocInfo, &m_Buffer, &m_Allocation, nullptr), "[VULKAN] Failed to allocate uniform buffer.");
 
 		VK_ASSERT(vmaMapMemory(allocator, m_Allocation, reinterpret_cast<void**>(&m_MappedMemory)), "[VULKAN] Failed to map uniform buffer memory.");
+
+		m_Offset.store(0);
 	}
 
 	inline void VulkanUniformBufferAllocator::FramePool::Destroy(VmaAllocator allocator)

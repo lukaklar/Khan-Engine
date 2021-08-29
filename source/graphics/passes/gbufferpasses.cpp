@@ -45,6 +45,7 @@ namespace Khan
 		desc.m_DepthStencil.m_DepthStartAccess = StartAccessType::Keep;
 		desc.m_DepthStencil.m_DepthEndAccess = EndAccessType::Keep;
 
+		// TODO: Load the common vertex shader
 		m_PipelineDesc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::POSITION);
 		m_PipelineDesc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float2, VertexInputState::StreamDescriptor::StreamElement::Usage::TEXCOORD0);
 		m_PipelineDesc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::NORMAL);
@@ -85,7 +86,7 @@ namespace Khan
 		//DECLARE_GBUFFER_OUTPUT(MotionVectors, PF_R16G16_FLOAT, ResourceState_RenderTarget);
 		
 		viewDesc.m_Format = PF_D32_FLOAT;
-		m_GBuffer_Depth = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth, viewDesc, ResourceState_DepthWriteStencilWrite);
+		m_GBuffer_Depth = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth, viewDesc, ResourceState_DepthWriteStencilWrite, true);
 	}
 
 	void GBufferPass::Execute(RenderContext& context, Renderer& renderer)

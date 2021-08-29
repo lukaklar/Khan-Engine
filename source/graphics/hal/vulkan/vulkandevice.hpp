@@ -11,6 +11,8 @@
 #include "graphics/hal/vulkan/vulkantransientresourcemanager.hpp"
 #include "graphics/hal/vulkan/vulkanuniformbufferallocator.hpp"
 #include "graphics/hal/vulkan/vulkanuploadmanager.hpp"
+#include "graphics/hal/vulkan/vulkancommandpool.hpp"
+#include "graphics/hal/vulkan/vulkanbarrierrecorder.hpp"
 
 namespace Khan
 {
@@ -32,10 +34,10 @@ namespace Khan
 
 		inline VkDevice VulkanDevice() const { return m_Device; }
 
-		virtual Buffer* CreateBuffer(const BufferDesc& desc) override;
+		virtual Buffer* CreateBuffer(const BufferDesc& desc, const void* initData = nullptr) override;
 		virtual BufferView* CreateBufferView(Buffer* buffer, const BufferViewDesc& desc) override;
 
-		virtual Texture* CreateTexture(const TextureDesc& desc);
+		virtual Texture* CreateTexture(const TextureDesc& desc, const void* initData = nullptr) override;
 		virtual TextureView* CreateTextureView(Texture* texture, const TextureViewDesc& desc) override;
 
 		virtual Shader* CreateShader(const ShaderDesc& desc) override;
@@ -75,6 +77,10 @@ namespace Khan
 		std::mutex m_CommandSubmitLock;
 		std::map<uint64_t, std::pair<VkCommandBuffer, const RenderGraph::Node*>> m_CommandSubmissions;
 		std::unordered_map<uint64_t, VkSemaphore> m_BufferIdToSemaphoreMap;
+
+		VulkanCommandPool m_GraphicsCommandPool;
+		VulkanCommandPool m_CopyCommandPool;
+		VulkanBarrierRecorder m_BarrierRecorder;
 	};
 }
 
