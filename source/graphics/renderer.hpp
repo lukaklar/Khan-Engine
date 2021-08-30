@@ -70,7 +70,7 @@ namespace Khan
 		LightCullingPass m_LightCullingPass;
 		TiledDeferredLightingPass m_TiledDeferredLightingPass;
 		//TransparentPass m_TransparentPass;
-		HDRPass m_HDRPass;
+		//HDRPass m_HDRPass;
 		//TestPass m_TestPass;
 		FinalPass m_FinalPass;
 

@@ -22,6 +22,7 @@ namespace Khan
 		}
 		for (StagingBuffer* stagingBuffer : m_FreeStagingBuffers)
 		{
+			vmaUnmapMemory(m_Allocator, stagingBuffer->m_Allocation);
 			vmaDestroyBuffer(m_Allocator, stagingBuffer->m_Buffer, stagingBuffer->m_Allocation);
 			delete stagingBuffer;
 		}

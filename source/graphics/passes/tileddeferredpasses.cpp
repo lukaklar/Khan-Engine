@@ -28,6 +28,8 @@ namespace Khan
 
 	void LightDataUploadPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
+		renderGraph.EnableDMA(true);
+
 		BufferDesc desc;
 		desc.m_Size = static_cast<uint32_t>(renderer.GetActiveLightData().size() * sizeof(ShaderLightData));
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource | BufferFlag_Writable;
@@ -62,6 +64,8 @@ namespace Khan
 
 	void TileFrustumCalculationPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
+		renderGraph.EnableAsyncCompute(true);
+
 		Buffer* screenFrustums = renderer.GetResourceBoard().m_Persistent.m_ScreenFrustums;
 
 		BufferViewDesc desc;
@@ -96,6 +100,8 @@ namespace Khan
 
 	void LightCullingPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
+		renderGraph.EnableAsyncCompute(true);
+
 		{
 			Buffer* temp;
 			BufferDesc desc;
@@ -206,6 +212,8 @@ namespace Khan
 
 	void TiledDeferredLightingPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
+		renderGraph.EnableAsyncCompute(true);
+
 		{
 			Buffer* temp = renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights;
 
@@ -235,9 +243,10 @@ namespace Khan
 			desc.m_Format = PF_R16G16B16A16_FLOAT;
 			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowUnorderedAccess;
 
-			temp = renderGraph.CreateManagedResource(desc);
+			/*temp = renderGraph.CreateManagedResource(desc);
 			KH_DEBUGONLY(temp->SetDebugName("LightAccumulationBuffer"));
-			renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer = temp;
+			renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer = temp;*/
+			temp = renderer.GetResourceBoard().m_Persistent.m_FinalOutput;
 
 			TextureViewDesc viewDesc;
 			viewDesc.m_Type = TextureViewType_2D;
@@ -246,7 +255,8 @@ namespace Khan
 			viewDesc.m_BaseMipLevel = 0;
 			viewDesc.m_LevelCount = 1;
 
-			viewDesc.m_Format = desc.m_Format;
+			//viewDesc.m_Format = desc.m_Format;
+			viewDesc.m_Format = temp->GetDesc().m_Format;
 			m_LightingResult = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			DECLARE_GBUFFER_INPUT(Albedo, ResourceState_NonPixelShaderAccess);

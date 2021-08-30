@@ -73,6 +73,11 @@ namespace Khan
 		m_ActivePassNode.second->m_ExecutionQueueIndex = enable ? QueueType_Compute : QueueType_Graphics;
 	}
 
+	void RenderGraph::EnableDMA(bool enable)
+	{
+		m_ActivePassNode.second->m_ExecutionQueueIndex = enable ? QueueType_Copy : QueueType_Graphics;
+	}
+
 	Buffer* RenderGraph::CreateManagedResource(const BufferDesc& desc)
 	{
 		return m_TransientResourceManager->FindOrCreateBuffer(m_ActivePassNode.first, desc);
@@ -100,14 +105,14 @@ namespace Khan
 
 		if (ms_ResourceStateToReadAccess[startState])
 		{
-			node->AddReadDependency(resourceID, desc.m_Offset, desc.m_Range);
+			node->AddReadDependency(resourceID, 0, 0);
 		}
 		else
 		{
-			node->AddWriteDependency(resourceID, desc.m_Offset, desc.m_Range);
+			node->AddWriteDependency(resourceID, 0, 0);
 			if (keepContent)
 			{
-				node->AddReadDependency(resourceID, desc.m_Offset, desc.m_Range);
+				node->AddReadDependency(resourceID, 0, 0);
 			}
 		}
 
@@ -131,14 +136,14 @@ namespace Khan
 
 		if (ms_ResourceStateToReadAccess[startState])
 		{
-			node->AddReadDependency(resourceID, desc.m_BaseArrayLayer, desc.m_LayerCount);
+			node->AddReadDependency(resourceID, 0, 0);
 		}
 		else
 		{
-			node->AddWriteDependency(resourceID, desc.m_BaseArrayLayer, desc.m_LayerCount);
+			node->AddWriteDependency(resourceID, 0, 0);
 			if (keepContent)
 			{
-				node->AddReadDependency(resourceID, desc.m_BaseArrayLayer, desc.m_LayerCount);
+				node->AddReadDependency(resourceID, 0, 0);
 			}
 		}
 
@@ -664,23 +669,23 @@ namespace Khan
 
 	void RenderGraph::Node::AddReadDependency(uint64_t resourceID, uint32_t firstSubresourceIndex, uint32_t subresourceCount)
 	{
-		for (uint32_t i = 0; i < subresourceCount; ++i)
-		{
-			uint64_t subresourceID = ConstructSubresourceID(resourceID, firstSubresourceIndex + i);
-			m_ReadSubresources.insert(subresourceID);
-			m_ReadAndWrittenSubresources.insert(subresourceID);
+		//for (uint32_t i = 0; i < subresourceCount; ++i)
+		//{
+			//uint64_t subresourceID = ConstructSubresourceID(resourceID, firstSubresourceIndex + i);
+			m_ReadSubresources.insert(resourceID);
+			m_ReadAndWrittenSubresources.insert(resourceID);
 			m_AllResources.insert(resourceID);
-		}
+		//}
 	}
 	void RenderGraph::Node::AddWriteDependency(uint64_t resourceID, uint32_t firstSubresourceIndex, uint32_t subresourceCount)
 	{
-		for (uint32_t i = 0; i < subresourceCount; ++i)
-		{
-			uint64_t subresourceID = ConstructSubresourceID(resourceID, firstSubresourceIndex + i);
-			m_WrittenSubresources.insert(subresourceID);
-			m_ReadAndWrittenSubresources.insert(subresourceID);
+		//for (uint32_t i = 0; i < subresourceCount; ++i)
+		//{
+			//uint64_t subresourceID = ConstructSubresourceID(resourceID, firstSubresourceIndex + i);
+			m_WrittenSubresources.insert(resourceID);
+			m_ReadAndWrittenSubresources.insert(resourceID);
 			m_AllResources.insert(resourceID);
-		}
+		//}
 	}
 
 	bool RenderGraph::Node::HasDependency(uint64_t resourceID, uint32_t subresourceIndex) const

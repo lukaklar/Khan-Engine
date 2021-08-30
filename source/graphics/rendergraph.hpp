@@ -29,6 +29,7 @@ namespace Khan
 		void AddPass(RenderPass& renderPass);
 
 		void EnableAsyncCompute(bool enable);
+		void EnableDMA(bool enable);
 
 		Buffer* CreateManagedResource(const BufferDesc& desc);
 		Texture* CreateManagedResource(const TextureDesc& desc);

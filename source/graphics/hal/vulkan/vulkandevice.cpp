@@ -389,15 +389,15 @@ namespace Khan
 
 			if (info->IsSyncSignalRequired() || !info->NodesToSyncWith().empty())
 			{
-				std::vector<VkSemaphore> waitSemaphores(info->NodesToSyncWith().size());
-				std::vector<VkPipelineStageFlags> waitStages(info->NodesToSyncWith().size());
+				std::vector<VkSemaphore> waitSemaphores;
+				std::vector<VkPipelineStageFlags> waitStages;
 
 				VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 
 				for (const RenderGraph::Node* syncNode : info->NodesToSyncWith())
 				{
 					waitSemaphores.push_back(m_BufferIdToSemaphoreMap[syncNode->GlobalExecutionIndex()]);
-					waitStages.push_back(s_WaitStagesForQueues[syncNode->GlobalExecutionIndex()]);
+					waitStages.push_back(s_WaitStagesForQueues[syncNode->m_ExecutionQueueIndex]);
 				}
 
 				submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());

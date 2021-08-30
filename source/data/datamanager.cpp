@@ -51,16 +51,16 @@ namespace Khan
 
 	World* DataManager::LoadWorldFromFile(const char* fileName)
 	{
-		std::string fullFileName = ms_AssetPath;
+		/*std::string fullFileName = ms_AssetPath;
 		fullFileName += fileName;
 
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(fullFileName, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded | aiProcess_TransformUVCoords);
 
-		KH_ASSERT(scene && !(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) && scene->mRootNode, importer.GetErrorString());
+		KH_ASSERT(scene && !(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) && scene->mRootNode, importer.GetErrorString());*/
 
 		World* world = new World(fileName);
-		std::unordered_map<const aiNode*, Entity*> nodeToEntityMap;
+		/*std::unordered_map<const aiNode*, Entity*> nodeToEntityMap;
 
 		std::function<void(aiNode*,Entity*)> processNode = [this, scene, world, &nodeToEntityMap, &processNode](const aiNode* node, Entity* parent)
 		{
@@ -285,7 +285,7 @@ namespace Khan
 			}
 		};
 
-		processNode(scene->mRootNode, nullptr);
+		processNode(scene->mRootNode, nullptr);*/
 
 		Entity* entity = world->CreateEntity();
 		LightComponent& lightComponent = entity->AddComponent<LightComponent>();
@@ -296,56 +296,56 @@ namespace Khan
 		directional->SetDirection({ -1, -1, 0 });
 		lightComponent.m_Light = directional;
 
-		for (uint32_t i = 0; i < scene->mNumLights; ++i)
-		{
-			const aiLight& light = *scene->mLights[i];
-			const aiNode* lightNode = scene->mRootNode->FindNode(light.mName);
+		//for (uint32_t i = 0; i < scene->mNumLights; ++i)
+		//{
+		//	const aiLight& light = *scene->mLights[i];
+		//	const aiNode* lightNode = scene->mRootNode->FindNode(light.mName);
 
-			Entity* entity = nodeToEntityMap[lightNode];
-			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
+		//	Entity* entity = nodeToEntityMap[lightNode];
+		//	LightComponent& lightComponent = entity->AddComponent<LightComponent>();
 
-			switch (light.mType)
-			{
-				case aiLightSource_DIRECTIONAL:
-				{
-					DirectionalLight* directional = new DirectionalLight();
-					directional->SetDirection(*reinterpret_cast<const glm::vec3*>(&light.mDirection));
-					lightComponent.m_Light = directional;
-					break;
-				}
-				case aiLightSource_POINT:
-				{
-					OmniLight* omni = new OmniLight();
-					omni->SetRadius(100.0f);
-					lightComponent.m_Light = omni;
-					break;
-				}
-				case aiLightSource_SPOT:
-				{
-					SpotLight* spot = new SpotLight();
-					// TODO: Take inner cone and adjust shader calculations for it
-					spot->SetDirection(*reinterpret_cast<const glm::vec3*>(&light.mDirection));
-					spot->SetAngle(light.mAngleOuterCone);
-					spot->SetRange(100.0f);
-					lightComponent.m_Light = spot;
-					break;
-				}
-				case aiLightSource_AREA:
-				{
-					AreaLight* area = new AreaLight();
-					area->SetAreaWidth(light.mSize.x);
-					area->SetAreaHeight(light.mSize.y);
-					lightComponent.m_Light = area;
-				}
-			}
+		//	switch (light.mType)
+		//	{
+		//		case aiLightSource_DIRECTIONAL:
+		//		{
+		//			DirectionalLight* directional = new DirectionalLight();
+		//			directional->SetDirection(*reinterpret_cast<const glm::vec3*>(&light.mDirection));
+		//			lightComponent.m_Light = directional;
+		//			break;
+		//		}
+		//		case aiLightSource_POINT:
+		//		{
+		//			OmniLight* omni = new OmniLight();
+		//			omni->SetRadius(100.0f);
+		//			lightComponent.m_Light = omni;
+		//			break;
+		//		}
+		//		case aiLightSource_SPOT:
+		//		{
+		//			SpotLight* spot = new SpotLight();
+		//			// TODO: Take inner cone and adjust shader calculations for it
+		//			spot->SetDirection(*reinterpret_cast<const glm::vec3*>(&light.mDirection));
+		//			spot->SetAngle(light.mAngleOuterCone);
+		//			spot->SetRange(100.0f);
+		//			lightComponent.m_Light = spot;
+		//			break;
+		//		}
+		//		case aiLightSource_AREA:
+		//		{
+		//			AreaLight* area = new AreaLight();
+		//			area->SetAreaWidth(light.mSize.x);
+		//			area->SetAreaHeight(light.mSize.y);
+		//			lightComponent.m_Light = area;
+		//		}
+		//	}
 
-			lightComponent.m_Light->SetActive(true);
-			lightComponent.m_Light->SetColor(*reinterpret_cast<const glm::vec3*>(&light.mColorDiffuse));
-			lightComponent.m_Light->SetLuminance(1.0f);
-		}
+		//	lightComponent.m_Light->SetActive(true);
+		//	lightComponent.m_Light->SetColor(*reinterpret_cast<const glm::vec3*>(&light.mColorDiffuse));
+		//	lightComponent.m_Light->SetLuminance(1.0f);
+		//}
 
 		Entity* player = world->CreateEntity();
-		player->SetParent(nodeToEntityMap[scene->mRootNode]);
+		//player->SetParent(nodeToEntityMap[scene->mRootNode]);
 		player->SetName("Player");
 		player->SetGlobalPosition(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 		player->SetGlobalOrientation(glm::quat(0.0f, 0.0f, 0.0f, 0.0f));

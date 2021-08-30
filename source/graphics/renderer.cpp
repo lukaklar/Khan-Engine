@@ -37,6 +37,7 @@ namespace Khan
 	{
 		RenderBackend::g_Swapchain->Flip();
 		m_OpaqueMeshes.clear();
+		m_ActiveLightData.clear();
 	}
 
 	inline void Renderer::SchedulePasses()
@@ -72,7 +73,7 @@ namespace Khan
 		rg.AddPass(m_LightCullingPass);
 		rg.AddPass(m_TiledDeferredLightingPass);
 		//rg.AddPass(m_TransparentPass);
-		rg.AddPass(m_HDRPass);
+		//rg.AddPass(m_HDRPass);
 		//rg.AddPass(m_TestPass);
 		rg.AddPass(m_FinalPass);
 
