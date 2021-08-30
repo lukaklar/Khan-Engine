@@ -17,8 +17,6 @@ struct VS_TO_PS
 cbuffer PerFrameConsts : register(b0, space0)
 {
     float4x4 g_ViewProjection;
-    float4x4 g_ProjectionMatrix;
-    float4x4 g_ViewMatrix;
 }
 
 cbuffer PerDrawConsts : register(b0, space2)
@@ -49,7 +47,7 @@ struct PS_OUT
     float2 m_MetallicAndRoughness : SV_Target4;
 };
 
-SamplerState g_DefaultSampler
+static const SamplerState g_DefaultSampler
 {
     Filter = MIN_MAG_MIP_LINEAR;
     AddressU = Wrap;
@@ -80,6 +78,19 @@ PS_OUT PS_CommonNoNormals(VS_TO_PS In)
     Out.m_Albedo = g_Diffuse.Sample(g_DefaultSampler, In.m_TexCoord);
     Out.m_Normal = float3(0.0, 0.0, 0.0);
     Out.m_Specular = g_Specular.Sample(g_DefaultSampler, In.m_TexCoord);
+    Out.m_Emissive = float3(0.0, 0.0, 0.0);
+    Out.m_MetallicAndRoughness = float2(0.0, 0.5);
+    
+    return Out;
+}
+
+PS_OUT PS_CommonDiffuseOnly(VS_TO_PS In)
+{
+    PS_OUT Out;
+    
+    Out.m_Albedo = g_Diffuse.Sample(g_DefaultSampler, In.m_TexCoord);
+    Out.m_Normal = float3(0.0, 0.0, 0.0);
+    Out.m_Specular = Out.m_Albedo;
     Out.m_Emissive = float3(0.0, 0.0, 0.0);
     Out.m_MetallicAndRoughness = float2(0.0, 0.5);
     

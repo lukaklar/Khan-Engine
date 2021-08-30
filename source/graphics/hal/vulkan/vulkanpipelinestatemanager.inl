@@ -8,7 +8,7 @@
 
 namespace Khan
 {
-	KH_FORCE_INLINE void ExtractShaderData(std::vector<VkDescriptorSetLayoutBinding> descriptorSetindings[4], VkPipelineShaderStageCreateInfo& shaderStageInfo, uint32_t& stageCount, const Shader* shader)
+	KH_FORCE_INLINE void ExtractShaderData(std::vector<VkDescriptorSetLayoutBinding> descriptorSetindings[ResourceBindFrequency_Count], VkPipelineShaderStageCreateInfo& shaderStageInfo, uint32_t& stageCount, const Shader* shader)
 	{
 		if (shader != nullptr)
 		{

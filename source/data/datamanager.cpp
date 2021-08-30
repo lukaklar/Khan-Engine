@@ -208,7 +208,6 @@ namespace Khan
 						Material* material = new Material();
 						aiString aiTexturePath;
 						uint32_t binding = 0;
-						bool hasNormalMap = false;
 
 						if (mat.GetTextureCount(aiTextureType_DIFFUSE) > 0 && mat.GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
@@ -232,7 +231,6 @@ namespace Khan
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
-							hasNormalMap = true;
 						}
 						else if (mat.GetTextureCount(aiTextureType_HEIGHT) > 0 && mat.GetTexture(aiTextureType_HEIGHT, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
@@ -240,7 +238,6 @@ namespace Khan
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
-							hasNormalMap = true;
 						}
 
 						if (mat.GetTextureCount(aiTextureType_EMISSIVE) > 0 && mat.GetTexture(aiTextureType_EMISSIVE, 0, &aiTexturePath) == aiReturn_SUCCESS)
@@ -253,13 +250,18 @@ namespace Khan
 
 						material->SetTwoSided(false);
 						material->SetTransparent(false);
-						if (hasNormalMap)
+
+						switch (binding)
 						{
-							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_PS", "PS_Common"));
-						}
-						else
-						{
+						case 1:
+							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_diff_only_PS", "PS_CommonDiffuseOnly"));
+							break;
+						case 2:
 							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_no_normals_PS", "PS_CommonNoNormals"));
+							break;
+						case 3:
+							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_PS", "PS_Common"));
+							break;
 						}
 
 						mesh->m_Material = material;

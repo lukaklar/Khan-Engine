@@ -22,7 +22,7 @@ float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 // Fresnel function ----------------------------------------------------
 float3 F_Schlick(float cosTheta, float metallic, float3 albedo, float3 specularReflectance)
 {
-    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metallic); // * material.specular
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metallic) * specularReflectance;
     float3 F = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
     return F;
 }

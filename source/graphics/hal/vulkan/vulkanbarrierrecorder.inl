@@ -94,7 +94,7 @@ namespace Khan
 			VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,													// ResourceState_IndirectArgument
 			s_AllShaderStages,																		// ResourceState_ConstantBuffer
 			VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,													// ResourceState_UnorderedAccess
-			s_AllExceptFragmentShaderStages,														// ResourceState_NonPixelShaderAccess
+			VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,													// ResourceState_NonPixelShaderAccess
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,													// ResourceState_PixelShaderAccess
 			s_AllShaderStages,																		// ResourceState_AnyShaderAccess
 			VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,														// ResourceState_StreamOut

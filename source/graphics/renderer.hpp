@@ -55,6 +55,7 @@ namespace Khan
 		inline uint32_t GetScreenTileSize() const { return K_TILE_SIZE; }
 
 		inline const glm::uvec3& GetNumDispatchThreadGroups() const { return m_NumDispatchThreadGroups; }
+		inline const glm::uvec3& GetNumDispatchThreads() const { return m_NumDispatchThreads; }
 
 	private:
 		void SchedulePasses();

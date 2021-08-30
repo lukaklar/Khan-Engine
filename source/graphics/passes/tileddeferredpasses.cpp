@@ -29,8 +29,8 @@ namespace Khan
 	void LightDataUploadPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
 		BufferDesc desc;
-		desc.m_Size = static_cast<uint32_t>(renderer.GetActiveLightData().size());
-		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
+		desc.m_Size = static_cast<uint32_t>(renderer.GetActiveLightData().size() * sizeof(ShaderLightData));
+		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource | BufferFlag_Writable;
 
 		Buffer* temp = renderGraph.CreateManagedResource(desc);
 		renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights = temp;
@@ -48,7 +48,7 @@ namespace Khan
 		std::vector<ShaderLightData>& lights = renderer.GetActiveLightData();
 		uint32_t sizeInBytes = static_cast<uint32_t>(lights.size() * sizeof(ShaderLightData));
 
-		//context.UpdateBufferFromHost(&m_LightData->GetBuffer(), lights.data(), sizeInBytes);
+		context.UpdateBufferFromHost(m_LightData, lights.data());
 	}
 
 	TileFrustumCalculationPass::TileFrustumCalculationPass()
@@ -213,12 +213,12 @@ namespace Khan
 			viewDesc.m_Offset = 0;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			viewDesc.m_Format = PF_NONE;
-			m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+			m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
 
 			// TODO: light grid and indices
 			temp = renderer.GetResourceBoard().m_Transient.m_OpaqueLightIndexList;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
-			m_LightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+			m_LightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
 		}
 
 		{
@@ -233,7 +233,7 @@ namespace Khan
 			desc.m_MipLevels = 1;
 			//desc.m_SampleCount;
 			desc.m_Format = PF_R16G16B16A16_FLOAT;
-			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowRenderTarget | TextureFlag_AllowUnorderedAccess;
+			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowUnorderedAccess;
 
 			temp = renderGraph.CreateManagedResource(desc);
 			KH_DEBUGONLY(temp->SetDebugName("LightAccumulationBuffer"));
@@ -246,6 +246,9 @@ namespace Khan
 			viewDesc.m_BaseMipLevel = 0;
 			viewDesc.m_LevelCount = 1;
 
+			viewDesc.m_Format = desc.m_Format;
+			m_LightingResult = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
+
 			DECLARE_GBUFFER_INPUT(Albedo, ResourceState_NonPixelShaderAccess);
 			DECLARE_GBUFFER_INPUT(Normals, ResourceState_NonPixelShaderAccess);
 			DECLARE_GBUFFER_INPUT(Emissive, ResourceState_NonPixelShaderAccess);
@@ -256,12 +259,9 @@ namespace Khan
 
 			temp = renderer.GetResourceBoard().m_Transient.m_OpaqueLightGrid;
 			viewDesc.m_Format = temp->GetDesc().m_Format;
-			m_LightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+			m_LightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
 
 			// TODO: Will need a shadow map
-
-			viewDesc.m_Format = PF_R16G16B16A16_FLOAT;
-			m_LightingResult = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer, viewDesc, ResourceState_UnorderedAccess);
 		}
 	}
 
@@ -269,7 +269,7 @@ namespace Khan
 	{
 		context.SetPipelineState(*m_PipelineState);
 
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
+		//context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_GBuffer_Albedo);
@@ -281,7 +281,9 @@ namespace Khan
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 6, m_LightGrid);
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 7, m_LightData);
 
-		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreadGroups();
+		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_LightingResult);
+
+		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreads();
 		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
 	}
 }

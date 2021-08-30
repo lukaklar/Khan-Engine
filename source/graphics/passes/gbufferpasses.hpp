@@ -1,5 +1,6 @@
 #pragma once
 #include "graphics/renderpass.hpp"
+#include "graphics/hal/constantbuffer.hpp"
 #include "graphics/hal/pipelinedescriptions.hpp"
 
 namespace Khan
@@ -25,5 +26,7 @@ namespace Khan
 		TextureView* m_GBuffer_Depth;
 
 		GraphicsPipelineDescription m_PipelineDesc;
+
+		ConstantBuffer m_PerFrameConsts;
 	};
 }

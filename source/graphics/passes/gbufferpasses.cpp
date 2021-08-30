@@ -14,6 +14,7 @@
 #include "core/defines.h"
 #include "graphics/objects/mesh.hpp"
 #include "graphics/materials/material.hpp"
+#include "graphics/shadermanager.hpp"
 
 #define DECLARE_GBUFFER_OUTPUT(target, format, state)\
 desc.m_Format = format;\
@@ -32,6 +33,7 @@ namespace Khan
 {
 	GBufferPass::GBufferPass()
 		: RenderPass(QueueType_Graphics, "GBufferPass")
+		, m_PerFrameConsts(sizeof(glm::mat4))
 	{
 		PhysicalRenderPassDescription desc;
 		desc.m_RenderTargetCount = 5;
@@ -45,7 +47,7 @@ namespace Khan
 		desc.m_DepthStencil.m_DepthStartAccess = StartAccessType::Keep;
 		desc.m_DepthStencil.m_DepthEndAccess = EndAccessType::Keep;
 
-		// TODO: Load the common vertex shader
+		m_PipelineDesc.m_VertexShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("common_VS", "VS_Common");
 		m_PipelineDesc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::POSITION);
 		m_PipelineDesc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float2, VertexInputState::StreamDescriptor::StreamElement::Usage::TEXCOORD0);
 		m_PipelineDesc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::NORMAL);
@@ -103,6 +105,9 @@ namespace Khan
 
 		context.BeginPhysicalRenderPass(*m_PipelineDesc.m_PhysicalRenderPass, renderTargets, m_GBuffer_Depth);
 
+		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_PerFrameConsts);
+
 		auto& meshes = renderer.GetOpaqueMeshes();
 		for (auto* mesh : meshes)
 		{
@@ -120,13 +125,22 @@ namespace Khan
 			context.SetViewport(0.0f, 0.0f, (float)m_GBuffer_Depth->GetTexture().GetDesc().m_Width, (float)m_GBuffer_Depth->GetTexture().GetDesc().m_Height);
 			context.SetScissor(0, 0, m_GBuffer_Depth->GetTexture().GetDesc().m_Width, m_GBuffer_Depth->GetTexture().GetDesc().m_Height);
 
+			uint32_t i = 0;
 			for (auto& texture : material->GetTextures())
 			{
 				context.SetSRVTexture(ResourceBindFrequency_PerMaterial, texture.m_Binding, texture.m_Texture);
+				++i;
+			}
+
+			while (i < 3)
+			{
+				context.SetSRVTexture(ResourceBindFrequency_PerMaterial, i++, nullptr);
 			}
 
 			context.SetVertexBuffer(0, mesh->m_VertexBuffer, 0);
 			context.SetIndexBuffer(mesh->m_IndexBuffer, 0, false);
+
+			context.SetConstantBuffer(ResourceBindFrequency_PerDraw, 0, &mesh->m_ParentTransform);
 
 			context.DrawIndexedInstanced(mesh->m_IndexCount, 1, 0, 0, 0);
 		}

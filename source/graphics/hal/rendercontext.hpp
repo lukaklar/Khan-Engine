@@ -48,6 +48,8 @@ namespace Khan
 		virtual void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 		// TODO: DispatchIndirect
 
+		virtual void UpdateBufferFromHost(BufferView* dst, const void* src) = 0;
+
 		virtual void ResetFrame(uint32_t frameIndex) = 0;
 	};
 }

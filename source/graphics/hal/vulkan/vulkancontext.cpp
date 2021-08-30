@@ -106,12 +106,14 @@ namespace Khan
 		{
 			std::pair<ResourceState, uint64_t> barrierData = rgNode->GetBarrierDataForResource(view->GetBuffer());
 			m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanBufferView*>(view), barrierData.first, (QueueType)barrierData.second);
+			m_BarrierRecorder.Flush(m_CommandBuffer);
 		}
 
 		for (TextureView* view : rgNode->AllTextures())
 		{
 			std::pair<ResourceState, uint64_t> barrierData = rgNode->GetBarrierDataForResource(view->GetTexture());
 			m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanTextureView*>(view), barrierData.first, (QueueType)barrierData.second);
+			m_BarrierRecorder.Flush(m_CommandBuffer);
 		}
 
 		m_BarrierRecorder.Flush(m_CommandBuffer);
@@ -151,6 +153,7 @@ namespace Khan
 			else if (attachmentStartAccess == StartAccessType::Keep)
 			{
 				m_BarrierRecorder.RecordBarrier(*textureView, ResourceState_RenderTarget, QueueType_Graphics);
+				m_BarrierRecorder.Flush(m_CommandBuffer);
 			}
 
 			Texture& texture = textureView->GetTexture();
@@ -177,6 +180,7 @@ namespace Khan
 			{
 				// TODO: Mora da se vidi ovde
 				m_BarrierRecorder.RecordBarrier(*textureView, ResourceState_DepthWriteStencilWrite, QueueType_Graphics);
+				m_BarrierRecorder.Flush(m_CommandBuffer);
 			}
 
 			Texture& texture = textureView->GetTexture();
@@ -243,7 +247,7 @@ namespace Khan
 
 	void VulkanRenderContext::SetConstantBuffer(ResourceBindFrequency frequency, uint32_t binding, ConstantBuffer* cbuffer)
 	{
-		if (m_CBuffers[frequency][binding] != cbuffer)
+		if (m_CBuffers[frequency][binding] != cbuffer || cbuffer->IsDirty())
 		{
 			m_CBuffers[frequency][binding] = cbuffer;
 			m_FirstDirtySet = frequency < m_FirstDirtySet ? frequency : m_FirstDirtySet;
@@ -352,6 +356,26 @@ namespace Khan
 		vkCmdDispatch(m_CommandBuffer, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 	}
 
+	void VulkanRenderContext::UpdateBufferFromHost(BufferView* dst, const void* src)
+	{
+		m_CommandType = CommandType::Update;
+		
+		VulkanBufferView* view = reinterpret_cast<VulkanBufferView*>(dst);
+
+		uint32_t offset = m_Device.m_UploadManager.Upload(src, dst->GetDesc().m_Range);
+
+		m_BarrierRecorder.RecordBarrier(*view, ResourceState_CopyDestination, QueueType_Copy);
+		m_BarrierRecorder.Flush(m_CommandBuffer);
+
+		VkBufferCopy copy;
+		copy.srcOffset = offset;
+		copy.dstOffset = 0;
+		copy.size = view->GetDesc().m_Range;
+
+		VkBuffer buffer = reinterpret_cast<VulkanBuffer&>(view->GetBuffer()).GetVulkanBuffer();
+		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), buffer, 1, &copy);
+	}
+
 	void VulkanRenderContext::ResetFrame(uint32_t frameIndex)
 	{
 		m_CurrentFramebuffers = &m_Framebuffers[frameIndex];
@@ -378,12 +402,14 @@ namespace Khan
 				if (m_VertexBuffers[i] != nullptr && m_VBDirty[i])
 				{
 					m_BarrierRecorder.RecordBarrier(*m_VertexBuffers[i], ResourceState_VertexBuffer, m_ExecutingPass->GetExecutionQueue());
+					m_BarrierRecorder.Flush(m_CommandBuffer);
 				}
 			}
 
 			if (m_ShouldBindIndexBuffer && m_IndexBufferDirty)
 			{
 				m_BarrierRecorder.RecordBarrier(*m_IndexBuffer, ResourceState_IndexBuffer, m_ExecutingPass->GetExecutionQueue());
+				m_BarrierRecorder.Flush(m_CommandBuffer);
 			}
 		}
 
@@ -398,6 +424,7 @@ namespace Khan
 				if (texture != nullptr)
 				{
 					m_BarrierRecorder.RecordBarrier(*texture, srvResourceState, m_ExecutingPass->GetExecutionQueue());
+					m_BarrierRecorder.Flush(m_CommandBuffer);
 					continue;
 				}
 
@@ -405,6 +432,7 @@ namespace Khan
 				if (buffer != nullptr)
 				{
 					m_BarrierRecorder.RecordBarrier(*buffer, srvResourceState, m_ExecutingPass->GetExecutionQueue());
+					m_BarrierRecorder.Flush(m_CommandBuffer);
 				}
 			}
 
@@ -416,6 +444,7 @@ namespace Khan
 					if (texture != nullptr)
 					{
 						m_BarrierRecorder.RecordBarrier(*texture, ResourceState_UnorderedAccess, m_ExecutingPass->GetExecutionQueue());
+						m_BarrierRecorder.Flush(m_CommandBuffer);
 						continue;
 					}
 
@@ -423,6 +452,7 @@ namespace Khan
 					if (buffer != nullptr)
 					{
 						m_BarrierRecorder.RecordBarrier(*buffer, ResourceState_UnorderedAccess, m_ExecutingPass->GetExecutionQueue());
+						m_BarrierRecorder.Flush(m_CommandBuffer);
 					}
 				}
 			}
@@ -495,14 +525,15 @@ namespace Khan
 				const VulkanTextureView* texture = m_SRVTextures[set][binding];
 				if (texture != nullptr)
 				{
-					if (m_CommandType == CommandType::Draw)
+					m_DescriptorUpdater.SetSampledImage(binding, texture->VulkanImageView());
+					/*if (m_CommandType == CommandType::Draw)
 					{
 						m_DescriptorUpdater.SetSampledImage(binding, texture->VulkanImageView());
 					}
 					else
 					{
 						m_DescriptorUpdater.SetStorageImage(binding, texture->VulkanImageView());
-					}
+					}*/
 					continue;
 				}
 
@@ -568,6 +599,7 @@ namespace Khan
 			VkPipelineBindPoint bindPoint = m_CommandType == CommandType::Draw ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 			vkCmdBindPipeline(m_CommandBuffer, bindPoint, m_PipelineState->m_Pipeline);
 			m_FirstDirtySet = 0;
+			m_PipelineDirty = false;
 		}
 	}
 

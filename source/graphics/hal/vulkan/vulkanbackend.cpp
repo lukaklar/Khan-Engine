@@ -26,8 +26,10 @@ namespace Khan
 			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 			void* pUserData) {
 
-			OutputDebugString(pCallbackData->pMessage);
-			OutputDebugString("\n");
+			if (messageSeverity > VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+				OutputDebugString(pCallbackData->pMessage);
+				OutputDebugString("\n");
+			}
 
 			return VK_FALSE;
 		}
