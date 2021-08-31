@@ -12,6 +12,7 @@ namespace Khan
 		friend class Singleton<DataManager>;
 	public:
 		World* LoadWorldFromFile(const char* fileName);
+		World* CreateTestPlayground();
 		//World* LoadWorldFromDB(const char* name);
 		//void SaveWorldToDB(const World* world);
 
@@ -19,7 +20,6 @@ namespace Khan
 		DataManager();
 		~DataManager();
 
-		void CreateTestPlayground(World* world);
 
 		//SQLiteDatabase m_Database;
 
