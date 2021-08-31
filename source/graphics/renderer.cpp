@@ -44,7 +44,7 @@ namespace Khan
 	{
 		RenderGraph& rg = RenderBackend::g_Device->GetRenderGraph();
 
-		if (m_ScreenDimensionsChanged)
+		/*if (m_ScreenDimensionsChanged)
 		{
 			RecreateScreenFrustumBuffer();
 			rg.AddPass(m_TileFrustumCalculationPass);
@@ -71,10 +71,10 @@ namespace Khan
 		rg.AddPass(m_GBufferPass);
 		rg.AddPass(m_LightDataUploadPass);
 		rg.AddPass(m_LightCullingPass);
-		rg.AddPass(m_TiledDeferredLightingPass);
+		rg.AddPass(m_TiledDeferredLightingPass);*/
 		//rg.AddPass(m_TransparentPass);
 		//rg.AddPass(m_HDRPass);
-		//rg.AddPass(m_TestPass);
+		rg.AddPass(m_TestPass);
 		rg.AddPass(m_FinalPass);
 
 		rg.Setup(*this);

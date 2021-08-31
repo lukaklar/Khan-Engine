@@ -19,6 +19,8 @@ namespace Khan
 		DataManager();
 		~DataManager();
 
+		void CreateTestPlayground(World* world);
+
 		//SQLiteDatabase m_Database;
 
 		std::map<uint32_t, Mesh*> m_Meshes;

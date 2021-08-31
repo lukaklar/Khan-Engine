@@ -34,6 +34,8 @@ namespace Khan
 
 	DataManager::~DataManager()
 	{
+		RenderBackend::g_Device->WaitIdle();
+
 		for (auto& it : m_Meshes)
 		{
 			Mesh* mesh = it.second;
@@ -60,6 +62,7 @@ namespace Khan
 		KH_ASSERT(scene && !(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) && scene->mRootNode, importer.GetErrorString());*/
 
 		World* world = new World(fileName);
+		CreateTestPlayground(world);
 		/*std::unordered_map<const aiNode*, Entity*> nodeToEntityMap;
 
 		std::function<void(aiNode*,Entity*)> processNode = [this, scene, world, &nodeToEntityMap, &processNode](const aiNode* node, Entity* parent)
@@ -360,6 +363,93 @@ namespace Khan
 		RenderBackend::g_Device->WaitIdle();
 
 		return world;
+	}
+
+	void DataManager::CreateTestPlayground(World* world)
+	{
+		std::vector<float> vertices =
+		{
+			-1.0f, 1.0f, -1.0f,
+			0.0f, 0.0f, 1.0f,    // vertex 0
+			1.0f, 1.0f, -1.0f,
+			0.0f, 1.0f, 0.0f,     // vertex 1
+			-1.0f, -1.0f, -1.0f,
+			1.0f, 0.0f, 0.0f,   // 2
+			1.0f, -1.0f, -1.0f,
+			0.0f, 1.0f, 1.0f,  // 3
+			-1.0f, 1.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,     // ...
+			1.0f, 1.0f, 1.0f,
+			1.0f, 0.0f, 0.0f,
+			-1.0f, -1.0f, 1.0f,
+			0.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, 1.0f,
+			0.0f, 1.0f, 1.0f
+		};
+
+		std::vector<uint32_t> indices =
+		{
+			0, 1, 2,    // side 1
+			2, 1, 3,
+			4, 0, 6,    // side 2
+			6, 0, 2,
+			7, 5, 6,    // side 3
+			6, 5, 4,
+			3, 1, 7,    // side 4
+			7, 1, 5,
+			4, 5, 0,    // side 5
+			0, 5, 1,
+			3, 7, 2,    // side 6
+			2, 7, 6,
+		};
+
+		Mesh* mesh = new Mesh();
+
+		{
+			BufferDesc desc;
+			desc.m_Size = vertices.size() * sizeof(float);
+			desc.m_Flags = BufferFlag_AllowVertices | BufferFlag_Writable;
+
+			mesh->m_VertexBuffer = RenderBackend::g_Device->CreateBuffer(desc, vertices.data());
+			mesh->m_VertexCount = vertices.size() / 6;
+		}
+
+		{
+			BufferDesc desc;
+			desc.m_Size = indices.size() * sizeof(uint32_t);
+			desc.m_Flags = BufferFlag_AllowIndices | BufferFlag_Writable;
+
+			mesh->m_IndexBuffer = RenderBackend::g_Device->CreateBuffer(desc, indices.data());
+			mesh->m_IndexCount = indices.size();
+		}
+
+		Entity* model = world->CreateEntity();
+		model->SetGlobalPosition({ 0, 0, 0.5f, 1 });
+		model->SetGlobalOrientation({ 0, 0, 0, 0 });
+		glm::mat4 transform = glm::scale(glm::rotate(glm::rotate(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.5f)), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(0.5f, 0.5f, 0.5f));
+		model->SetGlobalTransform(transform);
+
+		BoundingVolume bv;
+		bv.SetType(BoundingVolume::Type::AABBox);
+		bv.SetAABBoxMin({ -1.0f, -1.0f, 0.4f });
+		bv.SetAABBoxMax({ 1.0f, 1.0f, 0.6f });
+		bv.SetParentMatrixPtr(&model->GetGlobalTransform());
+
+		model->SetBoundingVolume(bv);
+
+		mesh->m_AABB = bv;
+
+		Material* material = new Material();
+		material->SetTwoSided(false);
+		material->SetTransparent(false);
+		material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("test_PS", "PS_Test"));
+
+		mesh->m_Material = material;
+		mesh->m_ParentTransform.UpdateConstantData(&model->GetGlobalTransform(), 0, sizeof(glm::mat4));
+
+		VisualComponent& visual = model->AddComponent<VisualComponent>();
+		visual.m_Meshes.push_back(mesh);
+		m_Meshes.insert({ 0, mesh });
 	}
 }
 

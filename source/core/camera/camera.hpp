@@ -38,5 +38,8 @@ namespace Khan
 
 		float m_FOV, m_AspectRatio, m_NearClip, m_FarClip;
 		uint32_t m_ViewportWidth = 1280, m_ViewportHeight = 720;
+
+		// TEMP
+		glm::vec3 m_Direction;
 	};
 }

@@ -11,7 +11,7 @@ namespace Khan
 		, m_AspectRatio(aspectRatio)
 		, m_NearClip(nearClip)
 		, m_FarClip(farClip)
-		, m_Projection(glm::perspective(fov, aspectRatio, nearClip, farClip))
+		, m_Projection(glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip))
 		, m_ViewMatrix(1.0f)
 		, m_ViewProjection(m_Projection)
 	{
@@ -19,8 +19,12 @@ namespace Khan
 
 	void Camera::Update(float dt)
 	{
-		m_ViewMatrix = glm::translate(glm::vec3(m_Target->GetGlobalPosition())) * glm::toMat4(m_Target->GetGlobalOrientation());
-		m_ViewMatrix = glm::inverse(m_ViewMatrix);
+		/*m_ViewMatrix = glm::translate(glm::vec3(m_Target->GetGlobalPosition())) * glm::toMat4(m_Target->GetGlobalOrientation());
+		m_ViewMatrix = glm::inverse(m_ViewMatrix);*/
+
+		// TEMP
+		glm::vec3 position = m_Target->GetGlobalPosition().xyz();
+		m_ViewMatrix = glm::lookAt(position, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		m_ViewProjection = m_Projection * m_ViewMatrix;
 

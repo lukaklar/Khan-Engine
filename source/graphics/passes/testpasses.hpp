@@ -1,11 +1,12 @@
 #pragma once
 #include "graphics/renderpass.hpp"
+#include "graphics/hal/pipelinedescriptions.hpp"
+#include "graphics/hal/constantbuffer.hpp"
 
 namespace Khan
 {
 	class PhysicalRenderPass;
 	class TextureView;
-	struct RenderPipelineState;
 
 	class TestPass : public RenderPass
 	{
@@ -17,7 +18,9 @@ namespace Khan
 
 	private:
 		TextureView* m_FinalOutput;
+		TextureView* m_DepthBuffer;
 		PhysicalRenderPass* m_PhysicalRenderPass;
-		RenderPipelineState* m_PipelineState;
+		GraphicsPipelineDescription m_PipelineDesc;
+		ConstantBuffer m_PerFrameConsts;
 	};
 }

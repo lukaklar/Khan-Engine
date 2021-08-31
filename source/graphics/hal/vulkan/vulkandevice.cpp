@@ -378,7 +378,7 @@ namespace Khan
 	{
 		// TODO: Tweak this function to submit more submit infos instead of just one each time synchronization is needed
 		static const VkPipelineStageFlags s_WaitStagesForQueues[QueueType_Count] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT };
-
+		// Ovde je fora sto FrustumCalculationPass ne bude schedulovan a koristi se njegov semafor
 		std::vector<VkCommandBuffer> commandBuffers[QueueType_Count];
 
 		for (auto [cmdBufId, data] : m_CommandSubmissions)

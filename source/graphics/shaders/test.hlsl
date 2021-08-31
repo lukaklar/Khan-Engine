@@ -1,33 +1,29 @@
-static const float2 positions[3] =
-{
-    { 0.0, -0.5 },
-    { 0.5, 0.5 },
-    { -0.5, 0.5 }
-};
-
-static const float3 colors[3] =
-{
-    { 1.0, 0.0, 0.0 },
-    { 0.0, 1.0, 0.0 },
-    { 0.0, 0.0, 1.0 }
-};
-
-struct VS_OUTPUT
+struct VS_TO_PS
 {
     float4 Position : SV_Position;
     float3 Color    : COLOR;
 };
 
-VS_OUTPUT VS_Main(uint vertexID : SV_VertexID)
+cbuffer PerFrameConsts : register(b0, space0)
 {
-    VS_OUTPUT Out;
-    Out.Position = float4(positions[vertexID], 0.0f, 1.0f);
-    Out.Color = colors[vertexID];
+    float4x4 m_ViewProj;
+};
+
+cbuffer PerDrawConsts : register(b0, space2)
+{
+    float4x4 m_ModelMatrix;
+};
+
+VS_TO_PS VS_Test(float3 position : POSITION, float3 color : COLOR0)
+{
+    VS_TO_PS Out;
+    Out.Position = mul(m_ViewProj, mul(m_ModelMatrix, float4(position, 1.0f)));
+    Out.Color = color;
 
     return Out;
 }
 
-float4 PS_Main(VS_OUTPUT In) : SV_Target
+float4 PS_Test(VS_TO_PS In) : SV_Target
 {
     return float4(In.Color, 1.0f);
 }

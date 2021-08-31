@@ -108,8 +108,7 @@ namespace Khan
 		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_PerFrameConsts);
 
-		auto& meshes = renderer.GetOpaqueMeshes();
-		for (auto* mesh : meshes)
+		for (auto* mesh : renderer.GetOpaqueMeshes())
 		{
 			Material* material = mesh->m_Material;
 
