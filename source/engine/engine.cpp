@@ -87,7 +87,8 @@ namespace Khan
 			SystemManager::CreateSingleton();
 			SystemManager::Get()->AddSystem(new CameraSystem());
 			SystemManager::Get()->AddSystem(new RenderPrepSystem());
-			World* world = DataManager::Get()->LoadWorldFromFile("sponza.obj");
+			//World* world = DataManager::Get()->LoadWorldFromFile("sponza.obj");
+			World* world = DataManager::Get()->CreateTestPlayground();
 			World::SetCurrentWorld(world);
 			s_MainLoop.Run();
 			World::SetCurrentWorld(nullptr);

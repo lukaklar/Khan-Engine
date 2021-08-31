@@ -427,13 +427,13 @@ namespace Khan
 		Entity* model = world->CreateEntity();
 		model->SetGlobalPosition({ 0, 0, 0.5f, 1 });
 		model->SetGlobalOrientation({ 0, 0, 0, 0 });
-		glm::mat4 transform = glm::scale(glm::rotate(glm::rotate(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.5f)), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(0.5f, 0.5f, 0.5f));
+		glm::mat4 transform = glm::scale(glm::rotate(glm::rotate(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.5f)), glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(0.05f, 0.05f, 0.05f));
 		model->SetGlobalTransform(transform);
 
 		BoundingVolume bv;
 		bv.SetType(BoundingVolume::Type::AABBox);
-		bv.SetAABBoxMin({ -1.0f, -1.0f, 0.4f });
-		bv.SetAABBoxMax({ 1.0f, 1.0f, 0.6f });
+		bv.SetAABBoxMin({ -1.0f, -1.0f, -1.0f });
+		bv.SetAABBoxMax({ 1.0f, 1.0f, 1.0f });
 		bv.SetParentMatrixPtr(&model->GetGlobalTransform());
 
 		model->SetBoundingVolume(bv);

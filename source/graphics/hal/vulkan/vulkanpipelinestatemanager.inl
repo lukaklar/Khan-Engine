@@ -167,11 +167,12 @@ namespace Khan
 
 	KH_FORCE_INLINE static void TranslateRasterizerState(VkPipelineRasterizationStateCreateInfo& info, const RasterizerState& state)
 	{
+		// should be front first and back later but these are switched to fix a bug for vulkan
 		static const VkCullModeFlagBits s_vkCullMode[] =
 		{
 			VK_CULL_MODE_NONE,
-			VK_CULL_MODE_FRONT_BIT,
-			VK_CULL_MODE_BACK_BIT
+			VK_CULL_MODE_BACK_BIT,
+			VK_CULL_MODE_FRONT_BIT
 		};
 
 		// TODO: Enable this in RasterizerState
