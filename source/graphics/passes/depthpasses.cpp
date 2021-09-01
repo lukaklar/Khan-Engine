@@ -36,8 +36,8 @@ namespace Khan
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::POSITION);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float2, VertexInputState::StreamDescriptor::StreamElement::Usage::TEXCOORD0);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::NORMAL);
-			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::BITANGENT);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::TANGENT);
+			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::BITANGENT);
 			desc.m_DepthStencilState.m_DepthMode.m_DepthTestEnabled = true;
 			desc.m_DepthStencilState.m_DepthMode.m_DepthWriteEnabled = true;
 			desc.m_DepthStencilState.m_DepthMode.m_DepthFunc = DepthStencilState::CompareFunction::Less;
@@ -84,19 +84,20 @@ namespace Khan
 
 		m_ViewProjParams.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_ViewProjParams);
-		
+
 		for (auto mesh : renderer.GetOpaqueMeshes())
 		{
-			context.SetVertexBuffer(0, mesh->m_VertexBuffer, 0);
-			context.SetIndexBuffer(mesh->m_IndexBuffer, 0, false);
-
 			Material* material = mesh->m_Material;
 
 			RenderPipelineState* pipelineState = material->HasTwoSides() ? m_PipelineStateNoCulling : m_PipelineStateBackfaceCulling;
 
 			context.SetPipelineState(*pipelineState);
-			context.SetViewport(0.0f, 0.0f, (float)m_DepthBuffer->GetTexture().GetDesc().m_Width, (float)m_DepthBuffer->GetTexture().GetDesc().m_Height);
-			context.SetScissor(0, 0, m_DepthBuffer->GetTexture().GetDesc().m_Width, m_DepthBuffer->GetTexture().GetDesc().m_Height);
+			context.SetViewport(0.0f, 0.0f, (float)renderer.GetActiveCamera()->GetViewportWidth(), (float)renderer.GetActiveCamera()->GetViewportHeight());
+			context.SetScissor(0, 0, renderer.GetActiveCamera()->GetViewportWidth(), renderer.GetActiveCamera()->GetViewportHeight());
+
+			context.SetVertexBuffer(0, mesh->m_VertexBuffer, 0);
+			context.SetIndexBuffer(mesh->m_IndexBuffer, 0, false);
+
 			context.SetConstantBuffer(ResourceBindFrequency_PerDraw, 0, &mesh->m_ParentTransform);
 
 			context.DrawIndexedInstanced(mesh->m_IndexCount, 1, 0, 0, 0);

@@ -373,22 +373,61 @@ namespace Khan
 
 		std::vector<float> vertices =
 		{
-			-1.0f, 1.0f, -1.0f,
-			0.0f, 0.0f, 1.0f,    // vertex 0
+			// vertex 0
+			-1.0f, 1.0f, -1.0f,		// position
+			0.0f, 0.0f,				// texCoord
+			0.0f, 0.0f, 1.0f,		// normal (acting as color for now)
+			0.0f, 0.0f, 0.0f,		// tangent
+			0.0f, 0.0f, 0.0f,		// bitangent
+
+			// vertex 1
 			1.0f, 1.0f, -1.0f,
-			0.0f, 1.0f, 0.0f,     // vertex 1
+			0.0f, 0.0f,				// texCoord
+			0.0f, 1.0f, 0.0f,		// normal (acting as color for now)
+			0.0f, 0.0f, 0.0f,		// tangent
+			0.0f, 0.0f, 0.0f,		// bitangent
+
+			// vertex 2
 			-1.0f, -1.0f, -1.0f,
-			1.0f, 0.0f, 0.0f,   // 2
+			0.0f, 0.0f,				// texCoord
+			1.0f, 0.0f, 0.0f,		// normal (acting as color for now)
+			0.0f, 0.0f, 0.0f,		// tangent
+			0.0f, 0.0f, 0.0f,		// bitangent
+
+			// vertex 3
 			1.0f, -1.0f, -1.0f,
-			0.0f, 1.0f, 1.0f,  // 3
+			0.0f, 0.0f,				// texCoord
+			0.0f, 1.0f, 1.0f,		// normal (acting as color for now)
+			0.0f, 0.0f, 0.0f,		// tangent
+			0.0f, 0.0f, 0.0f,		// bitangent
+
+			// vertex 4
 			-1.0f, 1.0f, 1.0f,
-			0.0f, 0.0f, 1.0f,     // ...
+			0.0f, 0.0f,				// texCoord
+			0.0f, 0.0f, 1.0f,		// normal (acting as color for now)
+			0.0f, 0.0f, 0.0f,		// tangent
+			0.0f, 0.0f, 0.0f,		// bitangent
+
+			// vertex 5
 			1.0f, 1.0f, 1.0f,
-			1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f,				// texCoord
+			1.0f, 0.0f, 0.0f,		// normal (acting as color for now)
+			0.0f, 0.0f, 0.0f,		// tangent
+			0.0f, 0.0f, 0.0f,		// bitangent
+
+			// vertex 6
 			-1.0f, -1.0f, 1.0f,
-			0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f,				// texCoord
+			0.0f, 1.0f, 0.0f,		// normal (acting as color for now)
+			0.0f, 0.0f, 0.0f,		// tangent
+			0.0f, 0.0f, 0.0f,		// bitangent
+
+			// vertex 7
 			1.0f, -1.0f, 1.0f,
-			0.0f, 1.0f, 1.0f
+			0.0f, 0.0f,				// texCoord
+			0.0f, 1.0f, 1.0f,		// normal (acting as color for now)
+			0.0f, 0.0f, 0.0f,		// tangent
+			0.0f, 0.0f, 0.0f,		// bitangent
 		};
 
 		std::vector<uint32_t> indices =

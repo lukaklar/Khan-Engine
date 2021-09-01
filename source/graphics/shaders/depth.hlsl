@@ -3,8 +3,8 @@ struct VS_INPUT
     float3 m_Position   : POSITION;
     float3 m_TexCoord   : TEXCOORD;
     float3 m_Normal     : NORMAL;
-    float3 m_Bitangent  : BITANGENT;
     float3 m_Tangent    : TANGENT;
+    float3 m_Bitangent  : BITANGENT;
 };
 
 cbuffer PerFrame : register(b0, space0)

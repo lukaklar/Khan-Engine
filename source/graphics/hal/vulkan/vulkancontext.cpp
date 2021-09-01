@@ -178,7 +178,6 @@ namespace Khan
 			}
 			else if (depthStartAccess == StartAccessType::Keep || stencilStartAccess == StartAccessType::Keep)
 			{
-				// TODO: Mora da se vidi ovde
 				m_BarrierRecorder.RecordBarrier(*textureView, ResourceState_DepthWriteStencilWrite, QueueType_Graphics);
 				m_BarrierRecorder.Flush(m_CommandBuffer);
 			}

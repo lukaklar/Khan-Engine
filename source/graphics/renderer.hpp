@@ -63,7 +63,7 @@ namespace Khan
 		void RecreateScreenFrustumBuffer();
 		void DestroyScreenFrustumBuffer();
 
-		//DepthPrePass m_DepthPrePass;
+		DepthPrePass m_DepthPrePass;
 		//GBufferPass m_GBufferPass;
 		//LightDataUploadPass m_LightDataUploadPass;
 		//TileFrustumCalculationPass m_TileFrustumCalculationPass;
