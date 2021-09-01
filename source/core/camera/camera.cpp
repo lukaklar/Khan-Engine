@@ -19,12 +19,10 @@ namespace Khan
 
 	void Camera::Update(float dt)
 	{
-		/*m_ViewMatrix = glm::translate(glm::vec3(m_Target->GetGlobalPosition())) * glm::toMat4(m_Target->GetGlobalOrientation());
-		m_ViewMatrix = glm::inverse(m_ViewMatrix);*/
-
-		// TEMP
+		const glm::quat& orientation = m_Target->GetGlobalOrientation();
+		glm::vec3 direction(orientation.x, orientation.y, orientation.z);
 		glm::vec3 position = m_Target->GetGlobalPosition().xyz();
-		m_ViewMatrix = glm::lookAt(position, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_ViewMatrix = glm::lookAtRH(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		m_ViewProjection = m_Projection * m_ViewMatrix;
 

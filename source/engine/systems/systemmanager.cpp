@@ -1,5 +1,5 @@
 #include "engine/precomp.h"
-#include "engine/systemmanager.hpp"
+#include "engine/systems/systemmanager.hpp"
 #include "core/ecs/system.hpp"
 
 namespace Khan

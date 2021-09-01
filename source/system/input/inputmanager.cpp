@@ -10,7 +10,7 @@ InputManager::InputManager()
 	AddAction(InputContext::Default, InputAction::MoveRight, 'D', TriggerType::PressOnce, 0.0);
 }
 
-void InputManager::AddAction(InputContext context, InputAction action, int virtualKeyCode, TriggerType triggerType, double timeFrame)
+void InputManager::AddAction(InputContext context, InputAction action, int32_t virtualKeyCode, TriggerType triggerType, double timeFrame)
 {
 	m_aInputActionDescriptor[static_cast<size_t>(action)].m_Action = action;
 	m_aInputActionDescriptor[static_cast<size_t>(action)].m_VirtualKeyCode = virtualKeyCode;
@@ -39,7 +39,7 @@ InputContext InputManager::PeekContext() const
 bool InputManager::IsActionActive(InputAction action) const
 {
 	size_t contextValue = static_cast<size_t>(PeekContext());
-	int virtualKeyCode = m_aInputActionDescriptor[static_cast<size_t>(action)].m_VirtualKeyCode;
+	int32_t virtualKeyCode = m_aInputActionDescriptor[static_cast<size_t>(action)].m_VirtualKeyCode;
 	const auto& iter = m_InputMap[contextValue].find(virtualKeyCode);
 
 	if (iter == m_InputMap[contextValue].end())
@@ -52,7 +52,7 @@ bool InputManager::IsActionActive(InputAction action) const
 	return it != iter->second.end() && it->second.m_Active;
 }
 
-void InputManager::OnKeyPressed(int virtualKeycode, unsigned int pressCount, InputType inputType)
+void InputManager::OnKeyPressed(int32_t virtualKeycode, uint32_t pressCount, InputType inputType)
 {
 	size_t contextValue = static_cast<size_t>(PeekContext());
 	const auto& iter = m_InputMap[contextValue].find(virtualKeycode);
@@ -128,12 +128,17 @@ void InputManager::OnKeyPressed(int virtualKeycode, unsigned int pressCount, Inp
 	}
 }
 
-void InputManager::OnMouseButtonPressed(MouseButton button, ClickType clickType, int x, int y)
+void InputManager::OnMouseButtonPressed(MouseButton button, ClickType clickType, int32_t x, int32_t y)
 {
 
 }
 
-void InputManager::OnCursorMoved(int x, int y)
+void InputManager::OnCursorMoved(int32_t x, int32_t y)
 {
 	m_CursorPosition = { x, y };
+}
+
+void InputManager::OnRawCursorMove(int32_t deltaX, int32_t deltaY)
+{
+	m_CursorDelta += glm::ivec2(deltaX, deltaY);
 }

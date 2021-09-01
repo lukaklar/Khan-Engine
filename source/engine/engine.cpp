@@ -1,7 +1,8 @@
 #include "engine/precomp.h"
 #include "engine/engine.h"
 #include "engine/mainloop.h"
-#include "engine/systemmanager.hpp"
+#include "engine/systems/motionsystem.hpp"
+#include "engine/systems/systemmanager.hpp"
 #include "core/camera/systems/camerasystem.hpp"
 #include "core/ecs/world.hpp"
 #include "data/datamanager.hpp"
@@ -85,6 +86,7 @@ namespace Khan
 			GraphicsManager::CreateSingleton();
 			DataManager::CreateSingleton();
 			SystemManager::CreateSingleton();
+			SystemManager::Get()->AddSystem(new MotionSystem());
 			SystemManager::Get()->AddSystem(new CameraSystem());
 			SystemManager::Get()->AddSystem(new RenderPrepSystem());
 			//World* world = DataManager::Get()->LoadWorldFromFile("sponza.obj");

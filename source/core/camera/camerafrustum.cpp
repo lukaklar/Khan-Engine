@@ -4,45 +4,51 @@
 
 namespace Khan
 {
+	inline static glm::vec4 GetNormalizedPlane(const glm::vec4& plane)
+	{
+		float length3 = glm::sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z);
+		return plane / length3;
+	}
+
 	void CameraFrustum::Update(const glm::mat4& viewProjMatrix)
 	{
 		glm::vec4 plane;
 
-		plane[0] = viewProjMatrix[3][0] + viewProjMatrix[0][0];
-		plane[1] = viewProjMatrix[3][1] + viewProjMatrix[0][1];
-		plane[2] = viewProjMatrix[3][2] + viewProjMatrix[0][2];
-		plane[3] = viewProjMatrix[3][3] + viewProjMatrix[0][3];
-		m_Planes[FrustumPlane::Left] = -glm::normalize(plane);
+		plane[0] = viewProjMatrix[0][3] + viewProjMatrix[0][0];
+		plane[1] = viewProjMatrix[1][3] + viewProjMatrix[1][0];
+		plane[2] = viewProjMatrix[2][3] + viewProjMatrix[2][0];
+		plane[3] = viewProjMatrix[3][3] + viewProjMatrix[3][0];
+		m_Planes[FrustumPlane::Left] = -GetNormalizedPlane(plane);
 
-		plane[0] = viewProjMatrix[3][0] - viewProjMatrix[0][0];
-		plane[1] = viewProjMatrix[3][1] - viewProjMatrix[0][1];
-		plane[2] = viewProjMatrix[3][2] - viewProjMatrix[0][2];
-		plane[3] = viewProjMatrix[3][3] - viewProjMatrix[0][3];
-		m_Planes[FrustumPlane::Right] = -glm::normalize(plane);
+		plane[0] = viewProjMatrix[0][3] - viewProjMatrix[0][0];
+		plane[1] = viewProjMatrix[1][3] - viewProjMatrix[1][0];
+		plane[2] = viewProjMatrix[2][3] - viewProjMatrix[2][0];
+		plane[3] = viewProjMatrix[3][3] - viewProjMatrix[3][0];
+		m_Planes[FrustumPlane::Right] = -GetNormalizedPlane(plane);
 
-		plane[0] = viewProjMatrix[3][0] - viewProjMatrix[1][0];
-		plane[1] = viewProjMatrix[3][1] - viewProjMatrix[1][1];
-		plane[2] = viewProjMatrix[3][2] - viewProjMatrix[1][2];
-		plane[3] = viewProjMatrix[3][3] - viewProjMatrix[1][3];
-		m_Planes[FrustumPlane::Top] = -glm::normalize(plane);
+		plane[0] = viewProjMatrix[0][3] - viewProjMatrix[0][1];
+		plane[1] = viewProjMatrix[1][3] - viewProjMatrix[1][1];
+		plane[2] = viewProjMatrix[2][3] - viewProjMatrix[2][1];
+		plane[3] = viewProjMatrix[3][3] - viewProjMatrix[3][1];
+		m_Planes[FrustumPlane::Top] = -GetNormalizedPlane(plane);
 
-		plane[0] = viewProjMatrix[3][0] + viewProjMatrix[1][0];
-		plane[1] = viewProjMatrix[3][1] + viewProjMatrix[1][1];
-		plane[2] = viewProjMatrix[3][2] + viewProjMatrix[1][2];
-		plane[3] = viewProjMatrix[3][3] + viewProjMatrix[1][3];
-		m_Planes[FrustumPlane::Bottom] = -glm::normalize(plane);
+		plane[0] = viewProjMatrix[0][3] + viewProjMatrix[0][1];
+		plane[1] = viewProjMatrix[1][3] + viewProjMatrix[1][1];
+		plane[2] = viewProjMatrix[2][3] + viewProjMatrix[2][1];
+		plane[3] = viewProjMatrix[3][3] + viewProjMatrix[3][1];
+		m_Planes[FrustumPlane::Bottom] = -GetNormalizedPlane(plane);
 
-		plane[0] = viewProjMatrix[2][0];
-		plane[1] = viewProjMatrix[2][1];
+		plane[0] = viewProjMatrix[0][2];
+		plane[1] = viewProjMatrix[1][2];
 		plane[2] = viewProjMatrix[2][2];
-		plane[3] = viewProjMatrix[2][3];
-		m_Planes[FrustumPlane::Near] = -glm::normalize(plane);
+		plane[3] = viewProjMatrix[3][2];
+		m_Planes[FrustumPlane::Near] = -GetNormalizedPlane(plane);
 
-		plane[0] = viewProjMatrix[3][0] + viewProjMatrix[2][0];
-		plane[1] = viewProjMatrix[3][1] + viewProjMatrix[2][1];
-		plane[2] = viewProjMatrix[3][2] + viewProjMatrix[2][2];
-		plane[3] = viewProjMatrix[3][3] + viewProjMatrix[2][3];
-		m_Planes[FrustumPlane::Far] = -glm::normalize(plane);
+		plane[0] = viewProjMatrix[0][3] + viewProjMatrix[0][2];
+		plane[1] = viewProjMatrix[1][3] + viewProjMatrix[1][2];
+		plane[2] = viewProjMatrix[2][3] + viewProjMatrix[2][2];
+		plane[3] = viewProjMatrix[3][3] + viewProjMatrix[3][2];
+		m_Planes[FrustumPlane::Far] = -GetNormalizedPlane(plane);
 	}
 
 	bool CameraFrustum::Cull(const BoundingVolume& bv) const

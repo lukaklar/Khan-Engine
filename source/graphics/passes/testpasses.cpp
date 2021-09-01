@@ -33,7 +33,7 @@ namespace Khan
 			desc.m_DepthStencil.m_DepthEndAccess = EndAccessType::Discard;
 
 			m_PhysicalRenderPass = RenderBackend::g_Device->CreatePhysicalRenderPass(desc);
-			m_PhysicalRenderPass->SetRenderTargetClearColor(0, 0.5f, 0.5f, 0.5f, 0.5f);
+			m_PhysicalRenderPass->SetRenderTargetClearColor(0, 0.4f, 0.2f, 0.4f, 1.0f);
 		}
 
 		{

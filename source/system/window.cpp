@@ -13,19 +13,56 @@ namespace Khan
 		uint32_t g_Height;
 		const char* g_Title;
 
+		static void HideCursor()
+		{
+			while (::ShowCursor(FALSE) >= 0);
+		}
+
+		static void ShowCursor()
+		{
+			while (::ShowCursor(TRUE) < 0);
+		}
+
+		static void ConfineCursor()
+		{
+			RECT rect;
+			GetClientRect(g_hWnd, &rect);
+			MapWindowPoints(g_hWnd, NULL, reinterpret_cast<POINT*>(&rect), 2);
+			ClipCursor(&rect);
+		}
+
+		static void FreeCursor()
+		{
+			ClipCursor(NULL);
+		}
+
 		static LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 		{
 			switch (message)
 			{
-			case WM_KEYDOWN:
+			case WM_INPUT:
 			{
-				bool prevState = (lparam & (1 << 30)) != 0;
-				InputManager::Get()->OnKeyPressed(static_cast<int>(wparam), LOWORD(lparam), prevState ? InputType::Repeat : InputType::Press);
-				break;
-			}
-			case WM_KEYUP:
-			{
-				InputManager::Get()->OnKeyPressed(static_cast<int>(wparam), LOWORD(lparam), InputType::Release);
+				std::vector<uint8_t> rawBuffer;
+				UINT size;
+
+				if (FAILED(GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER))))
+				{
+					break;
+				}
+
+				rawBuffer.resize(size);
+
+				if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, rawBuffer.data(), &size, sizeof(RAWINPUTHEADER)) != size)
+				{
+					break;
+				}
+
+				auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
+				if (ri.header.dwType == RIM_TYPEMOUSE && (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
+				{
+					InputManager::Get()->OnRawCursorMove(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
+				}
+
 				break;
 			}
 			case WM_MOUSEMOVE:
@@ -33,8 +70,21 @@ namespace Khan
 				InputManager::Get()->OnCursorMoved(LOWORD(lparam), HIWORD(lparam));
 				break;
 			}
+			case WM_KEYDOWN:
+			{
+				bool prevState = (lparam & (1 << 30)) != 0;
+				InputManager::Get()->OnKeyPressed(static_cast<int32_t>(wparam), LOWORD(lparam), prevState ? InputType::Repeat : InputType::Press);
+				break;
+			}
+			case WM_KEYUP:
+			{
+				InputManager::Get()->OnKeyPressed(static_cast<int32_t>(wparam), LOWORD(lparam), InputType::Release);
+				break;
+			}
 			case WM_LBUTTONDOWN:
 			{
+				//ConfineCursor();
+				//HideCursor();
 				InputManager::Get()->OnMouseButtonPressed(MouseButton::Left, ClickType::Single, LOWORD(lparam), HIWORD(lparam));
 				break;
 			}
@@ -76,6 +126,20 @@ namespace Khan
 			case WM_MBUTTONDBLCLK:
 			{
 				InputManager::Get()->OnMouseButtonPressed(MouseButton::Middle, ClickType::Double, LOWORD(lparam), HIWORD(lparam));
+				break;
+			}
+			case WM_ACTIVATE:
+			{
+				if (wparam & (WA_ACTIVE | WA_CLICKACTIVE))
+				{
+					ConfineCursor();
+					HideCursor();
+				}
+				else
+				{
+					FreeCursor();
+					ShowCursor();
+				}
 				break;
 			}
 			case WM_DESTROY:
@@ -124,6 +188,13 @@ namespace Khan
 			ShowWindow(g_hWnd, SW_SHOWDEFAULT);
 			SetForegroundWindow(g_hWnd);
 			SetFocus(g_hWnd);
+
+			RAWINPUTDEVICE rid;
+			rid.usUsagePage = 0x01;
+			rid.usUsage = 0x02;
+			rid.dwFlags = 0;
+			rid.hwndTarget = g_hWnd;
+			RegisterRawInputDevices(&rid, 1, sizeof(rid));
 		}
 
 		void Shutdown()
@@ -135,14 +206,11 @@ namespace Khan
 		void HandleEvents()
 		{
 			MSG msg;
-			//while (s_Running)
-			//{
 			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
-			//}
 		}
 
 		bool IsRunning()

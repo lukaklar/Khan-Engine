@@ -9,6 +9,7 @@
 #include "core/ecs/world.hpp"
 #include "data/stb_image/stb_image.h"
 #include "data/texturemanager.hpp"
+#include "engine/components/motioncomponent.hpp"
 #include "graphics/components/lightcomponent.hpp"
 #include "graphics/components/visualcomponent.hpp"
 #include "graphics/hal/buffer.hpp"
@@ -357,7 +358,9 @@ namespace Khan
 		Camera* camera = cameraComponent.m_Camera = new Camera();
 		camera->SetTarget(player);
 
-		// TODO: MovementComponent and input handling system and Camera updating (threadpool and dependencies between systems)
+		MotionComponent& motionComponent = player->AddComponent<MotionComponent>();
+		motionComponent.m_MovementSpeed = 1.0f;
+		motionComponent.m_RotationSpeed = 0.5f;
 
 		RenderBackend::g_Device->WaitIdle();
 
@@ -424,16 +427,18 @@ namespace Khan
 			mesh->m_IndexCount = indices.size();
 		}
 
+		float scale = 0.05f;
+
 		Entity* model = world->CreateEntity();
 		model->SetGlobalPosition({ 0, 0, 0.5f, 1 });
 		model->SetGlobalOrientation({ 0, 0, 0, 0 });
-		glm::mat4 transform = glm::scale(glm::rotate(glm::rotate(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.5f)), glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(0.05f, 0.05f, 0.05f));
+		glm::mat4 transform = glm::scale(glm::rotate(glm::rotate(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.5f)), glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(scale, scale, scale));
 		model->SetGlobalTransform(transform);
 
 		BoundingVolume bv;
-		bv.SetType(BoundingVolume::Type::AABBox);
-		bv.SetAABBoxMin({ -1.0f, -1.0f, -1.0f });
-		bv.SetAABBoxMax({ 1.0f, 1.0f, 1.0f });
+		bv.SetType(BoundingVolume::Type::OOBBox);
+		bv.SetOOBBoxMin(glm::vec3(-1.0f, -1.0f, -1.0f));
+		bv.SetOOBBoxMax(glm::vec3(1.0f, 1.0f, 1.0f));
 		bv.SetParentMatrixPtr(&model->GetGlobalTransform());
 
 		model->SetBoundingVolume(bv);
@@ -464,12 +469,16 @@ namespace Khan
 		Entity* player = world->CreateEntity();
 		player->SetName("Player");
 		player->SetGlobalPosition(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-		player->SetGlobalOrientation(glm::quat(0.0f, 0.0f, 0.0f, 0.0f));
-		player->SetGlobalTransform(glm::mat4(1.0f));
+		player->SetGlobalOrientation(glm::quat(0.0f, 0.0f, 0.0f, 1.0f));
+		entity->SetGlobalTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))* glm::toMat4(entity->GetGlobalOrientation()));
 
 		CameraComponent& cameraComponent = player->AddComponent<CameraComponent>();
 		Camera* camera = cameraComponent.m_Camera = new Camera();
 		camera->SetTarget(player);
+
+		MotionComponent& motionComponent = player->AddComponent<MotionComponent>();
+		motionComponent.m_MovementSpeed = 1.0f;
+		motionComponent.m_RotationSpeed = 50.0f;
 
 		return world;
 	}
