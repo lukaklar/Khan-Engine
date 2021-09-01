@@ -80,12 +80,12 @@ namespace Khan
 
 	Buffer* RenderGraph::CreateManagedResource(const BufferDesc& desc)
 	{
-		return m_TransientResourceManager->FindOrCreateBuffer(m_ActivePassNode.first, desc);
+		return m_TransientResourceManager->FindOrCreateBuffer(m_ActivePassNode.first, desc, m_CreatedResourceIndex++);
 	}
 
 	Texture* RenderGraph::CreateManagedResource(const TextureDesc& desc)
 	{
-		return m_TransientResourceManager->FindOrCreateTexture(m_ActivePassNode.first, desc);
+		return m_TransientResourceManager->FindOrCreateTexture(m_ActivePassNode.first, desc, m_CreatedResourceIndex++);
 	}
 
 	BufferView* RenderGraph::DeclareResourceDependency(Buffer* buffer, const BufferViewDesc& desc, ResourceState startState, bool keepContent)
@@ -156,6 +156,7 @@ namespace Khan
 		{
 			m_ActivePassNode.first = &it.m_Pass;
 			m_ActivePassNode.second = &it;
+			m_CreatedResourceIndex = 0;
 			it.m_Pass.Setup(*this, renderer);
 			m_PassToNodeMap.insert(m_ActivePassNode);
 		}
@@ -206,7 +207,7 @@ namespace Khan
 
 						if (node.m_ExecutionQueueIndex != otherNode.m_ExecutionQueueIndex)
 						{
-							node.m_SyncSignalRequired = true;
+							//node.m_SyncSignalRequired = true;
 							otherNode.m_NodesToSyncWith.push_back(&node);
 						}
 
@@ -541,6 +542,7 @@ namespace Khan
 							if (syncCoverage.m_NodeToSyncWith->m_ExecutionQueueIndex != node->m_ExecutionQueueIndex)
 							{
 								optimalNodesToSyncWith.push_back(syncCoverage.m_NodeToSyncWith);
+								const_cast<Node*>(syncCoverage.m_NodeToSyncWith)->m_SyncSignalRequired = true;
 
 								// Update SSIS
 								auto& index = node->m_SynchronizationIndexSet[syncCoverage.m_NodeToSyncWith->m_ExecutionQueueIndex];

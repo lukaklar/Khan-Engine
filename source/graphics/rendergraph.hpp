@@ -158,6 +158,7 @@ namespace Khan
 
 		std::map<const RenderPass*, Node*> m_PassToNodeMap;
 		std::pair<RenderPass*, Node*> m_ActivePassNode;
+		uint32_t m_CreatedResourceIndex;
 
 		std::vector<Node> m_PassNodes;
 		std::vector<std::vector<uint64_t>> m_AdjacencyLists;

@@ -487,7 +487,8 @@ namespace Khan
 		Material* material = new Material();
 		material->SetTwoSided(false);
 		material->SetTransparent(false);
-		material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("test_PS", "PS_Test"));
+		//material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("test_PS", "PS_Test"));
+		material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("gbuffer_test_PS", "PS_GBufferTest"));
 
 		mesh->m_Material = material;
 		mesh->m_ParentTransform.UpdateConstantData(&model->GetGlobalTransform(), 0, sizeof(glm::mat4));

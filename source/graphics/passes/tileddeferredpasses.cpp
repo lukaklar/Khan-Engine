@@ -35,6 +35,7 @@ namespace Khan
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource | BufferFlag_Writable;
 
 		Buffer* temp = renderGraph.CreateManagedResource(desc);
+		KH_DEBUGONLY(temp->SetDebugName("Active Scene Lights"));
 		renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights = temp;
 
 		BufferViewDesc viewDesc;
@@ -91,6 +92,7 @@ namespace Khan
 
 	LightCullingPass::LightCullingPass()
 		: RenderPass(QueueType_Compute, "LightCullingPass")
+		, m_LightParams(sizeof(uint32_t))
 	{
 		ComputePipelineDescription desc;
 		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("tileddeferredculling_CS", "CS_CullLights");
@@ -110,6 +112,7 @@ namespace Khan
 			desc.m_Size = sizeof(uint32_t);
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess;
 			temp = renderGraph.CreateManagedResource(desc);
+			KH_DEBUGONLY(temp->SetDebugName("Opaque Light Index Counter"));
 
 			viewDesc.m_Offset = 0;
 			viewDesc.m_Range = desc.m_Size;
@@ -117,6 +120,7 @@ namespace Khan
 			m_OpaqueLightIndexCounter = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			temp = renderGraph.CreateManagedResource(desc);
+			KH_DEBUGONLY(temp->SetDebugName("Transparent Light Index Counter"));
 			m_TransparentLightIndexCounter = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			temp = renderer.GetResourceBoard().m_Persistent.m_ScreenFrustums;
@@ -130,12 +134,14 @@ namespace Khan
 			desc.m_Size = 10000;
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 			temp = renderGraph.CreateManagedResource(desc);
+			KH_DEBUGONLY(temp->SetDebugName("Opaque Light Index List"));
 			renderer.GetResourceBoard().m_Transient.m_OpaqueLightIndexList = temp;
 
 			viewDesc.m_Range = desc.m_Size;
 			m_OpaqueLightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			temp = renderGraph.CreateManagedResource(desc);
+			KH_DEBUGONLY(temp->SetDebugName("Transparent Light Index List"));
 			renderer.GetResourceBoard().m_Transient.m_TransparentLightIndexList = temp;
 
 			viewDesc.m_Range = desc.m_Size;
@@ -157,6 +163,7 @@ namespace Khan
 			desc.m_Flags = TextureFlag_AllowUnorderedAccess | TextureFlag_AllowShaderResource;
 
 			temp = renderGraph.CreateManagedResource(desc);
+			KH_DEBUGONLY(temp->SetDebugName("Opaque Light Grid"));
 			renderer.GetResourceBoard().m_Transient.m_OpaqueLightGrid = temp;
 
 			viewDesc.m_Type = TextureViewType_2D;
@@ -169,6 +176,7 @@ namespace Khan
 			m_OpaqueLightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
 			temp = renderGraph.CreateManagedResource(desc);
+			KH_DEBUGONLY(temp->SetDebugName("Transparent Light Grid"));
 			renderer.GetResourceBoard().m_Transient.m_TransparentLightGrid = temp;
 
 			m_TransparentLightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
@@ -185,6 +193,9 @@ namespace Khan
 
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
+		uint32_t numLights = static_cast<uint32_t>(renderer.GetActiveLightData().size());
+		m_LightParams.UpdateConstantData(&numLights, 0, sizeof(uint32_t));
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 2, &m_LightParams);
 
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_DepthTexture);
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 1, m_PerTileFrustums);

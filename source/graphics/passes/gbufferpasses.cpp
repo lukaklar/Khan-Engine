@@ -121,7 +121,7 @@ namespace Khan
 			}
 
 			context.SetPipelineState(*material->GetPipelineState());
-			context.SetViewport(0.0f, 0.0f, (float)m_GBuffer_Depth->GetTexture().GetDesc().m_Width, (float)m_GBuffer_Depth->GetTexture().GetDesc().m_Height);
+			context.SetViewport(0.0f, 0.0f, (float)renderer.GetActiveCamera()->GetViewportWidth(), (float)renderer.GetActiveCamera()->GetViewportHeight());
 			context.SetScissor(0, 0, m_GBuffer_Depth->GetTexture().GetDesc().m_Width, m_GBuffer_Depth->GetTexture().GetDesc().m_Height);
 
 			uint32_t i = 0;

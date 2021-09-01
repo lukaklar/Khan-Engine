@@ -14,6 +14,7 @@
 #include "graphics/renderer.hpp"
 #include "graphics/rendergraph.hpp"
 #include "graphics/shadermanager.hpp"
+#include "core/defines.h"
 
 namespace Khan
 {
@@ -65,6 +66,7 @@ namespace Khan
 		desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowDepthStencil;
 
 		Texture* depthBuffer = renderGraph.CreateManagedResource(desc);
+		KH_DEBUGONLY(depthBuffer->SetDebugName("Depth Buffer"));
 		renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth = depthBuffer;
 
 		TextureViewDesc viewDesc;

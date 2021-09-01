@@ -68,11 +68,11 @@ namespace Khan
 		return m_Device;
 	}
 
-	Buffer* VulkanTransientResourceManager::FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc)
+	Buffer* VulkanTransientResourceManager::FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc, uint32_t resourceIndex)
 	{
 		std::pair key(pass, desc);
-		auto it = m_DescToBufferMap.find(key);
-		if (it != m_DescToBufferMap.end())
+		auto it = m_DescToBufferMap[key].find(resourceIndex);
+		if (it != m_DescToBufferMap[key].end())
 		{
 			return it->second;
 		}
@@ -90,7 +90,7 @@ namespace Khan
 
 		KH_ASSERT(m_BufferPoolIndex < K_BUFFER_POOL_SIZE, "Buffer pool too small, you should increase its size.");
 		Buffer* value = new(&m_BufferPool[m_BufferPoolIndex++])VulkanBuffer(buffer, allocation, desc);
-		m_DescToBufferMap.insert({ key, value });
+		m_DescToBufferMap[key].insert({ resourceIndex, value });
 
 		return value;
 	}
@@ -132,11 +132,11 @@ namespace Khan
 		return view;
 	}
 
-	Texture* VulkanTransientResourceManager::FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc)
+	Texture* VulkanTransientResourceManager::FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc, uint32_t resourceIndex)
 	{
 		std::pair key(pass, desc);
-		auto it = m_DescToTextureMap.find(key);
-		if (it != m_DescToTextureMap.end())
+		auto it = m_DescToTextureMap[key].find(resourceIndex);
+		if (it != m_DescToTextureMap[key].end())
 		{
 			return it->second;
 		}
@@ -162,7 +162,7 @@ namespace Khan
 
 		KH_ASSERT(m_TexturePoolIndex < K_TEXTURE_POOL_SIZE, "Texture pool too small, you should increase its size.");
 		VulkanTexture* value = new(&m_TexturePool[m_TexturePoolIndex++])VulkanTexture(image, allocation, desc);
-		m_DescToTextureMap.insert({ key, value });
+		m_DescToTextureMap[key].insert({ resourceIndex, value });
 
 		return value;
 	}

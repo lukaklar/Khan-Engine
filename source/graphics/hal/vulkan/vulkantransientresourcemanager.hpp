@@ -22,9 +22,9 @@ namespace Khan
 
 		virtual RenderDevice& GetDevice() const override;
 
-		virtual Buffer* FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc) override;
+		virtual Buffer* FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc, uint32_t resourceIndex) override;
 		virtual BufferView* FindOrCreateBufferView(Buffer* buffer, const BufferViewDesc& desc) override;
-		virtual Texture* FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc) override;
+		virtual Texture* FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc, uint32_t resourceIndex) override;
 		virtual TextureView* FindOrCreateTextureView(Texture* texture, const TextureViewDesc& desc) override;
 
 		void ResetFrame(uint32_t frameIndex);

@@ -57,6 +57,8 @@ namespace Khan
 		TextureView* m_TransparentLightGrid;
 
 		RenderPipelineState* m_PipelineState;
+
+		ConstantBuffer m_LightParams;
 	};
 
 	class TiledDeferredLightingPass : public RenderPass

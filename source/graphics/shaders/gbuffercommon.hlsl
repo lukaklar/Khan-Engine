@@ -96,3 +96,16 @@ PS_OUT PS_CommonDiffuseOnly(VS_TO_PS In)
     
     return Out;
 }
+
+PS_OUT PS_GBufferTest(VS_TO_PS In)
+{
+    PS_OUT Out;
+    
+    Out.m_Albedo = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    Out.m_Normal = float3(0.0f, 0.0f, 0.0f);
+    Out.m_Specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    Out.m_Emissive = float3(0.0f, 0.0f, 0.0f);
+    Out.m_MetallicAndRoughness = float2(0.0f, 0.5f);
+    
+    return Out;
+}

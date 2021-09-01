@@ -27,9 +27,9 @@ namespace Khan
 	public:
         virtual RenderDevice& GetDevice() const = 0;
 
-        virtual Buffer* FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc) = 0;
+        virtual Buffer* FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc, uint32_t resourceIndex) = 0;
         virtual BufferView* FindOrCreateBufferView(Buffer* buffer, const BufferViewDesc& desc) = 0;
-        virtual Texture* FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc) = 0;
+        virtual Texture* FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc, uint32_t resourceIndex) = 0;
         virtual TextureView* FindOrCreateTextureView(Texture* texture, const TextureViewDesc& desc) = 0;
 
 	protected:
@@ -43,7 +43,7 @@ namespace Khan
         uint32_t m_TexturePoolIndex = 0;
         uint32_t m_TextureViewPoolIndex[K_MAX_FRAMES_IN_FLIGHT] = {};
 
-        std::unordered_map<std::pair<const RenderPass*, BufferDesc>, Buffer*, pair_hash> m_DescToBufferMap;
-        std::unordered_map<std::pair<const RenderPass*, TextureDesc>, Texture*, pair_hash> m_DescToTextureMap;
+        std::unordered_map<std::pair<const RenderPass*, BufferDesc>, std::map<uint32_t, Buffer*>, pair_hash> m_DescToBufferMap;
+        std::unordered_map<std::pair<const RenderPass*, TextureDesc>, std::map<uint32_t, Texture*>, pair_hash> m_DescToTextureMap;
 	};
 }

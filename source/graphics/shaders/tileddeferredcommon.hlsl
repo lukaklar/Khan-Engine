@@ -1,7 +1,5 @@
 #define TILE_SIZE 16
 
-#define NUM_LIGHTS 8
-
 #define DIRECTIONAL_LIGHT 0
 #define POINT_LIGHT 1
 #define SPOT_LIGHT 2
@@ -73,6 +71,11 @@ cbuffer ScreenToViewParams : register(b1)
 {
     float4x4 g_InverseProjection;
     float2   g_ScreenDimensions;
+}
+
+cbuffer LightParams : register(b2)
+{
+    uint g_NumLights;
 }
 
 // Convert clip space coordinates to view space
