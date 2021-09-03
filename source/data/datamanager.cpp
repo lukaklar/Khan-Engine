@@ -301,12 +301,12 @@ namespace Khan
 		processNode(scene->mRootNode, nullptr);
 
 		Entity* entity = world->CreateEntity();
+		entity->SetGlobalOrientation(glm::quat(0.0f, 0.0f, -1.0f, 0.0f));
 		LightComponent& lightComponent = entity->AddComponent<LightComponent>();
 		DirectionalLight* directional = new DirectionalLight();
 		directional->SetActive(true);
 		directional->SetColor({ 1.0f, 1.0f, 1.0f });
 		directional->SetLuminance(1.0f);
-		directional->SetDirection({ -1, -1, 0 });
 		lightComponent.m_Light = directional;
 
 		for (uint32_t i = 0; i < scene->mNumLights; ++i)
@@ -321,9 +321,8 @@ namespace Khan
 			{
 				case aiLightSource_DIRECTIONAL:
 				{
-					DirectionalLight* directional = new DirectionalLight();
-					directional->SetDirection(*reinterpret_cast<const glm::vec3*>(&light.mDirection));
-					lightComponent.m_Light = directional;
+					lightComponent.m_Light = new DirectionalLight();
+					entity->SetGlobalOrientation(glm::quat(0.0f, light.mDirection.x, light.mDirection.y, light.mDirection.z));
 					break;
 				}
 				case aiLightSource_POINT:
@@ -336,8 +335,7 @@ namespace Khan
 				case aiLightSource_SPOT:
 				{
 					SpotLight* spot = new SpotLight();
-					// TODO: Take inner cone and adjust shader calculations for it
-					spot->SetDirection(*reinterpret_cast<const glm::vec3*>(&light.mDirection));
+					entity->SetGlobalOrientation(glm::quat(0.0f, light.mDirection.x, light.mDirection.y, light.mDirection.z));
 					spot->SetAngle(light.mAngleOuterCone);
 					spot->SetRange(100.0f);
 					lightComponent.m_Light = spot;
@@ -509,13 +507,13 @@ namespace Khan
 
 		{
 			Entity* entity = world->CreateEntity();
+			entity->SetGlobalOrientation(glm::quat(0.0f, -1.0f, -1.0f, 0.0f));
 
 			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
 			DirectionalLight* directional = new DirectionalLight();
 			directional->SetActive(true);
 			directional->SetColor({ 0.0f, 0.0f, 0.5f });
 			directional->SetLuminance(1.0f);
-			directional->SetDirection({ -1, -1, 0 });
 			lightComponent.m_Light = directional;
 		}
 
@@ -672,13 +670,13 @@ namespace Khan
 
 		{
 			Entity* entity = world->CreateEntity();
+			entity->SetGlobalOrientation(glm::quat(0.0f, -1.0f, -1.0f, 0.0f));
 
 			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
 			DirectionalLight* directional = new DirectionalLight();
 			directional->SetActive(true);
 			directional->SetColor({ 1.0f, 1.0f, 1.0f });
 			directional->SetLuminance(1.0f);
-			directional->SetDirection({ -1, -1, 0 });
 			lightComponent.m_Light = directional;
 		}
 

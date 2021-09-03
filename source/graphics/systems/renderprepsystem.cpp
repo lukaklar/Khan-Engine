@@ -77,7 +77,8 @@ namespace Khan
 					{
 						const DirectionalLight* directional = reinterpret_cast<const DirectionalLight*>(light);
 						lightData.m_Type = Light::Type::Directional;
-						lightData.m_DirectionVS = (camera->GetViewMatrix() * glm::vec4(directional->GetDirection(), 0.0f)).xyz();
+						const glm::quat& orientation = entity->GetGlobalOrientation();
+						lightData.m_DirectionVS = (camera->GetViewMatrix() * glm::vec4(orientation.x, orientation.y, orientation.z, 0.0f)).xyz();
 						break;
 					}
 					case Light::Type::Omni:
@@ -92,7 +93,8 @@ namespace Khan
 					{
 						const SpotLight* spot = reinterpret_cast<const SpotLight*>(light);
 						lightData.m_Type = Light::Type::Spot;
-						lightData.m_DirectionVS = (camera->GetViewMatrix() * glm::vec4(spot->GetDirection(), 0.0f)).xyz();
+						const glm::quat& orientation = entity->GetGlobalOrientation();
+						lightData.m_DirectionVS = (camera->GetViewMatrix() * glm::vec4(orientation.x, orientation.y, orientation.z, 0.0f)).xyz();
 						lightData.m_PositionVS = (camera->GetViewMatrix() * entity->GetGlobalPosition()).xyz();
 						lightData.m_SpotlightAngle = spot->GetAngle();
 						lightData.m_Range = spot->GetRange();

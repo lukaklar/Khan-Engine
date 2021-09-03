@@ -37,12 +37,6 @@ namespace Khan
 	{
 	public:
 		DirectionalLight() : Light(Directional) {}
-
-		inline const glm::vec3& GetDirection() const { return m_Direction; }
-		inline void SetDirection(const glm::vec3& value) { m_Direction = value; }
-
-	private:
-		glm::vec3 m_Direction;
 	};
 
 	class OmniLight : public Light
@@ -64,13 +58,10 @@ namespace Khan
 
 		inline float GetRange() const { return m_Range; }
 		inline void SetRange(float value) { m_Range = value; }
-		inline const glm::vec3& GetDirection() const { return m_Direction; }
-		inline void SetDirection(const glm::vec3& value) { m_Direction = value; }
 		inline float GetAngle() const { return m_Angle; }
 		inline void SetAngle(float value) { m_Angle = value; }
 
 	private:
-		glm::vec3 m_Direction;
 		float m_Angle;
 		float m_Range;
 	};
