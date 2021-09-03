@@ -20,12 +20,11 @@ namespace Khan
 			glm::vec3 position = entity->GetGlobalPosition().xyz();
 			InputManager* inputMgr = InputManager::Get();
 			glm::ivec2 cursorDelta = inputMgr->GetCursorDelta();
-			glm::vec3 up = glm::rotate(entity->GetGlobalOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
+			//glm::vec3 up = glm::rotate(entity->GetGlobalOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::vec3 up(0.0f, 1.0f, 0.0f);
 
 			glm::vec3 strafeDirection = glm::normalize(glm::cross(direction, up));
-			direction = glm::normalize(glm::mat3(glm::rotate(glm::radians(cursorDelta.x * motion.m_RotationSpeed * dt), up) * glm::rotate(glm::radians(cursorDelta.y * motion.m_RotationSpeed * dt), strafeDirection)) * direction);
-
-			entity->SetGlobalOrientation(glm::quat(0.0f, direction));
+			direction = glm::normalize(glm::mat3(glm::rotate(glm::radians(-cursorDelta.x * motion.m_RotationSpeed), up) * glm::rotate(glm::radians(-cursorDelta.y * motion.m_RotationSpeed), strafeDirection)) * direction);			
 
 			if (inputMgr->IsActionActive(InputAction::MoveForward))
 			{
@@ -37,14 +36,23 @@ namespace Khan
 			}
 			if (inputMgr->IsActionActive(InputAction::MoveRight))
 			{
-				position -= motion.m_MovementSpeed * strafeDirection * dt;
+				position += motion.m_MovementSpeed * strafeDirection * dt;
 			}
 			if (inputMgr->IsActionActive(InputAction::MoveLeft))
 			{
-				position += motion.m_MovementSpeed * strafeDirection * dt;
+				position -= motion.m_MovementSpeed * strafeDirection * dt;
+			}
+			if (inputMgr->IsActionActive(InputAction::MoveUp))
+			{
+				position += motion.m_MovementSpeed * up * dt;
+			}
+			if (inputMgr->IsActionActive(InputAction::MoveDown))
+			{
+				position -= motion.m_MovementSpeed * up * dt;
 			}
 
 			entity->SetGlobalPosition(glm::vec4(position.x, position.y, position.z, 1.0f));
+			entity->SetGlobalOrientation(glm::quat(0.0f, direction));
 			entity->SetGlobalTransform(glm::translate(glm::mat4(1.0f), position) * glm::toMat4(entity->GetGlobalOrientation()));
 
 			inputMgr->ResetCursorDelta();

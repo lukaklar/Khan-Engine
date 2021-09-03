@@ -79,7 +79,7 @@ void CS_TiledDeferredLighting(uint3 groupID           : SV_GroupID,
                 radiance = light.m_Color * light.m_Luminance;
                 break;
             }
-            case POINT_LIGHT:
+            case OMNI_LIGHT:
             {
                 L = light.m_PositionVS.xyz - data.m_PositionVS;
                 float distance = length(L);
@@ -100,12 +100,12 @@ void CS_TiledDeferredLighting(uint3 groupID           : SV_GroupID,
             }
         }
         
-        Lo += BRDF(L, V, data.m_Normal, data.m_Metallic, data.m_Roughness, data.m_Albedo, data.m_SpecularReflectance, radiance);
+        Lo += radiance;// BRDF(L, V, data.m_Normal, data.m_Metallic, data.m_Roughness, data.m_Albedo, data.m_SpecularReflectance, radiance);
     }
 
 	// Combine with ambient
-    float3 color = data.m_Albedo * 0.02;
-    color += Lo;
+    float3 color = data.m_Albedo * Lo;
+    //color += Lo;
     
     g_LightingResult[texCoord.xy] = float4(color, 1.0);
 }

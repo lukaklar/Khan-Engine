@@ -1,7 +1,7 @@
 #define TILE_SIZE 16
 
 #define DIRECTIONAL_LIGHT 0
-#define POINT_LIGHT 1
+#define OMNI_LIGHT 1
 #define SPOT_LIGHT 2
 
 struct Light
@@ -13,6 +13,7 @@ struct Light
 	float3 m_Color;
 	float  m_Luminance;
 	float  m_SpotlightAngle;
+    float3 m_Padding;
 };
 
 struct Plane

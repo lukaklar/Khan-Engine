@@ -13,6 +13,7 @@ namespace Khan
 	public:
 		World* LoadWorldFromFile(const char* fileName);
 		World* CreateTestPlayground();
+		World* CreateTestPlayground2();
 		//World* LoadWorldFromDB(const char* name);
 		//void SaveWorldToDB(const World* world);
 

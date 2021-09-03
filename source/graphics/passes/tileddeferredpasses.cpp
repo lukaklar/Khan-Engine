@@ -127,11 +127,18 @@ namespace Khan
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			m_PerTileFrustums = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
 
+			if (!m_ViewportResized)
+			{
+				m_PerTileFrustums->GetBuffer().SetState(ResourceState_NonPixelShaderAccess);;
+				m_PerTileFrustums->GetBuffer().SetQueue(QueueType_Compute);
+			}
+			m_ViewportResized = false;
+
 			temp = renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
 
-			desc.m_Size = 10000;
+			desc.m_Size = 720000 * sizeof(uint32_t);
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 			temp = renderGraph.CreateManagedResource(desc);
 			KH_DEBUGONLY(temp->SetDebugName("Opaque Light Index List"));
@@ -208,7 +215,7 @@ namespace Khan
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 4, m_OpaqueLightGrid);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 5, m_TransparentLightGrid);
 
-		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreadGroups();
+		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreads();
 		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
 	}
 
@@ -294,9 +301,9 @@ namespace Khan
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_GBuffer_Albedo);
-		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 1, m_GBuffer_Normals);
-		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 2, m_GBuffer_SpecularReflectance);
-		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 3, m_GBuffer_MetallicAndRoughness);
+		//context.SetSRVTexture(ResourceBindFrequency_PerFrame, 1, m_GBuffer_Normals);
+		//context.SetSRVTexture(ResourceBindFrequency_PerFrame, 2, m_GBuffer_SpecularReflectance);
+		//context.SetSRVTexture(ResourceBindFrequency_PerFrame, 3, m_GBuffer_MetallicAndRoughness);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 4, m_GBuffer_Depth);
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 5, m_LightIndexList);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 6, m_LightGrid);

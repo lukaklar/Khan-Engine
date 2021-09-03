@@ -576,7 +576,37 @@ namespace Khan
 		{
 			Node* node = *it;
 
-			uint64_t prevNodeIdx = node->m_LocalToQueueExecutionIndex - 1;
+			for (auto resourceIt : node->m_ResourceToIdMap)
+			{
+				auto [resource, resourceID] = resourceIt;
+
+				for (auto it2 = it + 1; it2 != m_TopologicallySortedNodes.rend(); ++it2)
+				{
+					Node* prevNode = *it2;
+
+					auto& prevNodeResStateDecl = prevNode->m_ResourceStateTransition.find(resourceID);
+					if (prevNodeResStateDecl != prevNode->m_ResourceStateTransition.end())
+					{
+						ResourceState& prevNodeResEndState = prevNodeResStateDecl->second.second;
+
+						resource->SetState(prevNodeResEndState);
+						resource->SetQueue(prevNode->m_Pass.GetExecutionQueue());
+
+						if (node->m_ExecutionQueueIndex != prevNode->m_ExecutionQueueIndex)
+						{
+							auto& currNodeResStateDecl = node->m_ResourceStateTransition.find(resourceID);
+							ResourceState currNodeResStartState = currNodeResStateDecl->second.first;
+							prevNodeResEndState = currNodeResStartState;
+
+							prevNode->m_ResourceQueueTransfer.insert({ resourceID, node->m_ExecutionQueueIndex });
+						}
+
+						break;
+					}
+				}
+			}
+
+			/*uint64_t prevNodeIdx = node->m_LocalToQueueExecutionIndex - 1;
 			if (prevNodeIdx != Node::InvalidSynchronizationIndex)
 			{
 				Node* prevNode = const_cast<Node*>(m_NodesPerQueue[node->m_ExecutionQueueIndex][prevNodeIdx]);
@@ -625,7 +655,7 @@ namespace Khan
 						prevNode->m_ResourceQueueTransfer.insert({ resourceID, node->m_ExecutionQueueIndex });
 					}
 				}
-			}
+			}*/
 		}
 	}
 

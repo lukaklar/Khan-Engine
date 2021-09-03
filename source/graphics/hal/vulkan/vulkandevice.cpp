@@ -54,8 +54,10 @@ namespace Khan
 		m_UploadManager.Create(m_MemoryManager.VulkanMemoryAllocator());
 		m_SemaphoreAllocator.Create(m_Device);
 
-		// TODO: Create a couple of these (maybe equal to the number of CPU cores)
-		m_Contexts.push_back(new VulkanRenderContext(*this));
+		for (uint32_t i = 0; i < 6; ++i)
+		{
+			m_Contexts.push_back(new VulkanRenderContext(*this));
+		}
 
 		m_GraphicsCommandPool.Create(m_Device, m_Adapter.GetQueueFamilyIndices()[QueueType_Graphics]);
 		m_CopyCommandPool.Create(m_Device, m_Adapter.GetQueueFamilyIndices()[QueueType_Copy]);

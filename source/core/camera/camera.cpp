@@ -14,6 +14,7 @@ namespace Khan
 		, m_Projection(glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip))
 		, m_ViewMatrix(1.0f)
 		, m_ViewProjection(m_Projection)
+		, m_InverseProjection(glm::inverse(m_Projection))
 	{
 	}
 
@@ -22,7 +23,7 @@ namespace Khan
 		const glm::quat& orientation = m_Target->GetGlobalOrientation();
 		glm::vec3 direction(orientation.x, orientation.y, orientation.z);
 		glm::vec3 position = m_Target->GetGlobalPosition().xyz();
-		m_ViewMatrix = glm::lookAtRH(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_ViewMatrix = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		m_ViewProjection = m_Projection * m_ViewMatrix;
 

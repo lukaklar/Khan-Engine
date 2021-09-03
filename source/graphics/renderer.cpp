@@ -4,12 +4,12 @@
 #include "graphics/hal/renderbackend.hpp"
 #include "graphics/hal/renderdevice.hpp"
 #include "graphics/hal/swapchain.hpp"
-#include "system/window.hpp"
+#include "core/defines.h"
 
 namespace Khan
 {
 	Renderer::Renderer()
-		: m_ThreadPool(1)
+		: m_ThreadPool(6)
 		, m_TiledDeferredDispatchParams(2 * sizeof(glm::uvec4))
 		, m_ScreenToViewParams(sizeof(glm::mat4) + sizeof(glm::vec2))
 		, m_ScreenDimensionsChanged(true)
@@ -89,6 +89,7 @@ namespace Khan
 		desc.m_Size = 4 * 4 * sizeof(float) * m_ActiveCamera->GetViewportWidth() / K_TILE_SIZE * m_ActiveCamera->GetViewportHeight() / K_TILE_SIZE;
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 		m_ResourceBoard.m_Persistent.m_ScreenFrustums = RenderBackend::g_Device->CreateBuffer(desc);
+		KH_DEBUGONLY(m_ResourceBoard.m_Persistent.m_ScreenFrustums->SetDebugName("Screen Frustums"));
 	}
 
 	inline void Renderer::DestroyScreenFrustumBuffer()

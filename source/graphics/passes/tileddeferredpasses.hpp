@@ -59,6 +59,8 @@ namespace Khan
 		RenderPipelineState* m_PipelineState;
 
 		ConstantBuffer m_LightParams;
+
+		bool m_ViewportResized = true;
 	};
 
 	class TiledDeferredLightingPass : public RenderPass

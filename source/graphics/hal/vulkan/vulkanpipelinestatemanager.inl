@@ -167,12 +167,11 @@ namespace Khan
 
 	KH_FORCE_INLINE static void TranslateRasterizerState(VkPipelineRasterizationStateCreateInfo& info, const RasterizerState& state)
 	{
-		// should be front first and back later but these are switched to fix a bug for vulkan
 		static const VkCullModeFlagBits s_vkCullMode[] =
 		{
 			VK_CULL_MODE_NONE,
-			VK_CULL_MODE_BACK_BIT,
-			VK_CULL_MODE_FRONT_BIT
+			VK_CULL_MODE_FRONT_BIT,
+			VK_CULL_MODE_BACK_BIT
 		};
 
 		// TODO: Enable this in RasterizerState
@@ -180,7 +179,10 @@ namespace Khan
 		info.rasterizerDiscardEnable = VK_FALSE;
 		info.polygonMode = state.m_WireframeEnabled ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
 		info.cullMode = s_vkCullMode[static_cast<uint32_t>(state.m_CullMode)];
-		info.frontFace = state.m_FrontCounterClockwise ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+		// TODO: Switch these to the correct order
+		// this is only temporary because currently I am using the OpenGL coordinate system
+		info.frontFace = state.m_FrontCounterClockwise ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
+		//info.frontFace = state.m_FrontCounterClockwise ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
 		info.depthBiasEnable = state.m_DepthBiasEnabled ? VK_TRUE : VK_FALSE;
 		info.depthBiasConstantFactor = static_cast<float>(state.m_DepthBias);
 		info.depthBiasClamp = state.m_DepthBiasClamp;

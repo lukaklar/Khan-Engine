@@ -2,12 +2,15 @@
 #include "system/input/inputmanager.hpp"
 
 InputManager::InputManager()
+	: m_CursorDelta(0, 0)
 {
 	PushContext(InputContext::Default);
 	AddAction(InputContext::Default, InputAction::MoveForward, 'W', TriggerType::PressOnce, 0.0);
 	AddAction(InputContext::Default, InputAction::MoveBack, 'S', TriggerType::PressOnce, 0.0);
 	AddAction(InputContext::Default, InputAction::MoveLeft, 'A', TriggerType::PressOnce, 0.0);
 	AddAction(InputContext::Default, InputAction::MoveRight, 'D', TriggerType::PressOnce, 0.0);
+	AddAction(InputContext::Default, InputAction::MoveUp, VK_SPACE, TriggerType::PressOnce, 0.0);
+	AddAction(InputContext::Default, InputAction::MoveDown, VK_SHIFT, TriggerType::PressOnce, 0.0);
 }
 
 void InputManager::AddAction(InputContext context, InputAction action, int32_t virtualKeyCode, TriggerType triggerType, double timeFrame)

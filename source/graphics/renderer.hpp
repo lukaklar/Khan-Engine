@@ -26,6 +26,7 @@ namespace Khan
 		glm::vec3 m_Color;
 		float m_Luminance;
 		float m_SpotlightAngle;
+		float m_Padding[3];
 	};
 
 	class Renderer

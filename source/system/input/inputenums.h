@@ -13,5 +13,7 @@ enum class InputAction
 	MoveBack,
 	MoveLeft,
 	MoveRight,
+	MoveUp,
+	MoveDown,
 	Count
 };

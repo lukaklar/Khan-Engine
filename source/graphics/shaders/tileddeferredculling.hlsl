@@ -29,7 +29,7 @@ bool SphereInsideFrustum(Sphere sphere, Frustum frustum, float zNear, float zFar
     // First check depth
     // Note: Here, the view vector points in the -Z axis so the 
     // far depth value will be approaching -infinity.
-    if (sphere.m_Center.z - sphere.m_Radius > zFar || sphere.m_Center.z + sphere.m_Radius < zNear)
+    if (sphere.m_Center.z - sphere.m_Radius > zNear || sphere.m_Center.z + sphere.m_Radius < zFar)
     {
         result = false;
     }
@@ -164,6 +164,14 @@ void CS_CullLights(uint3 groupID           : SV_GroupID,
 
 	uint uDepth = asuint(fDepth);
     
+    if (dispatchThreadID.x == 0 && dispatchThreadID.y == 0)
+    {
+        g_OpaqueLightIndexCounter[0] = 0;
+        g_TransparentLightIndexCounter[0] = 0;
+    }
+    
+    GroupMemoryBarrierWithGroupSync();
+    
     if (groupIndex == 0) // Avoid contention by other threads in the group.
     {
         gs_uMinDepth = 0xffffffff;
@@ -190,7 +198,7 @@ void CS_CullLights(uint3 groupID           : SV_GroupID,
  
     // Clipping plane for minimum depth value 
     // (used for testing lights within the bounds of opaque geometry).
-    Plane minPlane = { float3(0.0f, 0.0f, 1.0f), minDepthVS };
+    Plane minPlane = { float3(0.0f, 0.0f, -1.0f), -minDepthVS };
 
     // Cull lights
     // Each thread in a group will cull 1 light until all lights have been culled.
@@ -200,7 +208,7 @@ void CS_CullLights(uint3 groupID           : SV_GroupID,
 
         switch (light.m_Type)
         {
-            case POINT_LIGHT:
+            case OMNI_LIGHT:
             {
                 Sphere sphere = { light.m_PositionVS, light.m_Range };
                 if (SphereInsideFrustum(sphere, gs_GroupFrustum, nearClipVS, maxDepthVS))

@@ -19,13 +19,13 @@ void CS_ComputeFrustums(uint3 groupID           : SV_GroupID,
     // frustum vertices.
     float4 screenSpace[4];
     // Top left point
-    screenSpace[0] = float4(dispatchThreadID.xy * TILE_SIZE, 1.0f, 1.0f);
+    screenSpace[0] = float4(dispatchThreadID.xy * TILE_SIZE, -1.0f, 1.0f);
     // Top right point
-    screenSpace[1] = float4(float2(dispatchThreadID.x + 1, dispatchThreadID.y) * TILE_SIZE, 1.0f, 1.0f );
+    screenSpace[1] = float4(float2(dispatchThreadID.x + 1, dispatchThreadID.y) * TILE_SIZE, -1.0f, 1.0f );
     // Bottom left point
-    screenSpace[2] = float4(float2(dispatchThreadID.x, dispatchThreadID.y + 1 ) * TILE_SIZE, 1.0f, 1.0f );
+    screenSpace[2] = float4(float2(dispatchThreadID.x, dispatchThreadID.y + 1) * TILE_SIZE, -1.0f, 1.0f );
     // Bottom right point
-    screenSpace[3] = float4(float2(dispatchThreadID.x + 1, dispatchThreadID.y + 1) * TILE_SIZE, 1.0f, 1.0f );
+    screenSpace[3] = float4(float2(dispatchThreadID.x + 1, dispatchThreadID.y + 1) * TILE_SIZE, -1.0f, 1.0f );
 
     float3 viewSpace[4];
     // Now convert the screen space points to view space

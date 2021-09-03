@@ -71,8 +71,7 @@ namespace Khan
 			{
 				if (!CheckExtension(extension, extensionProperties))
 				{
-					OutputDebugString("Not all extensions are supported.\n");
-					__debugbreak();
+					KH_ASSERT(false, "[VULKAN] Not all extensions are supported.\n");
 				}
 			}
 

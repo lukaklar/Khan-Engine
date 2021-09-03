@@ -77,7 +77,7 @@ namespace Khan
 	{
 		m_StreamElements[m_NumElements].m_Type = type;
 		m_StreamElements[m_NumElements].m_Usage = usage;
-		m_StreamElements[m_NumElements].m_Offset = m_NumElements == 0 ? 0 : m_StreamElements[m_NumElements - 1].GetOffset() + m_StreamElements[m_NumElements].GetSize();
+		m_StreamElements[m_NumElements].m_Offset = m_NumElements == 0 ? 0 : m_StreamElements[m_NumElements - 1].GetOffset() + m_StreamElements[m_NumElements - 1].GetSize();
 		m_Stride += m_StreamElements[m_NumElements].GetSize();
 		++m_NumElements;
 	}

@@ -153,7 +153,6 @@ namespace Khan
 			else if (attachmentStartAccess == StartAccessType::Keep)
 			{
 				m_BarrierRecorder.RecordBarrier(*textureView, ResourceState_RenderTarget, QueueType_Graphics);
-				m_BarrierRecorder.Flush(m_CommandBuffer);
 			}
 
 			Texture& texture = textureView->GetTexture();
@@ -179,7 +178,6 @@ namespace Khan
 			else if (depthStartAccess == StartAccessType::Keep || stencilStartAccess == StartAccessType::Keep)
 			{
 				m_BarrierRecorder.RecordBarrier(*textureView, ResourceState_DepthWriteStencilWrite, QueueType_Graphics);
-				m_BarrierRecorder.Flush(m_CommandBuffer);
 			}
 
 			Texture& texture = textureView->GetTexture();
@@ -363,7 +361,7 @@ namespace Khan
 
 		uint32_t offset = m_Device.m_UploadManager.Upload(src, dst->GetDesc().m_Range);
 
-		m_BarrierRecorder.RecordBarrier(*view, ResourceState_CopyDestination, QueueType_Copy);
+		m_BarrierRecorder.RecordBarrier(*view, ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
 		m_BarrierRecorder.Flush(m_CommandBuffer);
 
 		VkBufferCopy copy;
@@ -401,14 +399,12 @@ namespace Khan
 				if (m_VertexBuffers[i] != nullptr && m_VBDirty[i])
 				{
 					m_BarrierRecorder.RecordBarrier(*m_VertexBuffers[i], ResourceState_VertexBuffer, m_ExecutingPass->GetExecutionQueue());
-					m_BarrierRecorder.Flush(m_CommandBuffer);
 				}
 			}
 
 			if (m_ShouldBindIndexBuffer && m_IndexBufferDirty)
 			{
 				m_BarrierRecorder.RecordBarrier(*m_IndexBuffer, ResourceState_IndexBuffer, m_ExecutingPass->GetExecutionQueue());
-				m_BarrierRecorder.Flush(m_CommandBuffer);
 			}
 		}
 
@@ -525,14 +521,6 @@ namespace Khan
 				if (texture != nullptr)
 				{
 					m_DescriptorUpdater.SetSampledImage(binding, texture->VulkanImageView());
-					/*if (m_CommandType == CommandType::Draw)
-					{
-						m_DescriptorUpdater.SetSampledImage(binding, texture->VulkanImageView());
-					}
-					else
-					{
-						m_DescriptorUpdater.SetStorageImage(binding, texture->VulkanImageView());
-					}*/
 					continue;
 				}
 
