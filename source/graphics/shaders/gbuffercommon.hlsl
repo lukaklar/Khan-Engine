@@ -9,14 +9,17 @@ struct VS_IN
 
 struct VS_TO_PS
 {
-    float4 m_Position : SV_Position;
-    float2 m_TexCoord : TEXCOORD;
-    float3x3 m_TBN    : TBN;
+    float4 m_Position       : SV_POSITION;
+    float2 m_TexCoord       : TEXCOORD;
+    float3 m_NormalVS       : NORMAL;
+    float3 m_TangentVS      : TANGENT;
+    float3 m_BitangentVS    : BITANGENT;
 };
 
 cbuffer PerFrameConsts : register(b0, space0)
 {
     float4x4 g_ViewProjection;
+    float4x4 g_ViewMatrix;
 }
 
 cbuffer PerDrawConsts : register(b0, space2)
@@ -27,24 +30,23 @@ cbuffer PerDrawConsts : register(b0, space2)
 VS_TO_PS VS_Common(VS_IN In)
 {
     VS_TO_PS Out;
+    
     Out.m_Position = mul(g_ViewProjection, mul(g_ModelMatrix, float4(In.m_Position, 1.0)));
     Out.m_TexCoord = In.m_TexCoord;
-    
-    float3 T = normalize(mul(g_ModelMatrix, float4(In.m_Tangent, 0.0)).xyz);
-    float3 B = normalize(mul(g_ModelMatrix, float4(In.m_Bitangent, 0.0)).xyz);
-    float3 N = normalize(mul(g_ModelMatrix, float4(In.m_Normal, 0.0)).xyz);
-    Out.m_TBN = float3x3(T.x, B.x, N.x, T.y, B.y, N.y, T.z, B.z, N.z);
+    float3x3 modelView = (float3x3) mul(g_ModelMatrix, g_ViewMatrix);
+    Out.m_NormalVS = mul(modelView, In.m_Normal);
+    Out.m_TangentVS = mul(modelView, In.m_Tangent);
+    Out.m_BitangentVS = mul(modelView, In.m_Bitangent);
     
     return Out;
 }
 
 struct PS_OUT
 {
-    float4 m_Albedo               : SV_Target0;
-    float3 m_Normal               : SV_Target1;
-    float3 m_Emissive             : SV_Target2;
-    float4 m_Specular             : SV_Target3;
-    float2 m_MetallicAndRoughness : SV_Target4;
+    float4 m_Albedo     : SV_Target0;
+    float3 m_Normal     : SV_Target1;
+    float3 m_Emissive   : SV_Target2;
+    float2 m_PBRConsts  : SV_Target3; // metallic and rougness
 };
 
 static const SamplerState g_DefaultSampler
@@ -54,19 +56,24 @@ static const SamplerState g_DefaultSampler
     AddressV = Wrap;
 };
 
-Texture2D g_Diffuse : register(t0, space1);
-Texture2D g_Specular : register(t1, space1);
-Texture2D g_Normals : register(t2, space1);
+Texture2D g_DiffuseTexture : register(t0, space1);
+Texture2D g_NormalsTexture : register(t1, space1);
+Texture2D g_MetalnessTexture : register(t2, space1);
+Texture2D g_RoughnessTexture : register(t3, space1);
 
 PS_OUT PS_Common(VS_TO_PS In)
 {
     PS_OUT Out;
     
-    Out.m_Albedo = g_Diffuse.Sample(g_DefaultSampler, In.m_TexCoord);
-    Out.m_Normal = normalize(mul(In.m_TBN, ((g_Normals.Sample(g_DefaultSampler, In.m_TexCoord).xyz) * 2.0 - 1.0)));
-    Out.m_Specular = g_Specular.Sample(g_DefaultSampler, In.m_TexCoord);
-    Out.m_Emissive = float3(0.0, 0.0, 0.0);
-    Out.m_MetallicAndRoughness = float2(0.0, 0.5);
+    float3x3 TBN = float3x3(normalize(In.m_TangentVS),
+                            normalize(In.m_BitangentVS),
+                            normalize(In.m_NormalVS));
+    
+    Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
+    Out.m_Normal = normalize(mul(TBN, (g_NormalsTexture.Sample(g_DefaultSampler, In.m_TexCoord).xyz * 2.0f - 1.0f)));
+    Out.m_Emissive = float3(0.0f, 0.0f, 0.0f);
+    Out.m_PBRConsts = float2(g_MetalnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x, g_RoughnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x);
+
     
     return Out;
 }
@@ -75,11 +82,10 @@ PS_OUT PS_CommonNoNormals(VS_TO_PS In)
 {
     PS_OUT Out;
     
-    Out.m_Albedo = g_Diffuse.Sample(g_DefaultSampler, In.m_TexCoord);
+    Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
     Out.m_Normal = float3(0.0, 0.0, 0.0);
-    Out.m_Specular = g_Specular.Sample(g_DefaultSampler, In.m_TexCoord);
     Out.m_Emissive = float3(0.0, 0.0, 0.0);
-    Out.m_MetallicAndRoughness = float2(0.0, 0.5);
+    Out.m_PBRConsts = float2(0.0, 0.5);
     
     return Out;
 }
@@ -88,11 +94,10 @@ PS_OUT PS_CommonDiffuseOnly(VS_TO_PS In)
 {
     PS_OUT Out;
     
-    Out.m_Albedo = g_Diffuse.Sample(g_DefaultSampler, In.m_TexCoord);
+    Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
     Out.m_Normal = float3(0.0, 0.0, 0.0);
-    Out.m_Specular = Out.m_Albedo;
     Out.m_Emissive = float3(0.0, 0.0, 0.0);
-    Out.m_MetallicAndRoughness = float2(0.0, 0.5);
+    Out.m_PBRConsts = float2(0.0, 0.5);
     
     return Out;
 }
@@ -103,9 +108,8 @@ PS_OUT PS_GBufferTest(VS_TO_PS In)
     
     Out.m_Albedo = float4(In.m_TexCoord, 0.0f, 1.0f);
     Out.m_Normal = float3(0.0f, 1.0f, 0.0f);
-    Out.m_Specular = float4(1.0f, 1.0f, 1.0f, 1.0f);
     Out.m_Emissive = float3(0.0f, 0.0f, 0.0f);
-    Out.m_MetallicAndRoughness = float2(0.5f, 0.5f);
+    Out.m_PBRConsts = float2(0.5f, 0.5f);
     
     return Out;
 }

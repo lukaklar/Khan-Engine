@@ -20,15 +20,15 @@ float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 }
 
 // Fresnel function ----------------------------------------------------
-float3 F_Schlick(float cosTheta, float metallic, float3 albedo, float3 specularReflectance)
+float3 F_Schlick(float cosTheta, float metallic, float3 albedo)
 {
-    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metallic) * specularReflectance;
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metallic);
     float3 F = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
     return F;
 }
 
 // Specular BRDF composition --------------------------------------------
-float3 BRDF(float3 L, float3 V, float3 N, float metallic, float roughness, float3 albedo, float3 specularReflectance, float3 radiance)
+float3 BRDF(float3 L, float3 V, float3 N, float metallic, float roughness, float3 albedo, float3 radiance)
 {
 	// Precalculate vectors and dot products
     float3 H = normalize(V + L);
@@ -47,7 +47,7 @@ float3 BRDF(float3 L, float3 V, float3 N, float metallic, float roughness, float
 		// G = Geometric shadowing term (Microfacets shadowing)
         float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
 		// F = Fresnel factor (Reflectance depending on angle of incidence)
-        float3 F = F_Schlick(dotNV, metallic, albedo, specularReflectance);
+        float3 F = F_Schlick(dotNV, metallic, albedo);
 
         float3 spec = D * F * G / (4.0 * dotNL * dotNV);
         

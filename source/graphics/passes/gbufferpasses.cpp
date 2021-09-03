@@ -33,16 +33,14 @@ namespace Khan
 {
 	GBufferPass::GBufferPass()
 		: RenderPass(QueueType_Graphics, "GBufferPass")
-		, m_PerFrameConsts(sizeof(glm::mat4))
+		, m_PerFrameConsts(sizeof(glm::mat4) * 2)
 	{
 		PhysicalRenderPassDescription desc;
-		desc.m_RenderTargetCount = 5;
+		desc.m_RenderTargetCount = 4;
 		POPULATE_RENDER_TARGET_DATA(0, PF_R8G8B8A8_SRGB, StartAccessType::Clear, EndAccessType::Keep);
 		POPULATE_RENDER_TARGET_DATA(1, PF_R11G11B10_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
 		POPULATE_RENDER_TARGET_DATA(2, PF_R11G11B10_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
-		POPULATE_RENDER_TARGET_DATA(3, PF_R8G8B8A8_SRGB, StartAccessType::Clear, EndAccessType::Keep);
-		POPULATE_RENDER_TARGET_DATA(4, PF_R16G16_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
-		//POPULATE_RENDER_TARGET_DATA(5, PF_R16G16_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
+		POPULATE_RENDER_TARGET_DATA(3, PF_R16G16_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
 		desc.m_DepthStencil.m_Format = PF_D32_FLOAT;
 		desc.m_DepthStencil.m_DepthStartAccess = StartAccessType::Keep;
 		desc.m_DepthStencil.m_DepthEndAccess = EndAccessType::Keep;
@@ -83,9 +81,7 @@ namespace Khan
 		DECLARE_GBUFFER_OUTPUT(Albedo, PF_R8G8B8A8_SRGB, ResourceState_RenderTarget);
 		DECLARE_GBUFFER_OUTPUT(Normals, PF_R11G11B10_FLOAT, ResourceState_RenderTarget);
 		DECLARE_GBUFFER_OUTPUT(Emissive, PF_R11G11B10_FLOAT, ResourceState_RenderTarget);
-		DECLARE_GBUFFER_OUTPUT(SpecularReflectance, PF_R8G8B8A8_SRGB, ResourceState_RenderTarget);
-		DECLARE_GBUFFER_OUTPUT(MetallicAndRoughness, PF_R16G16_FLOAT, ResourceState_RenderTarget);
-		//DECLARE_GBUFFER_OUTPUT(MotionVectors, PF_R16G16_FLOAT, ResourceState_RenderTarget);
+		DECLARE_GBUFFER_OUTPUT(PBRConsts, PF_R16G16_FLOAT, ResourceState_RenderTarget);
 		
 		viewDesc.m_Format = PF_D32_FLOAT;
 		m_GBuffer_Depth = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth, viewDesc, ResourceState_DepthWriteStencilWrite, true);
@@ -98,14 +94,13 @@ namespace Khan
 			m_GBuffer_Albedo,
 			m_GBuffer_Normals,
 			m_GBuffer_Emissive,
-			m_GBuffer_SpecularReflectance,
-			m_GBuffer_MetallicAndRoughness,
-			//m_GBuffer_MotionVectors
+			m_GBuffer_PBRConsts
 		};
 
 		context.BeginPhysicalRenderPass(*m_PipelineDesc.m_PhysicalRenderPass, renderTargets, m_GBuffer_Depth);
 
 		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
+		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewMatrix(), sizeof(glm::mat4), sizeof(glm::mat4));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_PerFrameConsts);
 
 		for (auto* mesh : renderer.GetOpaqueMeshes())
@@ -131,7 +126,7 @@ namespace Khan
 				++i;
 			}
 
-			while (i < 3)
+			while (i < 4)
 			{
 				context.SetSRVTexture(ResourceBindFrequency_PerMaterial, i++, nullptr);
 			}

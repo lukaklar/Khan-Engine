@@ -3,13 +3,12 @@
 
 Texture2D g_GBuffer_Albedo : register(t0);
 Texture2D g_GBuffer_Normals : register(t1);
-Texture2D g_GBuffer_SpecularReflectance : register(t2);
-Texture2D g_GBuffer_MetallicAndRoughness : register(t3);
-Texture2D g_GBuffer_Depth : register(t4);
+Texture2D g_GBuffer_PBRConsts : register(t2);
+Texture2D g_GBuffer_Depth : register(t3);
 
-StructuredBuffer<uint> g_LightIndexList : register(t5);
-Texture2D<uint2> g_LightGrid : register(t6);
-StructuredBuffer<Light> g_Lights : register(t7);
+StructuredBuffer<uint> g_LightIndexList : register(t4);
+Texture2D<uint2> g_LightGrid : register(t5);
+StructuredBuffer<Light> g_Lights : register(t6);
 
 RWTexture2D<float4> g_LightingResult : register(u0);
 
@@ -20,7 +19,6 @@ struct SurfaceData
 	float  m_Metallic;
 	float3 m_Normal;
 	float  m_Roughness;
-	float3 m_SpecularReflectance;
 };
 
 SurfaceData UnpackGBuffer(int3 location)
@@ -31,12 +29,11 @@ SurfaceData UnpackGBuffer(int3 location)
     Out.m_PositionVS = ScreenToView(float4(location.xy, depth, 1.0)).xyz;
     
     Out.m_Albedo = g_GBuffer_Albedo.Load(location).rgb;
-	Out.m_SpecularReflectance = g_GBuffer_SpecularReflectance.Load(location).rgb;
     
 	Out.m_Normal = g_GBuffer_Normals.Load(location).rgb;
 	Out.m_Normal = normalize(Out.m_Normal * 2.0 - 1.0);
     
-	float2 metallicAndRoughness = g_GBuffer_MetallicAndRoughness.Load(location).rg;
+    float2 metallicAndRoughness = g_GBuffer_PBRConsts.Load(location).rg;
 	Out.m_Metallic = metallicAndRoughness.r;
 	Out.m_Roughness = metallicAndRoughness.g;
 
@@ -100,12 +97,12 @@ void CS_TiledDeferredLighting(uint3 groupID           : SV_GroupID,
             }
         }
         
-        Lo += radiance;// BRDF(L, V, data.m_Normal, data.m_Metallic, data.m_Roughness, data.m_Albedo, data.m_SpecularReflectance, radiance);
+        Lo += BRDF(L, V, data.m_Normal, data.m_Metallic, data.m_Roughness, data.m_Albedo, radiance);
     }
 
 	// Combine with ambient
     float3 color = data.m_Albedo * Lo;
-    //color += Lo;
+    color += Lo;
     
     g_LightingResult[texCoord.xy] = float4(color, 1.0);
 }

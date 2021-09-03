@@ -79,9 +79,7 @@ namespace Khan
 		TextureView* m_GBuffer_Albedo;
 		TextureView* m_GBuffer_Normals;
 		TextureView* m_GBuffer_Emissive;
-		TextureView* m_GBuffer_SpecularReflectance;
-		TextureView* m_GBuffer_MetallicAndRoughness;
-		//TextureView* m_GBuffer_MotionVectors;
+		TextureView* m_GBuffer_PBRConsts;
 		TextureView* m_GBuffer_Depth;
 
 		TextureView* m_LightingResult;
