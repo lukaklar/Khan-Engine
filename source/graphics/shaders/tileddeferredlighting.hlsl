@@ -101,8 +101,8 @@ void CS_TiledDeferredLighting(uint3 groupID           : SV_GroupID,
     }
 
 	// Combine with ambient
-    float3 color = data.m_Albedo * Lo;
-    color += Lo;
+    float3 color = data.m_Albedo * 0.02 + Lo;
+    color = pow(color, float3(0.4545, 0.4545, 0.4545));
     
     g_LightingResult[texCoord.xy] = float4(color, 1.0);
 }

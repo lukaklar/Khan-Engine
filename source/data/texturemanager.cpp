@@ -47,7 +47,7 @@ namespace Khan
 			desc.m_Depth = 1;
 			desc.m_ArrayLayers = 1;
 			desc.m_MipLevels = 1;
-			desc.m_Format = PF_R8G8B8A8_SRGB;
+			desc.m_Format = PF_R8G8B8A8_UNORM;
 			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_Writable;
 
 			texture = RenderBackend::g_Device->CreateTexture(desc, data);
@@ -62,7 +62,7 @@ namespace Khan
 		{
 			TextureViewDesc desc;
 			desc.m_Type = TextureViewType_2D;
-			desc.m_Format = PF_R8G8B8A8_SRGB;
+			desc.m_Format = PF_R8G8B8A8_UNORM;
 			desc.m_BaseArrayLayer = 0;
 			desc.m_LayerCount = 1;
 			desc.m_BaseMipLevel = 0;

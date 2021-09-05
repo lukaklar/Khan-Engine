@@ -222,7 +222,7 @@ namespace Khan
 							material->AddTexture(binding++, texture);
 						}
 
-						if (mat.GetTextureCount(aiTextureType_NORMALS) > 0 && mat.GetTexture(aiTextureType_NORMALS, 0, &aiTexturePath) == aiReturn_SUCCESS)
+						/*if (mat.GetTextureCount(aiTextureType_NORMALS) > 0 && mat.GetTexture(aiTextureType_NORMALS, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
 							std::string textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
@@ -235,17 +235,9 @@ namespace Khan
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
-						}
+						}*/
 
 						if (mat.GetTextureCount(aiTextureType_SPECULAR) > 0 && mat.GetTexture(aiTextureType_SPECULAR, 0, &aiTexturePath) == aiReturn_SUCCESS)
-						{
-							std::string textureFilePath = ms_AssetPath;
-							textureFilePath += aiTexturePath.C_Str();
-							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
-							material->AddTexture(binding++, texture);
-						}
-
-						if (mat.GetTextureCount(aiTextureType_SHININESS) > 0 && mat.GetTexture(aiTextureType_SHININESS, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
 							std::string textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
@@ -269,7 +261,7 @@ namespace Khan
 						case 2:
 							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_no_normals_PS", "PS_CommonNoNormals"));
 							break;
-						case 4:
+						case 3:
 							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_PS", "PS_Common"));
 							break;
 						default:
@@ -300,14 +292,16 @@ namespace Khan
 
 		processNode(scene->mRootNode, nullptr);
 
-		Entity* entity = world->CreateEntity();
-		entity->SetGlobalOrientation(glm::quat(0.0f, 0.0f, -1.0f, 0.0f));
-		LightComponent& lightComponent = entity->AddComponent<LightComponent>();
-		DirectionalLight* directional = new DirectionalLight();
-		directional->SetActive(true);
-		directional->SetColor({ 1.0f, 1.0f, 1.0f });
-		directional->SetLuminance(1.0f);
-		lightComponent.m_Light = directional;
+		{
+			Entity* entity = world->CreateEntity();
+			entity->SetGlobalOrientation(glm::quat(0.0f, 0.0f, -1.0f, -1.0f));
+			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
+			DirectionalLight* directional = new DirectionalLight();
+			directional->SetActive(true);
+			directional->SetColor({ 1.0f, 0.0f, 0.0f });
+			directional->SetLuminance(1.0f);
+			lightComponent.m_Light = directional;
+		}
 
 		for (uint32_t i = 0; i < scene->mNumLights; ++i)
 		{

@@ -192,9 +192,9 @@ void CS_CullLights(uint3 groupID           : SV_GroupID,
 	float fMaxDepth = asfloat(gs_uMaxDepth);
  
     // Convert depth values to view space.
-    float minDepthVS = ClipToView(float4(0.0f, 0.0f, fMinDepth, 1.0f)).z;
-    float maxDepthVS = ClipToView(float4(0.0f, 0.0f, fMaxDepth, 1.0f)).z;
-    float nearClipVS = ClipToView(float4(0.0f, 0.0f, 0.0f, 1.0f)).z;
+    float minDepthVS = ScreenToView(float4(0.0f, 0.0f, fMinDepth, 1.0f)).z;
+    float maxDepthVS = ScreenToView(float4(0.0f, 0.0f, fMaxDepth, 1.0f)).z;
+    float nearClipVS = ScreenToView(float4(0.0f, 0.0f, 0.0f, 1.0f)).z;
  
     // Clipping plane for minimum depth value 
     // (used for testing lights within the bounds of opaque geometry).
