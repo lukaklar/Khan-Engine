@@ -292,15 +292,27 @@ namespace Khan
 
 		processNode(scene->mRootNode, nullptr);
 
+		/*{
+			Entity* lightEntity = world->CreateEntity();
+			lightEntity->SetGlobalOrientation(glm::quat(0.0f, -1.0f, -1.0f, 0.0f));
+			LightComponent& lightComponent = lightEntity->AddComponent<LightComponent>();
+			DirectionalLight* light = new DirectionalLight();
+			light->SetActive(true);
+			light->SetColor({ 1.0f, 0.0f, 0.0f });
+			light->SetLuminance(1.0f);
+			lightComponent.m_Light = light;
+		}*/
+
 		{
-			Entity* entity = world->CreateEntity();
-			entity->SetGlobalOrientation(glm::quat(0.0f, 0.0f, -1.0f, -1.0f));
-			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
-			DirectionalLight* directional = new DirectionalLight();
-			directional->SetActive(true);
-			directional->SetColor({ 1.0f, 0.0f, 0.0f });
-			directional->SetLuminance(1.0f);
-			lightComponent.m_Light = directional;
+			Entity* lightEntity = world->CreateEntity();
+			lightEntity->SetGlobalPosition(glm::vec4(0.0f, 0.0f, 2.0f, 1.0f));
+			LightComponent& lightComponent = lightEntity->AddComponent<LightComponent>();
+			OmniLight* light = new OmniLight();
+			light->SetActive(true);
+			light->SetColor({ 0.0f, 0.0f, 1.0f });
+			light->SetLuminance(1.0f);
+			light->SetRadius(2.5f);
+			lightComponent.m_Light = light;
 		}
 
 		for (uint32_t i = 0; i < scene->mNumLights; ++i)

@@ -311,4 +311,90 @@ namespace Khan
 		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreads();
 		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
 	}
+
+	DeferredLightingPass::DeferredLightingPass()
+		: RenderPass(QueueType_Compute, "DeferredLightingPass")
+		, m_LightParams(sizeof(uint32_t))
+	{
+		ComputePipelineDescription desc;
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("deferredlighting_CS", "CS_DeferredLighting");
+
+		m_PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
+	}
+
+	void DeferredLightingPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
+	{
+		renderGraph.EnableAsyncCompute(true);
+
+		{
+			Buffer* temp = renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights;
+
+			BufferViewDesc viewDesc;
+			viewDesc.m_Offset = 0;
+			viewDesc.m_Range = temp->GetDesc().m_Size;
+			viewDesc.m_Format = PF_NONE;
+			m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+		}
+
+		{
+			Texture* temp;
+
+			TextureDesc desc;
+			desc.m_Type = TextureType_2D;
+			desc.m_Width = 1280;
+			desc.m_Height = 720;
+			desc.m_Depth = 1;
+			desc.m_ArrayLayers = 1;
+			desc.m_MipLevels = 1;
+			//desc.m_SampleCount;
+			desc.m_Format = PF_R16G16B16A16_FLOAT;
+			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowUnorderedAccess;
+
+			/*temp = renderGraph.CreateManagedResource(desc);
+			KH_DEBUGONLY(temp->SetDebugName("LightAccumulationBuffer"));
+			renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer = temp;*/
+			temp = renderer.GetResourceBoard().m_Persistent.m_FinalOutput;
+
+			TextureViewDesc viewDesc;
+			viewDesc.m_Type = TextureViewType_2D;
+			viewDesc.m_BaseArrayLayer = 0;
+			viewDesc.m_LayerCount = 1;
+			viewDesc.m_BaseMipLevel = 0;
+			viewDesc.m_LevelCount = 1;
+
+			//viewDesc.m_Format = desc.m_Format;
+			viewDesc.m_Format = temp->GetDesc().m_Format;
+			m_LightingResult = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
+
+			DECLARE_GBUFFER_INPUT(Albedo, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(Normals, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(Emissive, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(PBRConsts, ResourceState_NonPixelShaderAccess);
+			DECLARE_GBUFFER_INPUT(Depth, ResourceState_NonPixelShaderAccess);
+
+			// TODO: Will need a shadow map
+		}
+	}
+
+	void DeferredLightingPass::Execute(RenderContext& context, Renderer& renderer)
+	{
+		context.SetPipelineState(*m_PipelineState);
+
+		//context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
+		uint32_t numLights = static_cast<uint32_t>(renderer.GetActiveLightData().size());
+		m_LightParams.UpdateConstantData(&numLights, 0, sizeof(uint32_t));
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 2, &m_LightParams);
+
+		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_GBuffer_Albedo);
+		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 1, m_GBuffer_Normals);
+		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 2, m_GBuffer_PBRConsts);
+		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 3, m_GBuffer_Depth);
+		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 4, m_LightData);
+
+		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_LightingResult);
+
+		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreads();
+		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
+	}
 }

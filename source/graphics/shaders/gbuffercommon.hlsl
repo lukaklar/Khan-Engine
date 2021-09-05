@@ -70,7 +70,7 @@ PS_OUT PS_Common(VS_TO_PS In)
     //                        normalize(In.m_NormalVS));
     
     Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
-    Out.m_Normal = In.m_NormalVS /* normalize(mul(TBN, (g_NormalsTexture.Sample(g_DefaultSampler, In.m_TexCoord).xyz * 2.0f - 1.0f))) */ * 0.5f + 0.5f;
+    Out.m_Normal = normalize(In.m_NormalVS) /* normalize(mul(TBN, (g_NormalsTexture.Sample(g_DefaultSampler, In.m_TexCoord).xyz * 2.0f - 1.0f))) */ * 0.5f + 0.5f;
     Out.m_Emissive = float3(0.0f, 0.0f, 0.0f);
     Out.m_PBRConsts = float2(g_MetalnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x, g_RoughnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x);
 
@@ -85,7 +85,7 @@ PS_OUT PS_CommonNoNormals(VS_TO_PS In)
     Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
     Out.m_Normal = float3(0.0, 0.0, 0.0);
     Out.m_Emissive = float3(0.0, 0.0, 0.0);
-    Out.m_PBRConsts = float2(0.0, 0.5);
+    Out.m_PBRConsts = float2(g_MetalnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x, 0.5f);
     
     return Out;
 }
@@ -97,7 +97,7 @@ PS_OUT PS_CommonDiffuseOnly(VS_TO_PS In)
     Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
     Out.m_Normal = float3(0.0, 0.0, 0.0);
     Out.m_Emissive = float3(0.0, 0.0, 0.0);
-    Out.m_PBRConsts = float2(0.0, 0.5);
+    Out.m_PBRConsts = float2(1.0, 0.0);
     
     return Out;
 }

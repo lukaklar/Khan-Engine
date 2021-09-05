@@ -17,6 +17,8 @@ if not exist "..\..\bin\shaders\vulkan\" mkdir ..\..\bin\shaders\vulkan
 
 %~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_TiledDeferredLighting -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\tileddeferredlighting.hlsl -Fo ..\..\bin\shaders\vulkan\tileddeferredlighting_CS.spv
 
+%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_DeferredLighting -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\deferredlighting.hlsl -Fo ..\..\bin\shaders\vulkan\deferredlighting_CS.spv
+
 %~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -T cs_6_0 -E CS_DownScalePass1 -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\DownScalePass1_CS.spv
 %~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -T cs_6_0 -E CS_DownScalePass2 -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\DownScalePass2_CS.spv
 %~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -T cs_6_0 -E CS_TonemapPass -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\TonemapPass_CS.spv

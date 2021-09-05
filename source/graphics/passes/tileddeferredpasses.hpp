@@ -86,4 +86,28 @@ namespace Khan
 
 		RenderPipelineState* m_PipelineState;
 	};
+
+	class DeferredLightingPass : public RenderPass
+	{
+	public:
+		DeferredLightingPass();
+
+		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
+		virtual void Execute(RenderContext& context, Renderer& renderer) override;
+
+	private:
+		BufferView* m_LightData;
+
+		TextureView* m_GBuffer_Albedo;
+		TextureView* m_GBuffer_Normals;
+		TextureView* m_GBuffer_Emissive;
+		TextureView* m_GBuffer_PBRConsts;
+		TextureView* m_GBuffer_Depth;
+
+		TextureView* m_LightingResult;
+
+		ConstantBuffer m_LightParams;
+
+		RenderPipelineState* m_PipelineState;
+	};
 }

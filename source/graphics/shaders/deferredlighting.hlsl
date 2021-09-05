@@ -6,9 +6,7 @@ Texture2D g_GBuffer_Normals : register(t1);
 Texture2D g_GBuffer_PBRConsts : register(t2);
 Texture2D g_GBuffer_Depth : register(t3);
 
-StructuredBuffer<uint> g_LightIndexList : register(t4);
-Texture2D<uint2> g_LightGrid : register(t5);
-StructuredBuffer<Light> g_Lights : register(t6);
+StructuredBuffer<Light> g_Lights : register(t4);
 
 RWTexture2D<float4> g_LightingResult : register(u0);
 
@@ -41,30 +39,22 @@ SurfaceData UnpackGBuffer(int3 location)
 }
 
 [numthreads(TILE_SIZE, TILE_SIZE, 1)]
-void CS_TiledDeferredLighting(uint3 groupID           : SV_GroupID,
-                              uint3 groupThreadID     : SV_GroupThreadID,
-                              uint3 dispatchThreadID  : SV_DispatchThreadID,
-                              uint  groupIndex        : SV_GroupIndex)
+void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
+                         uint3 groupThreadID     : SV_GroupThreadID,
+                         uint3 dispatchThreadID  : SV_DispatchThreadID,
+                         uint  groupIndex        : SV_GroupIndex)
 {
     int3 texCoord = int3(dispatchThreadID.xy, 0);
     SurfaceData data = UnpackGBuffer(texCoord);
-
-    // Get the index of the current pixel in the light grid.
-    uint2 tileIndex = groupID.xy;
- 
-    // Get the start position and offset of the light in the light index list.
-    uint startOffset = g_LightGrid[tileIndex].x;
-    uint lightCount = g_LightGrid[tileIndex].y;
     
     //float3 eyePos = float3(0, 0, 0);
     float3 V = normalize(float3(0, 0, 0) - data.m_PositionVS);
     
     // Specular contribution
     float3 Lo = float3(0.0, 0.0, 0.0);
-    for (uint i = 0; i < lightCount; i++)
+    for (uint i = 0; i < g_NumLights; i++)
     {
-        uint lightIndex = g_LightIndexList[startOffset + i];
-        Light light = g_Lights[lightIndex];
+        Light light = g_Lights[i];
         
         float3 L;
         float3 radiance;

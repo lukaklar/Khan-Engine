@@ -46,8 +46,8 @@ namespace Khan
 
 		if (m_ScreenDimensionsChanged)
 		{
-			RecreateScreenFrustumBuffer();
-			rg.AddPass(m_TileFrustumCalculationPass);
+			//RecreateScreenFrustumBuffer();
+			//rg.AddPass(m_TileFrustumCalculationPass);
 			m_ScreenDimensionsChanged = false;
 
 			glm::vec2 screenDimensions(m_ActiveCamera->GetViewportWidth(), m_ActiveCamera->GetViewportHeight());
@@ -70,8 +70,9 @@ namespace Khan
 		rg.AddPass(m_DepthPrePass);
 		rg.AddPass(m_GBufferPass);
 		rg.AddPass(m_LightDataUploadPass);
-		rg.AddPass(m_LightCullingPass);
-		rg.AddPass(m_TiledDeferredLightingPass);
+		rg.AddPass(m_DeferredLightingPass);
+		//rg.AddPass(m_LightCullingPass);
+		//rg.AddPass(m_TiledDeferredLightingPass);
 		//rg.AddPass(m_TransparentPass);
 		//rg.AddPass(m_HDRPass);
 		//rg.AddPass(m_TestPass);
