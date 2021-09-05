@@ -57,20 +57,20 @@ static const SamplerState g_DefaultSampler
 };
 
 Texture2D g_DiffuseTexture : register(t0, space1);
-//Texture2D g_NormalsTexture : register(t1, space1);
-Texture2D g_MetalnessTexture : register(t1, space1);
-Texture2D g_RoughnessTexture : register(t2, space1);
+Texture2D g_NormalsTexture : register(t1, space1);
+Texture2D g_MetalnessTexture : register(t2, space1);
+Texture2D g_RoughnessTexture : register(t3, space1);
 
 PS_OUT PS_Common(VS_TO_PS In)
 {
     PS_OUT Out;
     
-    //float3x3 TBN = float3x3(normalize(In.m_TangentVS),
-    //                        normalize(In.m_BitangentVS),
-    //                        normalize(In.m_NormalVS));
+    float3x3 TBN = float3x3(normalize(In.m_TangentVS),
+                            normalize(In.m_BitangentVS),
+                            normalize(In.m_NormalVS));
     
     Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
-    Out.m_Normal = normalize(In.m_NormalVS) /* normalize(mul(TBN, (g_NormalsTexture.Sample(g_DefaultSampler, In.m_TexCoord).xyz * 2.0f - 1.0f))) */ * 0.5f + 0.5f;
+    Out.m_Normal = normalize(mul((g_NormalsTexture.Sample(g_DefaultSampler, In.m_TexCoord).xyz * 2.0f - 1.0f), TBN)) * 0.5f + 0.5f;
     Out.m_Emissive = float3(0.0f, 0.0f, 0.0f);
     Out.m_PBRConsts = float2(g_MetalnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x, g_RoughnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x);
 

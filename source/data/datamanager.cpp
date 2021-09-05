@@ -222,7 +222,7 @@ namespace Khan
 							material->AddTexture(binding++, texture);
 						}
 
-						/*if (mat.GetTextureCount(aiTextureType_NORMALS) > 0 && mat.GetTexture(aiTextureType_NORMALS, 0, &aiTexturePath) == aiReturn_SUCCESS)
+						if (mat.GetTextureCount(aiTextureType_NORMALS) > 0 && mat.GetTexture(aiTextureType_NORMALS, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
 							std::string textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
@@ -235,7 +235,7 @@ namespace Khan
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
-						}*/
+						}
 
 						if (mat.GetTextureCount(aiTextureType_SPECULAR) > 0 && mat.GetTexture(aiTextureType_SPECULAR, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
@@ -261,7 +261,7 @@ namespace Khan
 						case 2:
 							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_no_normals_PS", "PS_CommonNoNormals"));
 							break;
-						case 3:
+						case 4:
 							material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_PS", "PS_Common"));
 							break;
 						default:
@@ -310,8 +310,8 @@ namespace Khan
 			OmniLight* light = new OmniLight();
 			light->SetActive(true);
 			light->SetColor({ 0.0f, 0.0f, 1.0f });
-			light->SetLuminance(1.0f);
-			light->SetRadius(2.5f);
+			light->SetLuminance(5.0f);
+			light->SetRadius(2.0f);
 			lightComponent.m_Light = light;
 		}
 
