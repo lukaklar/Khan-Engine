@@ -96,8 +96,8 @@ namespace Khan
 						const glm::quat& orientation = entity->GetGlobalOrientation();
 						lightData.m_DirectionVS = (camera->GetViewMatrix() * glm::vec4(orientation.x, orientation.y, orientation.z, 0.0f)).xyz();
 						lightData.m_PositionVS = (camera->GetViewMatrix() * entity->GetGlobalPosition()).xyz();
-						lightData.m_SpotlightAngle = spot->GetAngle();
 						lightData.m_Range = spot->GetRange();
+						lightData.m_SpotlightAngle = spot->GetAngle();
 						break;
 					}
 					case Light::Type::Area:

@@ -292,18 +292,18 @@ namespace Khan
 
 		processNode(scene->mRootNode, nullptr);
 
-		/*{
+		{
 			Entity* lightEntity = world->CreateEntity();
-			lightEntity->SetGlobalOrientation(glm::quat(0.0f, -1.0f, -1.0f, 0.0f));
+			lightEntity->SetGlobalOrientation(glm::quat(0.0f, 1.0f, 0.0f, 0.0f));
 			LightComponent& lightComponent = lightEntity->AddComponent<LightComponent>();
 			DirectionalLight* light = new DirectionalLight();
 			light->SetActive(true);
-			light->SetColor({ 1.0f, 0.0f, 0.0f });
+			light->SetColor({ 0.9922f, 0.9843f, 0.8275f });
 			light->SetLuminance(1.0f);
 			lightComponent.m_Light = light;
-		}*/
+		}
 
-		{
+		/*{
 			Entity* lightEntity = world->CreateEntity();
 			lightEntity->SetGlobalPosition(glm::vec4(0.0f, 0.0f, 2.0f, 1.0f));
 			LightComponent& lightComponent = lightEntity->AddComponent<LightComponent>();
@@ -313,7 +313,7 @@ namespace Khan
 			light->SetLuminance(5.0f);
 			light->SetRadius(2.0f);
 			lightComponent.m_Light = light;
-		}
+		}*/
 
 		for (uint32_t i = 0; i < scene->mNumLights; ++i)
 		{
@@ -334,16 +334,18 @@ namespace Khan
 				case aiLightSource_POINT:
 				{
 					OmniLight* omni = new OmniLight();
-					omni->SetRadius(100.0f);
+					entity->SetGlobalPosition(glm::vec4(light.mPosition.x, light.mPosition.y, light.mPosition.z, 1.0f));
+					omni->SetRadius(1.0f);
 					lightComponent.m_Light = omni;
 					break;
 				}
 				case aiLightSource_SPOT:
 				{
 					SpotLight* spot = new SpotLight();
+					entity->SetGlobalPosition(glm::vec4(light.mPosition.x, light.mPosition.y, light.mPosition.z, 1.0f));
 					entity->SetGlobalOrientation(glm::quat(0.0f, light.mDirection.x, light.mDirection.y, light.mDirection.z));
 					spot->SetAngle(light.mAngleOuterCone);
-					spot->SetRange(100.0f);
+					spot->SetRange(1.0f);
 					lightComponent.m_Light = spot;
 					break;
 				}
@@ -375,6 +377,15 @@ namespace Khan
 		MotionComponent& motionComponent = player->AddComponent<MotionComponent>();
 		motionComponent.m_MovementSpeed = 1.0f;
 		motionComponent.m_RotationSpeed = 0.2f;
+
+		/*LightComponent& lightComponent = player->AddComponent<LightComponent>();
+		SpotLight* light = new SpotLight();
+		light->SetActive(true);
+		light->SetColor({ 0.0f, 1.0f, 0.0f });
+		light->SetLuminance(5.0f);
+		light->SetRange(2.0f);
+		light->SetAngle(glm::radians(5.0f));
+		lightComponent.m_Light = light;*/
 
 		RenderBackend::g_Device->WaitIdle();
 
