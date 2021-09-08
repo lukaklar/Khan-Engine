@@ -605,57 +605,6 @@ namespace Khan
 					}
 				}
 			}
-
-			/*uint64_t prevNodeIdx = node->m_LocalToQueueExecutionIndex - 1;
-			if (prevNodeIdx != Node::InvalidSynchronizationIndex)
-			{
-				Node* prevNode = const_cast<Node*>(m_NodesPerQueue[node->m_ExecutionQueueIndex][prevNodeIdx]);
-
-				for (auto resourceIt : node->m_ResourceToIdMap)
-				{
-					auto [resource, resourceID] = resourceIt;
-
-					auto& prevNodeResStateDecl = prevNode->m_ResourceStateTransition.find(resourceID);
-					if (prevNodeResStateDecl != prevNode->m_ResourceStateTransition.end())
-					{
-						ResourceState prevNodeResEndState = prevNodeResStateDecl->second.second;
-						resource->SetState(prevNodeResEndState);
-						resource->SetQueue(prevNode->m_Pass.GetExecutionQueue());
-					}
-				}
-			}
-			else
-			{
-				for (auto resourceIt : node->m_ResourceToIdMap)
-				{
-					auto [resource, resourceID] = resourceIt;
-					resource->SetState(ResourceState_Undefined);
-					resource->SetQueue(node->m_Pass.GetExecutionQueue());
-				}
-			}
-			
-			for (const Node* prevConstNode : node->m_NodesToSyncWith)
-			{
-				Node* prevNode = const_cast<Node*>(prevConstNode);
-
-				for (auto resourceIt : node->m_ResourceToIdMap)
-				{
-					auto [resource, resourceID] = resourceIt;
-
-					auto& prevNodeResStateDecl = prevNode->m_ResourceStateTransition.find(resourceID);
-					if (prevNodeResStateDecl != prevNode->m_ResourceStateTransition.end())
-					{
-						ResourceState& prevNodeResEndState = prevNodeResStateDecl->second.second;
-						resource->SetState(prevNodeResEndState);
-						auto& currNodeResStateDecl = node->m_ResourceStateTransition.find(resourceID);
-						ResourceState currNodeResStartState = currNodeResStateDecl->second.first;
-						prevNodeResEndState = currNodeResStartState;
-
-						resource->SetQueue(prevNode->m_Pass.GetExecutionQueue());
-						prevNode->m_ResourceQueueTransfer.insert({ resourceID, node->m_ExecutionQueueIndex });
-					}
-				}
-			}*/
 		}
 	}
 

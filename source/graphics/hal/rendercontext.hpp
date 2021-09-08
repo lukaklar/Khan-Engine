@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <thirdparty/glm/glm.hpp>
 
 namespace Khan
 {
@@ -47,6 +48,8 @@ namespace Khan
 		// TODO: DrawIndirect
 		virtual void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 		// TODO: DispatchIndirect
+
+		virtual void CopyTexture(TextureView* src, const glm::ivec3& srcOffset, TextureView* dst, const glm::ivec3& dstOffset, const glm::uvec3& size) = 0;
 
 		virtual void UpdateBufferFromHost(BufferView* dst, const void* src) = 0;
 

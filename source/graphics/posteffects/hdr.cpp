@@ -14,10 +14,11 @@
 #include "graphics/renderer.hpp"
 #include "graphics/rendergraph.hpp"
 #include "graphics/shadermanager.hpp"
+#include "core/defines.h"
 
 namespace Khan
 {
-	HDRPass::HDRPass()
+	/*HDRPass::HDRPass()
 		: RenderPass(QueueType_Compute, "HDRPass")
 		, m_DownScaleConstants(4 * sizeof(uint32_t))
 		, m_TonemapConstants(2 * sizeof(float))
@@ -111,5 +112,51 @@ namespace Khan
 		uint32_t threadGroupsY = static_cast<uint32_t>(glm::ceil(720.0f / 32.0f));
 
 		context.Dispatch(threadGroupsX, threadGroupsY, 1);
+	}*/
+
+	HDRPass::HDRPass()
+		: RenderPass(QueueType_Compute, "HDRPass")
+	{
+		ComputePipelineDescription desc;
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("hdr_CS", "CS_Tonemapping");
+		m_PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
+	}
+
+	void HDRPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
+	{
+		renderGraph.EnableAsyncCompute(true);
+
+		Texture* temp;
+
+		TextureViewDesc viewDesc;
+		viewDesc.m_Type = TextureViewType_2D;
+		viewDesc.m_BaseArrayLayer = 0;
+		viewDesc.m_LayerCount = 1;
+		viewDesc.m_BaseMipLevel = 0;
+		viewDesc.m_LevelCount = 1;
+
+		temp = renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer;
+		viewDesc.m_Format = temp->GetDesc().m_Format;
+		m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+
+		temp = renderer.GetResourceBoard().m_Persistent.m_FinalOutput;
+		viewDesc.m_Format = temp->GetDesc().m_Format;
+		temp = renderGraph.CreateManagedResource(temp->GetDesc());
+		KH_DEBUGONLY(temp->SetDebugName("Temp PostFX"));
+		renderer.GetResourceBoard().m_Transient.m_TempPostFxSurface = temp;
+		m_HDROutput = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
+
+		renderer.GetResourceBoard().SwapPostFXSurfaces();
+	}
+
+	void HDRPass::Execute(RenderContext& context, Renderer& renderer)
+	{
+		context.SetPipelineState(*m_PipelineState);
+
+		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_LightAccumulationBuffer);
+		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_HDROutput);
+
+		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreads();
+		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
 	}
 }

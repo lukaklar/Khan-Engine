@@ -1,22 +1,24 @@
 #pragma once
 #include "graphics/renderpass.hpp"
+#include "graphics/hal/constantbuffer.hpp"
 
 namespace Khan
 {
-	class PhysicalRenderPass;
-	class TextureView;
 	struct RenderPipelineState;
+	class TextureView;
 
-	class FinalPass : public RenderPass
+	class FXAAPass : public RenderPass
 	{
 	public:
-		FinalPass();
+		FXAAPass();
 
 		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
 		TextureView* m_InputTexture;
-		TextureView* m_FinalOutput;
+		TextureView* m_OutputTexture;
+		RenderPipelineState* m_PipelineState;
+		ConstantBuffer m_ScreenDimensions;
 	};
 }

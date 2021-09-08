@@ -373,6 +373,28 @@ namespace Khan
 		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), buffer, 1, &copy);
 	}
 
+	void VulkanRenderContext::CopyTexture(TextureView* src, const glm::ivec3& srcOffset, TextureView* dst, const glm::ivec3& dstOffset, const glm::uvec3& size)
+	{
+		m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanTextureView*>(src), ResourceState_CopySource, m_ExecutingPass->GetExecutionQueue());
+		m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanTextureView*>(dst), ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
+		m_BarrierRecorder.Flush(m_CommandBuffer);
+
+		VkImageCopy copy;
+		copy.srcSubresource.aspectMask = PixelFormatToVulkanAspectMask(src->GetDesc().m_Format);
+		copy.srcSubresource.mipLevel = src->GetDesc().m_BaseMipLevel;
+		copy.srcSubresource.baseArrayLayer = src->GetDesc().m_BaseArrayLayer;
+		copy.srcSubresource.layerCount = src->GetDesc().m_LayerCount;
+		copy.srcOffset = { srcOffset.x, srcOffset.y, srcOffset.z };
+		copy.dstSubresource.aspectMask = PixelFormatToVulkanAspectMask(dst->GetDesc().m_Format);
+		copy.dstSubresource.mipLevel = dst->GetDesc().m_BaseMipLevel;
+		copy.dstSubresource.baseArrayLayer = dst->GetDesc().m_BaseArrayLayer;
+		copy.dstSubresource.layerCount = dst->GetDesc().m_LayerCount;
+		copy.dstOffset = { dstOffset.x, dstOffset.y, dstOffset.z };
+		copy.extent = { size.x, size.y, size.z };
+
+		vkCmdCopyImage(m_CommandBuffer, reinterpret_cast<VulkanTexture&>(src->GetTexture()).VulkanImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, reinterpret_cast<VulkanTexture&>(dst->GetTexture()).VulkanImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	}
+
 	void VulkanRenderContext::ResetFrame(uint32_t frameIndex)
 	{
 		m_CurrentFramebuffers = &m_Framebuffers[frameIndex];

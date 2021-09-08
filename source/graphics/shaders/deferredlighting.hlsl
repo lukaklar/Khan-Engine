@@ -13,7 +13,7 @@ RWTexture2D<float4> g_LightingResult : register(u0);
 struct SurfaceData
 {
     float3 m_PositionVS;
-	float3 m_Albedo;
+	float4 m_Albedo;
 	float  m_Metallic;
 	float3 m_Normal;
 	float  m_Roughness;
@@ -26,7 +26,7 @@ SurfaceData UnpackGBuffer(int3 location)
     float depth = g_GBuffer_Depth.Load(location).r;
     Out.m_PositionVS = ScreenToView(float4(location.xy, depth, 1.0)).xyz;
     
-    Out.m_Albedo = g_GBuffer_Albedo.Load(location).rgb;
+    Out.m_Albedo = g_GBuffer_Albedo.Load(location);
     
 	Out.m_Normal = g_GBuffer_Normals.Load(location).rgb;
 	Out.m_Normal = normalize(Out.m_Normal * 2.0 - 1.0);
@@ -87,11 +87,15 @@ void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
             }
         }
         
-        Lo += BRDF(L, V, data.m_Normal, data.m_Metallic, data.m_Roughness, data.m_Albedo, radiance);
+        Lo += BRDF(L, V, data.m_Normal, data.m_Metallic, data.m_Roughness, data.m_Albedo.rgb, radiance);
     }
 
 	// Combine with ambient
-    float3 color = data.m_Albedo * 0.02 + Lo;
+    float3 color = data.m_Albedo.rgb * 0.02 + Lo;
+    if (data.m_Albedo.a == 0.0f)
+    {
+        color = float3(0.5f, 0.5f, 0.5f);
+    }
     color = pow(color, float3(0.4545, 0.4545, 0.4545));
     
     g_LightingResult[texCoord.xy] = float4(color, 1.0);

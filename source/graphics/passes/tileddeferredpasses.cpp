@@ -350,10 +350,10 @@ namespace Khan
 			desc.m_Format = PF_R16G16B16A16_FLOAT;
 			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowUnorderedAccess;
 
-			/*temp = renderGraph.CreateManagedResource(desc);
+			temp = renderGraph.CreateManagedResource(desc);
 			KH_DEBUGONLY(temp->SetDebugName("LightAccumulationBuffer"));
-			renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer = temp;*/
-			temp = renderer.GetResourceBoard().m_Persistent.m_FinalOutput;
+			renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer = temp;
+			//temp = renderer.GetResourceBoard().m_Persistent.m_FinalOutput;
 
 			TextureViewDesc viewDesc;
 			viewDesc.m_Type = TextureViewType_2D;

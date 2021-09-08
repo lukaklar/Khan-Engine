@@ -6,7 +6,7 @@ namespace Khan
 	{
 		Draw,
 		Dispatch,
-		//Copy,
+		Copy,
 		Update,
 		//Query
 	};

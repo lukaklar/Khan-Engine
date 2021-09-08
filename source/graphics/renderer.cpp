@@ -74,7 +74,8 @@ namespace Khan
 		//rg.AddPass(m_LightCullingPass);
 		//rg.AddPass(m_TiledDeferredLightingPass);
 		//rg.AddPass(m_TransparentPass);
-		//rg.AddPass(m_HDRPass);
+		rg.AddPass(m_HDRPass);
+		rg.AddPass(m_FXAAPass);
 		//rg.AddPass(m_TestPass);
 		rg.AddPass(m_FinalPass);
 

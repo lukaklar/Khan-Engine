@@ -1,9 +1,11 @@
 #pragma once
+#include <algorithm>
 
 namespace Khan
 {
 	class Buffer;
 	class Texture;
+	class RenderGraph;
 
 	struct ResourceBoard
 	{
@@ -31,7 +33,11 @@ namespace Khan
 			} m_GBuffer;
 
 			Texture* m_LightAccumulationBuffer = nullptr;
-			Texture* m_PostFxTemp;
+			Texture* m_TempPostFxSurface = nullptr;
 		} m_Transient;
+
+		inline Texture* GetPostFXSrc() const { return m_Transient.m_TempPostFxSurface; }
+		inline Texture* GetPostFXDst() const { return m_Persistent.m_FinalOutput; }
+		inline void SwapPostFXSurfaces() { std::swap(m_Persistent.m_FinalOutput, m_Transient.m_TempPostFxSurface); }
 	};
 }
