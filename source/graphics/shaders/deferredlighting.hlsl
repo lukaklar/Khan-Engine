@@ -96,7 +96,6 @@ void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
     {
         color = float3(0.5f, 0.5f, 0.5f);
     }
-    color = pow(color, float3(0.4545, 0.4545, 0.4545));
     
     g_LightingResult[texCoord.xy] = float4(color, 1.0);
 }

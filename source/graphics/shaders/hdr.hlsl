@@ -272,6 +272,10 @@ void CS_Tonemapping(uint3 dispatchThreadID : SV_DispatchThreadID)
     
     float4 color = g_InputTexture.Load(texCoord);
     
-    g_HDROutput[dispatchThreadID.xy] = float4(ACESFitted(color.rgb), color.a);
+    float3 hdrColor = ACESFitted(color.rgb);
+    
+    hdrColor = pow(hdrColor, float3(0.4545, 0.4545, 0.4545));
+    
+    g_HDROutput[dispatchThreadID.xy] = float4(hdrColor, color.a);
 
 }
