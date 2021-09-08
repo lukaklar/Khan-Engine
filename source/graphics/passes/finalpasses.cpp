@@ -31,8 +31,8 @@ namespace Khan
 
 		if (renderer.GetResourceBoard().m_Persistent.m_FinalOutput != RenderBackend::g_Swapchain->GetCurrentBackBuffer())
 		{
-			m_InputTexture = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_TempPostFxSurface, viewDesc, ResourceState_CopySource);
-			m_FinalOutput = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Persistent.m_FinalOutput, viewDesc, ResourceState_Undefined, ResourceState_Present);
+			m_InputTexture = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().GetPostFXSrc(), viewDesc, ResourceState_CopySource);
+			m_FinalOutput = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().GetPostFXDst(), viewDesc, ResourceState_Undefined, ResourceState_Present);
 		}
 		else
 		{

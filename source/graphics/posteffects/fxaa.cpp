@@ -38,8 +38,8 @@ namespace Khan
 		viewDesc.m_LevelCount = 1;
 		viewDesc.m_Format = renderer.GetResourceBoard().m_Persistent.m_FinalOutput->GetDesc().m_Format;
 
-		m_InputTexture = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Persistent.m_FinalOutput, viewDesc, ResourceState_NonPixelShaderAccess);
-		m_OutputTexture = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_TempPostFxSurface, viewDesc, ResourceState_UnorderedAccess);
+		m_InputTexture = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().GetPostFXSrc(), viewDesc, ResourceState_NonPixelShaderAccess);
+		m_OutputTexture = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().GetPostFXDst(), viewDesc, ResourceState_UnorderedAccess);
 
 		renderer.GetResourceBoard().SwapPostFXSurfaces();
 	}

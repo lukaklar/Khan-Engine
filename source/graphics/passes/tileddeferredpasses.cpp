@@ -346,7 +346,6 @@ namespace Khan
 			desc.m_Depth = 1;
 			desc.m_ArrayLayers = 1;
 			desc.m_MipLevels = 1;
-			//desc.m_SampleCount;
 			desc.m_Format = PF_R16G16B16A16_FLOAT;
 			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowUnorderedAccess;
 
@@ -362,7 +361,6 @@ namespace Khan
 			viewDesc.m_BaseMipLevel = 0;
 			viewDesc.m_LevelCount = 1;
 
-			//viewDesc.m_Format = desc.m_Format;
 			viewDesc.m_Format = temp->GetDesc().m_Format;
 			m_LightingResult = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
