@@ -277,5 +277,4 @@ void CS_Tonemapping(uint3 dispatchThreadID : SV_DispatchThreadID)
     hdrColor = pow(hdrColor, float3(0.4545, 0.4545, 0.4545));
     
     g_HDROutput[dispatchThreadID.xy] = float4(hdrColor, color.a);
-
 }

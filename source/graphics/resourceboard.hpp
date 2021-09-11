@@ -32,6 +32,7 @@ namespace Khan
 				Texture* m_Depth = nullptr;
 			} m_GBuffer;
 
+			Texture* m_AmbientOcclusionFactors = nullptr;
 			Texture* m_LightAccumulationBuffer = nullptr;
 			Texture* m_TempPostFxSurface = nullptr;
 		} m_Transient;

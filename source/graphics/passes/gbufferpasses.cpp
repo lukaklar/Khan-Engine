@@ -68,7 +68,6 @@ namespace Khan
 		desc.m_Depth = 1;
 		desc.m_ArrayLayers = 1;
 		desc.m_MipLevels = 1;
-		//desc.m_SampleCount;
 		desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowRenderTarget;
 
 		TextureViewDesc viewDesc;

@@ -344,10 +344,10 @@ namespace Khan
 				}
 
 				// Associate written subresource with render pass that writes to it for quick access when needed
-				for (uint64_t subresourceName : node->WrittenSubresources())
+				/*for (uint64_t subresourceName : node->WrittenSubresources())
 				{
 					m_WrittenSubresourceToPassMap[subresourceName] = node;
-				}
+				}*/
 
 				node->m_GlobalExecutionIndex = globalExecutionIndex;
 				node->m_LocalToDependencyLevelExecutionIndex = localExecutionIndex;
@@ -486,6 +486,8 @@ namespace Khan
 				// Final optimized list of nodes without redundant dependencies
 				std::vector<const Node*> optimalNodesToSyncWith;
 
+				std::vector<const Node*> nodesToRemove;
+
 				for (const Node* nodeToSyncWith : node->m_NodesToSyncWith)
 				{
 					queueToSyncWithIndices.insert(nodeToSyncWith->m_ExecutionQueueIndex);
@@ -554,14 +556,24 @@ namespace Khan
 							{
 								queueToSyncWithIndices.erase(syncedQueueIndex);
 							}
+
+							nodesToRemove.emplace_back(syncCoverage.m_NodeToSyncWith);
 						}
 					}
 
 					// Remove nodes that we synced with from the original list. Reverse iterating to avoid index invalidation.
-					for (auto syncCoverageIt = syncCoverageArray.rbegin(); syncCoverageIt != syncCoverageArray.rend(); ++syncCoverageIt)
+					/*for (auto syncCoverageIt = syncCoverageArray.rbegin(); syncCoverageIt != syncCoverageArray.rend(); ++syncCoverageIt)
 					{
 						node->m_NodesToSyncWith.erase(node->m_NodesToSyncWith.begin() + syncCoverageIt->m_NodeToSyncWithIndex);
+					}*/
+
+					for (const Node* nodeToRemove : nodesToRemove)
+					{
+						node->m_NodesToSyncWith.erase(std::find(node->m_NodesToSyncWith.begin(), node->m_NodesToSyncWith.end(), nodeToRemove));
 					}
+
+					syncCoverageArray.clear();
+					nodesToRemove.clear();
 				}
 
 				// Finally, assign an optimal list of nodes to sync with to the current node

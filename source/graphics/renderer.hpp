@@ -9,6 +9,7 @@
 #include "graphics/passes/transparentpasses.hpp"
 #include "graphics/posteffects/fxaa.hpp"
 #include "graphics/posteffects/hdr.hpp"
+#include "graphics/posteffects/ssao.hpp"
 #include "graphics/resourceboard.hpp"
 #include "system/threadpool.hpp"
 
@@ -73,6 +74,7 @@ namespace Khan
 		//LightCullingPass m_LightCullingPass;
 		//TiledDeferredLightingPass m_TiledDeferredLightingPass;
 		//TransparentPass m_TransparentPass;
+		SSAOPass m_SSAOPass;
 		HDRPass m_HDRPass;
 		FXAAPass m_FXAAPass;
 		//TestPass m_TestPass;

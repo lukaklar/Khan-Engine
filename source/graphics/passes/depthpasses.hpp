@@ -17,7 +17,7 @@ namespace Khan
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
-		TextureView* m_DepthBuffer;
+		TextureView* m_DepthTexture;
 		PhysicalRenderPass* m_PhysicalRenderPass;
 		RenderPipelineState* m_PipelineStateNoCulling;
 		RenderPipelineState* m_PipelineStateBackfaceCulling;

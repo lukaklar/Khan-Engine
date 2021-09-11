@@ -17,7 +17,7 @@
 #define DECLARE_GBUFFER_INPUT(target, state)\
 temp = renderer.GetResourceBoard().m_Transient.m_GBuffer.m_##target;\
 viewDesc.m_Format = temp->GetDesc().m_Format;\
-m_GBuffer_##target = renderGraph.DeclareResourceDependency(temp, viewDesc, state, true);
+m_GBuffer_##target = renderGraph.DeclareResourceDependency(temp, viewDesc, state);
 
 namespace Khan
 {
@@ -125,7 +125,7 @@ namespace Khan
 
 			temp = renderer.GetResourceBoard().m_Persistent.m_ScreenFrustums;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
-			m_PerTileFrustums = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+			m_PerTileFrustums = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
 			if (!m_ViewportResized)
 			{
@@ -136,7 +136,7 @@ namespace Khan
 
 			temp = renderer.GetResourceBoard().m_Transient.m_ActiveSceneLights;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
-			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+			m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
 			desc.m_Size = 720000 * sizeof(uint32_t);
 			desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
@@ -161,8 +161,8 @@ namespace Khan
 			TextureViewDesc viewDesc;
 
 			desc.m_Type = TextureType_2D;
-			desc.m_Width = 1280 / 16;
-			desc.m_Height = 720 / 16;
+			desc.m_Width = renderer.GetActiveCamera()->GetViewportWidth() / 16;
+			desc.m_Height = renderer.GetActiveCamera()->GetViewportHeight() / 16;
 			desc.m_Depth = 1;
 			desc.m_ArrayLayers = 1;
 			desc.m_MipLevels = 1;		
@@ -190,7 +190,7 @@ namespace Khan
 
 			temp = renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth;
 			viewDesc.m_Format = temp->GetDesc().m_Format;
-			m_DepthTexture = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+			m_DepthTexture = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 		}
 	}
 
@@ -239,12 +239,12 @@ namespace Khan
 			viewDesc.m_Offset = 0;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			viewDesc.m_Format = PF_NONE;
-			m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+			m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
 			// TODO: light grid and indices
 			temp = renderer.GetResourceBoard().m_Transient.m_OpaqueLightIndexList;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
-			m_LightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+			m_LightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 		}
 
 		{
@@ -252,12 +252,11 @@ namespace Khan
 
 			TextureDesc desc;
 			desc.m_Type = TextureType_2D;
-			desc.m_Width = 1280;
-			desc.m_Height = 720;
+			desc.m_Width = renderer.GetActiveCamera()->GetViewportWidth();
+			desc.m_Height = renderer.GetActiveCamera()->GetViewportHeight();
 			desc.m_Depth = 1;
 			desc.m_ArrayLayers = 1;
 			desc.m_MipLevels = 1;
-			//desc.m_SampleCount;
 			desc.m_Format = PF_R16G16B16A16_FLOAT;
 			desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowUnorderedAccess;
 
@@ -285,7 +284,7 @@ namespace Khan
 
 			temp = renderer.GetResourceBoard().m_Transient.m_OpaqueLightGrid;
 			viewDesc.m_Format = temp->GetDesc().m_Format;
-			m_LightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+			m_LightGrid = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
 			// TODO: Will need a shadow map
 		}
@@ -333,7 +332,7 @@ namespace Khan
 			viewDesc.m_Offset = 0;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			viewDesc.m_Format = PF_NONE;
-			m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess, true);
+			m_LightData = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 		}
 
 		{
@@ -341,8 +340,8 @@ namespace Khan
 
 			TextureDesc desc;
 			desc.m_Type = TextureType_2D;
-			desc.m_Width = 1280;
-			desc.m_Height = 720;
+			desc.m_Width = renderer.GetActiveCamera()->GetViewportWidth();
+			desc.m_Height = renderer.GetActiveCamera()->GetViewportHeight();
 			desc.m_Depth = 1;
 			desc.m_ArrayLayers = 1;
 			desc.m_MipLevels = 1;
@@ -364,6 +363,10 @@ namespace Khan
 			viewDesc.m_Format = temp->GetDesc().m_Format;
 			m_LightingResult = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
+			temp = renderer.GetResourceBoard().m_Transient.m_AmbientOcclusionFactors;
+			viewDesc.m_Format = temp->GetDesc().m_Format;
+			m_AOTexture = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+
 			DECLARE_GBUFFER_INPUT(Albedo, ResourceState_NonPixelShaderAccess);
 			DECLARE_GBUFFER_INPUT(Normals, ResourceState_NonPixelShaderAccess);
 			DECLARE_GBUFFER_INPUT(Emissive, ResourceState_NonPixelShaderAccess);
@@ -378,7 +381,6 @@ namespace Khan
 	{
 		context.SetPipelineState(*m_PipelineState);
 
-		//context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetTiledDeferredDispatchParams());
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
 		uint32_t numLights = static_cast<uint32_t>(renderer.GetActiveLightData().size());
 		m_LightParams.UpdateConstantData(&numLights, 0, sizeof(uint32_t));
@@ -388,7 +390,8 @@ namespace Khan
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 1, m_GBuffer_Normals);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 2, m_GBuffer_PBRConsts);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 3, m_GBuffer_Depth);
-		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 4, m_LightData);
+		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 4, m_AOTexture);
+		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 5, m_LightData);
 
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_LightingResult);
 

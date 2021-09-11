@@ -61,12 +61,11 @@ namespace Khan
 		desc.m_Depth = 1;
 		desc.m_ArrayLayers = 1;
 		desc.m_MipLevels = 1;
-		//desc.m_SampleCount;
 		desc.m_Format = PF_D32_FLOAT;
 		desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowDepthStencil;
 
 		Texture* depthBuffer = renderGraph.CreateManagedResource(desc);
-		KH_DEBUGONLY(depthBuffer->SetDebugName("Depth Buffer"));
+		KH_DEBUGONLY(depthBuffer->SetDebugName("Depth Texture"));
 		renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth = depthBuffer;
 
 		TextureViewDesc viewDesc;
@@ -77,12 +76,12 @@ namespace Khan
 		viewDesc.m_BaseMipLevel = 0;
 		viewDesc.m_LevelCount = 1;
 
-		m_DepthBuffer = renderGraph.DeclareResourceDependency(depthBuffer, viewDesc, ResourceState_DepthWriteStencilWrite);
+		m_DepthTexture = renderGraph.DeclareResourceDependency(depthBuffer, viewDesc, ResourceState_DepthWriteStencilWrite);
 	}
 
 	void DepthPrePass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_DepthBuffer);
+		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_DepthTexture);
 
 		m_ViewProjParams.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_ViewProjParams);

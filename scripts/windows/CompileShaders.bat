@@ -19,8 +19,11 @@ if not exist "..\..\bin\shaders\vulkan\" mkdir ..\..\bin\shaders\vulkan
 
 %~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_DeferredLighting -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\deferredlighting.hlsl -Fo ..\..\bin\shaders\vulkan\deferredlighting_CS.spv
 
-%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -T cs_6_0 -E CS_Tonemapping -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\hdr_CS.spv
+%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_Tonemapping -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\hdr_CS.spv
 
-%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -T cs_6_0 -E CS_FXAAFilter -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\fxaa.hlsl -Fo ..\..\bin\shaders\vulkan\fxaa_filter_CS.spv
+%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_FXAAFilter -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\fxaa.hlsl -Fo ..\..\bin\shaders\vulkan\fxaa_filter_CS.spv
+
+%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_SSAOCalculate -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\ssao.hlsl -Fo ..\..\bin\shaders\vulkan\ssao_calculate_CS.spv
+%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_SSAOBlur -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\ssao.hlsl -Fo ..\..\bin\shaders\vulkan\ssao_blur_CS.spv
 
 pause

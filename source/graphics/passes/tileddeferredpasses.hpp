@@ -103,7 +103,7 @@ namespace Khan
 		TextureView* m_GBuffer_Emissive;
 		TextureView* m_GBuffer_PBRConsts;
 		TextureView* m_GBuffer_Depth;
-
+		TextureView* m_AOTexture;
 		TextureView* m_LightingResult;
 
 		ConstantBuffer m_LightParams;

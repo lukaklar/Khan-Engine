@@ -149,7 +149,7 @@ namespace Khan
 
 		m_FrameIndex = (m_FrameIndex + 1) % K_MAX_FRAMES_IN_FLIGHT;
 
-		VK_ASSERT(vkWaitForFences(m_Device.VulkanDevice(), 1, &m_FrameFences[m_FrameIndex], VK_TRUE, UINT64_MAX), "[VULKAN] Faled to wait for frame fence.");
+		VK_ASSERT(vkWaitForFences(m_Device.VulkanDevice(), 1, &m_FrameFences[m_FrameIndex], VK_TRUE, UINT64_MAX), "[VULKAN] Failed to wait for frame fence.");
 
 		m_Device.OnFlip(m_FrameIndex);
 

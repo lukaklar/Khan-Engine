@@ -70,6 +70,7 @@ namespace Khan
 		rg.AddPass(m_DepthPrePass);
 		rg.AddPass(m_GBufferPass);
 		rg.AddPass(m_LightDataUploadPass);
+		rg.AddPass(m_SSAOPass);
 		rg.AddPass(m_DeferredLightingPass);
 		//rg.AddPass(m_LightCullingPass);
 		//rg.AddPass(m_TiledDeferredLightingPass);

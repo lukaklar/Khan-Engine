@@ -5,8 +5,8 @@ Texture2D g_GBuffer_Albedo : register(t0);
 Texture2D g_GBuffer_Normals : register(t1);
 Texture2D g_GBuffer_PBRConsts : register(t2);
 Texture2D g_GBuffer_Depth : register(t3);
-
-StructuredBuffer<Light> g_Lights : register(t4);
+Texture2D g_AOTexture : register(t4);
+StructuredBuffer<Light> g_Lights : register(t5);
 
 RWTexture2D<float4> g_LightingResult : register(u0);
 
@@ -91,7 +91,7 @@ void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
     }
 
 	// Combine with ambient
-    float3 color = data.m_Albedo.rgb * 0.02 + Lo;
+    float3 color = data.m_Albedo.rgb * 0.02 * g_AOTexture[dispatchThreadID.xy].r + Lo;
     if (data.m_Albedo.a == 0.0f)
     {
         color = float3(0.5f, 0.5f, 0.5f);
