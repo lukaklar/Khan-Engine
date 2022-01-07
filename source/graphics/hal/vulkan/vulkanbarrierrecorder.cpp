@@ -18,6 +18,10 @@ namespace Khan
 			VkBufferMemoryBarrier& bufferBarrier = m_BufferBarriers[i];
 			bufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
 			bufferBarrier.pNext = nullptr;
+
+			VkMemoryBarrier& memoryBarrier = m_MemoryBarriers[i];
+			memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+			memoryBarrier.pNext = nullptr;
 		}
 
 		Reset();

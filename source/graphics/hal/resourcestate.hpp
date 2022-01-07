@@ -15,6 +15,7 @@ namespace Khan
         ResourceState_UnorderedAccess,
         ResourceState_NonPixelShaderAccess,
         ResourceState_PixelShaderAccess,
+        ResourceState_PixelShaderWrite,
         ResourceState_AnyShaderAccess,
         ResourceState_StreamOut,
         ResourceState_RenderTarget,

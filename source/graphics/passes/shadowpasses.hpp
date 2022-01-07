@@ -1,26 +1,26 @@
 #pragma once
 #include "graphics/renderpass.hpp"
-#include "graphics/hal/pipelinedescriptions.hpp"
 #include "graphics/hal/constantbuffer.hpp"
 
 namespace Khan
 {
 	class PhysicalRenderPass;
 	class TextureView;
+	struct RenderPipelineState;
 
-	class TestPass : public RenderPass
+	class ShadowPass : public RenderPass
 	{
 	public:
-		TestPass();
+		ShadowPass();
 
 		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
-		TextureView* m_FinalOutput;
-		TextureView* m_DepthBuffer;
+		TextureView* m_ShadowMap;
 		PhysicalRenderPass* m_PhysicalRenderPass;
-		GraphicsPipelineDescription m_PipelineDesc;
-		ConstantBuffer m_PerFrameConsts;
+		RenderPipelineState* m_PipelineStateNoCulling;
+		RenderPipelineState* m_PipelineStateBackfaceCulling;
+		ConstantBuffer m_ViewProjParams;
 	};
 }

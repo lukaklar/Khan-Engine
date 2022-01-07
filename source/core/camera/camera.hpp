@@ -26,6 +26,13 @@ namespace Khan
 		inline uint32_t GetViewportHeight() const { return m_ViewportHeight; }
 		void OnViewportResize(uint32_t width, uint32_t height);
 
+		inline float GetFOV() const { return m_FOV; }
+		inline void SetFOV(float value) { m_FOV = value; }
+		inline float GetNearClip() const { return m_NearClip; }
+		inline void SetNearClip(float value) { m_NearClip = value; }
+		inline float GetFarClip() const { return m_FarClip; }
+		inline void SetFarClip(float value) { m_FarClip = value; }
+
 	protected:
 		Entity* m_Target = nullptr;
 
@@ -38,8 +45,5 @@ namespace Khan
 
 		float m_FOV, m_AspectRatio, m_NearClip, m_FarClip;
 		uint32_t m_ViewportWidth = 1280, m_ViewportHeight = 720;
-
-		// TEMP
-		glm::vec3 m_Direction;
 	};
 }

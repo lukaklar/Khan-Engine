@@ -18,7 +18,7 @@ namespace Khan
 		VulkanBarrierRecorder(const DisplayAdapter& adapter);
 
 		void RecordBarrier(VulkanBuffer& buffer, ResourceState state, QueueType queue);
-		void RecordBarrier(VulkanBufferView& bufferView, ResourceState state, QueueType queue);
+		void RecordBarrier(VulkanBufferView& bufferView, ResourceState state, QueueType queue, bool memoryBarrier = false);
 		void RecordBarrier(VulkanTexture& texture, ResourceState state, QueueType queue);
 		void RecordBarrier(VulkanTextureView& textureView, ResourceState state, QueueType queue);
 		void Flush(VkCommandBuffer commandBuffer);
@@ -30,6 +30,8 @@ namespace Khan
 		uint32_t m_ImageBarrierCount;
 		VkBufferMemoryBarrier m_BufferBarriers[32];
 		uint32_t m_BufferBarrierCount;
+		VkMemoryBarrier m_MemoryBarriers[32];
+		uint32_t m_MemoryBarrierCount;
 		VkPipelineStageFlags m_SrcStages;
 		VkPipelineStageFlags m_DstStages;
 	};

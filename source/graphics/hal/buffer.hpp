@@ -12,7 +12,7 @@ namespace Khan
 		BufferFlag_Writable					= 0x002,
 		BufferFlag_AllowShaderResource		= 0x010,
 		BufferFlag_AllowUnorderedAccess		= 0x020,
-		BufferFlag_AllowDrawIndirect		= 0x040,
+		BufferFlag_AllowIndirect			= 0x040,
 		BufferFlag_AllowVertices			= 0x080,
 		BufferFlag_AllowIndices				= 0x100
 	};

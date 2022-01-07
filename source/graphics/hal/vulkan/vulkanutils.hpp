@@ -41,9 +41,9 @@ namespace Khan
 
 		if (flags & BufferFlag_Readable) vulkanFlags |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 		if (flags & BufferFlag_Writable) vulkanFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		if (flags & BufferFlag_AllowShaderResource) vulkanFlags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-		if (flags & BufferFlag_AllowUnorderedAccess) vulkanFlags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-		if (flags & BufferFlag_AllowDrawIndirect) vulkanFlags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+		if (flags & BufferFlag_AllowShaderResource) vulkanFlags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
+		if (flags & BufferFlag_AllowUnorderedAccess) vulkanFlags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+		if (flags & BufferFlag_AllowIndirect) vulkanFlags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 		if (flags & BufferFlag_AllowVertices) vulkanFlags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		if (flags & BufferFlag_AllowIndices) vulkanFlags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
@@ -79,6 +79,7 @@ namespace Khan
 			VK_FORMAT_R16G16B16A16_SFLOAT,		// PF_R16G16B16A16_FLOAT
 			VK_FORMAT_A2B10G10R10_UNORM_PACK32,	// PF_R10G10B10A2_UNORM
 			VK_FORMAT_R32_SFLOAT,				// PF_R32_FLOAT
+			VK_FORMAT_R32_UINT,					// PF_R32_UINT
 			VK_FORMAT_R32G32_UINT				// PF_R32G32_UINT
 		};
 
@@ -102,6 +103,7 @@ namespace Khan
 			VK_IMAGE_ASPECT_COLOR_BIT,									// PF_R16G16B16A16_FLOAT
 			VK_IMAGE_ASPECT_COLOR_BIT,									// PF_R10G10B10A2_UNORM
 			VK_IMAGE_ASPECT_COLOR_BIT,									// PF_R32_FLOAT
+			VK_IMAGE_ASPECT_COLOR_BIT,									// PF_R32_UINT
 			VK_IMAGE_ASPECT_COLOR_BIT									// PF_R32G32_UINT
 		};
 

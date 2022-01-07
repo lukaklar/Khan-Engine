@@ -105,7 +105,7 @@ namespace Khan
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 		renderPassInfo.dependencyCount = dependencyNecessary ? 1 : 0;
-		renderPassInfo.pDependencies = dependencyNecessary ? &dependency : nullptr;
+		renderPassInfo.pDependencies = &dependency;
 
 		VkRenderPass renderPass;
 		VK_ASSERT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass), "[VULKAN] Failed to create render pass.");

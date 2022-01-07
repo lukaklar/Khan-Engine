@@ -23,6 +23,7 @@ namespace Khan
 			VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,											// ResourceState_UnorderedAccess
 			VK_ACCESS_SHADER_READ_BIT,																		// ResourceState_NonPixelShaderAccess
 			VK_ACCESS_SHADER_READ_BIT,																		// ResourceState_PixelShaderAccess
+			VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,											// ResourceState_PixelShaderWrite
 			VK_ACCESS_SHADER_READ_BIT,																		// ResourceState_AnyShaderAccess
 			VK_ACCESS_SHADER_WRITE_BIT,																		// ResourceState_StreamOut
 			VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,						// ResourceState_RenderTarget
@@ -55,6 +56,7 @@ namespace Khan
 			VK_IMAGE_LAYOUT_GENERAL,											// ResourceState_UnorderedAccess
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,							// ResourceState_NonPixelShaderAccess
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,							// ResourceState_PixelShaderAccess
+			VK_IMAGE_LAYOUT_GENERAL,											// ResourceState_PixelShaderWrite
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,							// ResourceState_AnyShaderAccess
 			VK_IMAGE_LAYOUT_UNDEFINED,											// ResourceState_StreamOut
 			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,							// ResourceState_RenderTarget
@@ -96,6 +98,7 @@ namespace Khan
 			VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,													// ResourceState_UnorderedAccess
 			VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,													// ResourceState_NonPixelShaderAccess
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,													// ResourceState_PixelShaderAccess
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,													// ResourceState_PixelShaderWrite
 			s_AllShaderStages,																		// ResourceState_AnyShaderAccess
 			VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,														// ResourceState_StreamOut
 			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,											// ResourceState_RenderTarget
@@ -115,7 +118,7 @@ namespace Khan
 
 	KH_FORCE_INLINE static bool ResourceStateToWriteAccess(ResourceState state)
 	{
-		return state == ResourceState_CopyDestination || state == ResourceState_UnorderedAccess;
+		return state == ResourceState_CopyDestination || state == ResourceState_UnorderedAccess || state == ResourceState_PixelShaderWrite;
 	}
 
 	KH_FORCE_INLINE void VulkanBarrierRecorder::RecordBarrier(VulkanBuffer& buffer, ResourceState state, QueueType queue)
@@ -149,7 +152,7 @@ namespace Khan
 
 		barrier.buffer = buffer.GetVulkanBuffer();
 		barrier.offset = 0;
-		barrier.size = buffer.GetDesc().m_Size; 
+		barrier.size = VK_WHOLE_SIZE;
 
 		m_SrcStages |= ResourceStateToVkPipelineStageFlags(buffer.GetState());
 		m_DstStages |= ResourceStateToVkPipelineStageFlags(state);
@@ -157,7 +160,7 @@ namespace Khan
 		buffer.SetState(state);
 	}
 
-	KH_FORCE_INLINE void VulkanBarrierRecorder::RecordBarrier(VulkanBufferView& bufferView, ResourceState state, QueueType queue)
+	KH_FORCE_INLINE void VulkanBarrierRecorder::RecordBarrier(VulkanBufferView& bufferView, ResourceState state, QueueType queue, bool memoryBarrier)
 	{
 		if (bufferView.GetBuffer().GetQueue() == QueueType_None)
 		{
@@ -169,26 +172,37 @@ namespace Khan
 			return;
 		}
 
-		VkBufferMemoryBarrier& barrier = m_BufferBarriers[m_BufferBarrierCount++];
-
-		barrier.srcAccessMask = ResourceStateToVkAccess(bufferView.GetBuffer().GetState());
-		barrier.dstAccessMask = ResourceStateToVkAccess(state);
-
-		if (queue != bufferView.GetBuffer().GetQueue())
+		if (memoryBarrier)
 		{
-			barrier.srcQueueFamilyIndex = m_Adapter.GetQueueFamilyIndices()[bufferView.GetBuffer().GetQueue()];
-			barrier.dstQueueFamilyIndex = m_Adapter.GetQueueFamilyIndices()[queue];
-			bufferView.GetBuffer().SetQueue(queue);
+			VkMemoryBarrier& barrier = m_MemoryBarriers[m_MemoryBarrierCount++];
+
+			barrier.srcAccessMask = ResourceStateToVkAccess(bufferView.GetBuffer().GetState());
+			barrier.dstAccessMask = ResourceStateToVkAccess(state);
 		}
 		else
 		{
-			barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			VkBufferMemoryBarrier& barrier = m_BufferBarriers[m_BufferBarrierCount++];
+
+			barrier.srcAccessMask = ResourceStateToVkAccess(bufferView.GetBuffer().GetState());
+			barrier.dstAccessMask = ResourceStateToVkAccess(state);
+
+			if (queue != bufferView.GetBuffer().GetQueue())
+			{
+				barrier.srcQueueFamilyIndex = m_Adapter.GetQueueFamilyIndices()[bufferView.GetBuffer().GetQueue()];
+				barrier.dstQueueFamilyIndex = m_Adapter.GetQueueFamilyIndices()[queue];
+				bufferView.GetBuffer().SetQueue(queue);
+			}
+			else
+			{
+				barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			}
+
+			barrier.buffer = static_cast<VulkanBuffer&>(bufferView.GetBuffer()).GetVulkanBuffer();
+			barrier.offset = bufferView.GetDesc().m_Offset;
+			barrier.size = VK_WHOLE_SIZE;
 		}
 
-		barrier.buffer = static_cast<VulkanBuffer&>(bufferView.GetBuffer()).GetVulkanBuffer();
-		barrier.offset = bufferView.GetDesc().m_Offset;
-		barrier.size = bufferView.GetDesc().m_Range;
 
 		m_SrcStages |= ResourceStateToVkPipelineStageFlags(bufferView.GetBuffer().GetState());
 		m_DstStages |= ResourceStateToVkPipelineStageFlags(state);
@@ -307,6 +321,7 @@ namespace Khan
 	{
 		m_ImageBarrierCount = 0;
 		m_BufferBarrierCount = 0;
+		m_MemoryBarrierCount = 0;
 		m_SrcStages = 0;
 		m_DstStages = 0;
 	}

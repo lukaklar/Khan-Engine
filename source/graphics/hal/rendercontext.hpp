@@ -47,7 +47,7 @@ namespace Khan
 		virtual void DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) = 0;
 		// TODO: DrawIndirect
 		virtual void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
-		// TODO: DispatchIndirect
+		virtual void DispatchIndirect(BufferView* buffer, uint32_t offset) = 0;
 
 		virtual void CopyTexture(TextureView* src, const glm::ivec3& srcOffset, TextureView* dst, const glm::ivec3& dstOffset, const glm::uvec3& size) = 0;
 

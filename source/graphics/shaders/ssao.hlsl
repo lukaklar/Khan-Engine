@@ -1,15 +1,36 @@
-#include "tileddeferredcommon.hlsl"
+cbuffer FrustumParams : register(b0)
+{
+    float4x4 g_Projection;
+    float4x4 g_InverseProjection;
+    float2   g_ScreenDimensions;
+    float    g_Near;
+    float    g_Far;
+    float3   g_ClusterCount;
+}
 
-cbuffer SamplingParams : register(b0)
+cbuffer SamplingParams : register(b1)
 {
     float3 g_Samples[64];
     float3 g_Noise[16];
 }
 
-cbuffer ProjectionParams : register(b2)
+float4 ClipToView(float4 clip)
 {
-    float4x4 g_Projection;
-};
+    float4 view = mul(g_InverseProjection, clip);
+    
+    view = view / view.w;
+    
+    return view;
+}
+
+float4 ScreenToView(float4 screen)
+{
+    float2 texCoord = screen.xy / g_ScreenDimensions;
+    
+    float4 clip = float4(float2(texCoord.x, 1.0f - texCoord.y) * 2.0f - 1.0f, screen.z, screen.w);
+    
+    return ClipToView(clip);
+}
 
 Texture2D g_GBuffer_Normals : register(t0);
 Texture2D g_GBuffer_Depth   : register(t1);

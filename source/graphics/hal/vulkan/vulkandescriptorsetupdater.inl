@@ -97,17 +97,17 @@ namespace Khan
         info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
     }
 
-    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetStorageTexelBuffer(uint32_t binding, const VkBufferView& bufferView)
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetUniformTexelBuffer(uint32_t binding, const VkBufferView& bufferView)
     {
         VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
         write.dstSet = m_DescriptorSet;
         write.dstBinding = K_HLSL_T_REGISTER_OFFSET + binding;
-        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
         VkDescriptorBufferInfo& info = m_BufferInfos[m_BufferCount++];
         write.pTexelBufferView = &bufferView;
     }
 
-    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetUAStorageTexelBuffer(uint32_t binding, const VkBufferView& bufferView)
+    KH_FORCE_INLINE void VulkanDescriptorSetUpdater::SetStorageTexelBuffer(uint32_t binding, const VkBufferView& bufferView)
     {
         VkWriteDescriptorSet& write = m_Writes[m_WriteCount++];
         write.dstSet = m_DescriptorSet;

@@ -5,6 +5,7 @@
 namespace Khan
 {
 	struct RenderPipelineState;
+	class PhysicalRenderPass;
 	class BufferView;
 	class TextureView;
 
@@ -20,18 +21,49 @@ namespace Khan
 		BufferView* m_LightData;
 	};
 
-	class TileFrustumCalculationPass : public RenderPass
+	class ClusterCalculationPass : public RenderPass
 	{
 	public:
-		TileFrustumCalculationPass();
+		ClusterCalculationPass();
 
 		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
-		BufferView* m_PerTileFrustums;
-
+		BufferView* m_Clusters;
 		RenderPipelineState* m_PipelineState;
+	};
+
+	class MarkActiveClustersPass : public RenderPass
+	{
+	public:
+		MarkActiveClustersPass();
+
+		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
+		virtual void Execute(RenderContext& context, Renderer& renderer) override;
+
+	private:
+		TextureView* m_DepthTexture;
+		BufferView* m_ActiveClusterFlags;
+		PhysicalRenderPass* m_PhysicalRenderPass;
+		RenderPipelineState* m_PipelineState;
+		ConstantBuffer m_PerFrameConsts;
+	};
+
+	class CompactActiveClustersPass : public RenderPass
+	{
+	public:
+		CompactActiveClustersPass();
+
+		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
+		virtual void Execute(RenderContext& context, Renderer& renderer) override;
+
+	private:
+		BufferView* m_ActiveClusterFlags;
+		BufferView* m_ActiveClusterIndexList;
+		BufferView* m_CullingDispatchArgs;
+		RenderPipelineState* m_PipelineState;
+		ConstantBuffer m_ClusterParams;
 	};
 
 	class LightCullingPass : public RenderPass
@@ -43,71 +75,14 @@ namespace Khan
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
-		BufferView* m_PerTileFrustums;
+		BufferView* m_Clusters;
+		BufferView* m_ActiveClusterIndexList;
 		BufferView* m_Lights;
-
-		TextureView* m_DepthTexture;
-
-		BufferView* m_OpaqueLightIndexCounter;
-		BufferView* m_TransparentLightIndexCounter;
-
-		BufferView* m_OpaqueLightIndexList;
-		BufferView* m_TransparentLightIndexList;
-		TextureView* m_OpaqueLightGrid;
-		TextureView* m_TransparentLightGrid;
-
-		RenderPipelineState* m_PipelineState;
-
-		ConstantBuffer m_LightParams;
-
-		bool m_ViewportResized = true;
-	};
-
-	class TiledDeferredLightingPass : public RenderPass
-	{
-	public:
-		TiledDeferredLightingPass();
-
-		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
-		virtual void Execute(RenderContext& context, Renderer& renderer) override;
-
-	private:
+		BufferView* m_LightIndexCounter;
 		BufferView* m_LightIndexList;
-		BufferView* m_LightData;
-		TextureView* m_LightGrid;
-
-		TextureView* m_GBuffer_Albedo;
-		TextureView* m_GBuffer_Normals;
-		TextureView* m_GBuffer_Emissive;
-		TextureView* m_GBuffer_PBRConsts;
-		TextureView* m_GBuffer_Depth;
-
-		TextureView* m_LightingResult;
-
+		BufferView* m_LightGrid;
+		BufferView* m_IndirectDispatchArgs;
 		RenderPipelineState* m_PipelineState;
-	};
-
-	class DeferredLightingPass : public RenderPass
-	{
-	public:
-		DeferredLightingPass();
-
-		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
-		virtual void Execute(RenderContext& context, Renderer& renderer) override;
-
-	private:
-		BufferView* m_LightData;
-
-		TextureView* m_GBuffer_Albedo;
-		TextureView* m_GBuffer_Normals;
-		TextureView* m_GBuffer_Emissive;
-		TextureView* m_GBuffer_PBRConsts;
-		TextureView* m_GBuffer_Depth;
-		TextureView* m_AOTexture;
-		TextureView* m_LightingResult;
-
 		ConstantBuffer m_LightParams;
-
-		RenderPipelineState* m_PipelineState;
 	};
 }

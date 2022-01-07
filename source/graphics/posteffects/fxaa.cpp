@@ -19,7 +19,6 @@ namespace Khan
 {
 	FXAAPass::FXAAPass()
 		: RenderPass(QueueType_Compute, "FXAAPass")
-		, m_ScreenDimensions(sizeof(glm::vec2))
 	{
 		ComputePipelineDescription desc;
 		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("fxaa_filter_CS", "CS_FXAAFilter");
@@ -47,15 +46,12 @@ namespace Khan
 	void FXAAPass::Execute(RenderContext& context, Renderer& renderer)
 	{
 		context.SetPipelineState(*m_PipelineState);
-
-		glm::vec2 dim(renderer.GetActiveCamera()->GetViewportWidth(), renderer.GetActiveCamera()->GetViewportHeight());
-		m_ScreenDimensions.UpdateConstantData(&dim, 0, sizeof(glm::vec2));
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_ScreenDimensions);
-
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetFrustumParams());
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_InputTexture);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_OutputTexture);
 
-		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreads();
-		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
+		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32_t threadGroupCountY = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 }

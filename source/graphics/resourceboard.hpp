@@ -11,17 +11,19 @@ namespace Khan
 	{
 		struct
 		{
-			Buffer* m_ScreenFrustums = nullptr;
+			Buffer* m_Clusters = nullptr;
 			Texture* m_FinalOutput = nullptr;
 		} m_Persistent;
 
 		struct
 		{
+			Buffer* m_ActiveClusterFlags = nullptr;
+			Buffer* m_ActiveClusterIndexList = nullptr;
+			Buffer* m_CullingDispatchArgs = nullptr;
+
 			Buffer* m_ActiveSceneLights = nullptr;
-			Buffer* m_OpaqueLightIndexList = nullptr;
-			Buffer* m_TransparentLightIndexList = nullptr;
-			Texture* m_OpaqueLightGrid = nullptr;
-			Texture* m_TransparentLightGrid = nullptr;
+			Buffer* m_LightIndexList = nullptr;
+			Buffer* m_LightGrid = nullptr;
 
 			struct
 			{

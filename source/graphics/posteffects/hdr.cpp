@@ -152,11 +152,11 @@ namespace Khan
 	void HDRPass::Execute(RenderContext& context, Renderer& renderer)
 	{
 		context.SetPipelineState(*m_PipelineState);
-
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_LightAccumulationBuffer);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_HDROutput);
 
-		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreads();
-		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
+		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32_t threadGroupCountY = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 }

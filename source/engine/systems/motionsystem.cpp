@@ -20,7 +20,6 @@ namespace Khan
 			glm::vec3 position = entity->GetGlobalPosition().xyz();
 			InputManager* inputMgr = InputManager::Get();
 			glm::ivec2 cursorDelta = inputMgr->GetCursorDelta();
-			//glm::vec3 up = glm::rotate(entity->GetGlobalOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
 			glm::vec3 up(0.0f, 1.0f, 0.0f);
 
 			glm::vec3 strafeDirection = glm::normalize(glm::cross(direction, up));

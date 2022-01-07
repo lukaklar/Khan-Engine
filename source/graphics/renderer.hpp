@@ -1,11 +1,11 @@
 #pragma once
 #include "core/camera/camera.hpp"
 #include "graphics/hal/constantbuffer.hpp"
+#include "graphics/passes/clusterpasses.hpp"
+#include "graphics/passes/deferredpasses.hpp"
 #include "graphics/passes/depthpasses.hpp"
 #include "graphics/passes/finalpasses.hpp"
 #include "graphics/passes/gbufferpasses.hpp"
-#include "graphics/passes/testpasses.hpp"
-#include "graphics/passes/tileddeferredpasses.hpp"
 #include "graphics/passes/transparentpasses.hpp"
 #include "graphics/posteffects/fxaa.hpp"
 #include "graphics/posteffects/hdr.hpp"
@@ -31,6 +31,16 @@ namespace Khan
 		float m_Padding[3];
 	};
 
+	struct FrustumParams
+	{
+		glm::mat4 m_Projection;
+		glm::mat4 m_InverseProjection;
+		glm::vec2 m_ScreenDimensions;
+		float m_Near;
+		float m_Far;
+		glm::vec3 m_ClusterCount;
+	};
+
 	class Renderer
 	{
 	public:
@@ -52,32 +62,32 @@ namespace Khan
 		inline const Camera* GetActiveCamera() const { return m_ActiveCamera; }
 		inline void SetActiveCamera(const Camera* camera) { m_ActiveCamera = camera; }
 
-		inline ConstantBuffer& GetTiledDeferredDispatchParams() { return m_TiledDeferredDispatchParams; }
-		inline ConstantBuffer& GetScreenToViewParams() { return m_ScreenToViewParams; }
+		inline ConstantBuffer& GetFrustumParams() { return m_FrustumParams; }
+
+		inline uint32_t GetTotalNumClusters() const { return m_TotalNumClusters; }
 
 		inline uint32_t GetScreenTileSize() const { return K_TILE_SIZE; }
-
-		inline const glm::uvec3& GetNumDispatchThreadGroups() const { return m_NumDispatchThreadGroups; }
-		inline const glm::uvec3& GetNumDispatchThreads() const { return m_NumDispatchThreads; }
+		inline uint32_t GetNumDepthSlices() const { return K_NUM_DEPTH_SLICES; }
 
 	private:
 		void SchedulePasses();
 
-		void RecreateScreenFrustumBuffer();
-		void DestroyScreenFrustumBuffer();
+		void RecreateClustersBuffer();
+		void DestroyClustersBuffer();
 
 		DepthPrePass m_DepthPrePass;
 		GBufferPass m_GBufferPass;
 		LightDataUploadPass m_LightDataUploadPass;
-		DeferredLightingPass m_DeferredLightingPass;
-		//TileFrustumCalculationPass m_TileFrustumCalculationPass;
-		//LightCullingPass m_LightCullingPass;
-		//TiledDeferredLightingPass m_TiledDeferredLightingPass;
+		ClusterCalculationPass m_ClusterCalculationPass;
+		MarkActiveClustersPass m_MarkActiveClustersPass;
+		CompactActiveClustersPass m_CompactActiveClustersPass;
+		LightCullingPass m_LightCullingPass;
+		ClusterDeferredLightingPass m_DeferredLightingPass;
+		//DeferredLightingPass m_DeferredLightingPass;
 		//TransparentPass m_TransparentPass;
 		SSAOPass m_SSAOPass;
 		HDRPass m_HDRPass;
 		FXAAPass m_FXAAPass;
-		//TestPass m_TestPass;
 		FinalPass m_FinalPass;
 
 		ResourceBoard m_ResourceBoard;
@@ -90,14 +100,12 @@ namespace Khan
 
 		const Camera* m_ActiveCamera;
 
-		bool m_ScreenDimensionsChanged;
+		ConstantBuffer m_FrustumParams;
 
-		glm::uvec3 m_NumDispatchThreadGroups;
-		glm::uvec3 m_NumDispatchThreads;
-
-		ConstantBuffer m_TiledDeferredDispatchParams;
-		ConstantBuffer m_ScreenToViewParams;
+		uint32_t m_TotalNumClusters;
+		bool m_FrustumParamsChanged;
 
 		inline static constexpr uint32_t K_TILE_SIZE = 16;
+		inline static constexpr uint32_t K_NUM_DEPTH_SLICES = 32;
 	};
 }

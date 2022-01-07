@@ -54,7 +54,7 @@ namespace Khan
 		m_UploadManager.Create(m_MemoryManager.VulkanMemoryAllocator());
 		m_SemaphoreAllocator.Create(m_Device);
 
-		for (uint32_t i = 0; i < 6; ++i)
+		for (uint32_t i = 0; i < 1; ++i)
 		{
 			m_Contexts.push_back(new VulkanRenderContext(*this));
 		}

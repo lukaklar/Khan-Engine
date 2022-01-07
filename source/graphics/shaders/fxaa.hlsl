@@ -1,7 +1,12 @@
-cbuffer ScreenParams : register(b0)
+cbuffer FrustumParams : register(b0)
 {
-    float2 g_ScreenDimensions;
-};
+    float4x4 g_Projection;
+    float4x4 g_InverseProjection;
+    float2   g_ScreenDimensions;
+    float    g_Near;
+    float    g_Far;
+    float3   g_ClusterCount;
+}
 
 Texture2D g_InputTexture : register(t0);
 

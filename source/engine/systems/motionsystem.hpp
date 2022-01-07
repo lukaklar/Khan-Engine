@@ -1,6 +1,5 @@
 #pragma once
 #include "core/ecs/system.hpp"
-#include <thirdparty/glm/glm.hpp>
 
 namespace Khan
 {

@@ -19,8 +19,8 @@ namespace Khan
 		void SetUAStorageBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range);
 		void SetStorageImage(uint32_t binding, VkImageView imageView);
 		void SetUAStorageImage(uint32_t binding, VkImageView imageView);
+		void SetUniformTexelBuffer(uint32_t binding, const VkBufferView& bufferView);
 		void SetStorageTexelBuffer(uint32_t binding, const VkBufferView& bufferView);
-		void SetUAStorageTexelBuffer(uint32_t binding, const VkBufferView& bufferView);
 		void SetSampler(uint32_t binding, VkSampler sampler);
 
 	private:

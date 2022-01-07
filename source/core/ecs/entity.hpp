@@ -10,7 +10,6 @@ namespace Khan
 	class Entity
 	{
 		friend class World;
-		friend class EntityView;
 	public:
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)

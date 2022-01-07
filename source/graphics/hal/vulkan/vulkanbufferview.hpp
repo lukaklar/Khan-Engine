@@ -16,7 +16,7 @@ namespace Khan
 		{
 		}
 
-		inline VkBufferView GetVulkanBufferView() const { return m_BufferView; }
+		inline const VkBufferView& GetVulkanBufferView() const { return m_BufferView; }
 
 	protected:
 		friend class VulkanTransientResourceManager;

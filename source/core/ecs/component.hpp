@@ -6,7 +6,7 @@ namespace Khan
 
 	struct Component
 	{
-		virtual ~Component() {};
+		virtual ~Component() {}
 
 		Entity* m_Owner = nullptr;
 	};

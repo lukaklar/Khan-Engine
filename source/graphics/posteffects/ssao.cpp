@@ -28,13 +28,13 @@ namespace Khan
 			return a + f * (b - a);
 		};
 
-		std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+		std::uniform_real_distribution<float> randomFloats(0.0f, 1.0f);
 		std::default_random_engine generator;
 
 		glm::vec4 ssaoKernel[64];
 		for (unsigned int i = 0; i < 64; ++i)
 		{
-			glm::vec4 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator), 0.0f);
+			glm::vec4 sample(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator), 0.0f);
 			sample = glm::normalize(sample);
 			sample *= randomFloats(generator);
 			float scale = i / 64.0f;
@@ -48,7 +48,7 @@ namespace Khan
 		glm::vec4 ssaoNoise[16];
 		for (unsigned int i = 0; i < 16; i++)
 		{
-			ssaoNoise[i] = glm::vec4(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f, 0.0f);
+			ssaoNoise[i] = glm::vec4(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, 0.0f, 0.0f);
 		}
 
 		m_SampleParams.UpdateConstantData(ssaoKernel, 0, 64 * sizeof(glm::vec4));
@@ -108,32 +108,24 @@ namespace Khan
 
 	void SSAOPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		const glm::uvec3& threadGroupCount = renderer.GetNumDispatchThreads();
+		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32_t threadGroupCountY = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 
 		context.SetPipelineState(*m_CalculationPipelineState);
-
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_SampleParams);
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &renderer.GetScreenToViewParams());
-		m_ProjectionParams.UpdateConstantData(&renderer.GetActiveCamera()->GetProjection(), 0, sizeof(glm::mat4));
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 2, &m_ProjectionParams);
-
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetFrustumParams());
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &m_SampleParams);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_GBuffer_Normals);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 1, m_GBuffer_Depth);
-
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_SSAOTexture);
 
-		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
+		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 
 		context.SetPipelineState(*m_BlurPipelineState);
-
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, nullptr);
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 2, nullptr);
-
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, nullptr);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_SSAOTexture);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 1, nullptr);
-
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_SSAOBlurTexture);
 
-		context.Dispatch(threadGroupCount.x, threadGroupCount.y, threadGroupCount.z);
+		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 }

@@ -19,6 +19,5 @@ namespace Khan
 		TextureView* m_InputTexture;
 		TextureView* m_OutputTexture;
 		RenderPipelineState* m_PipelineState;
-		ConstantBuffer m_ScreenDimensions;
 	};
 }

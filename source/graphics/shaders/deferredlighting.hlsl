@@ -1,5 +1,60 @@
-#include "tileddeferredcommon.hlsl"
 #include "pbrcommon.hlsl"
+
+#define TILE_SIZE 16
+
+#define DIRECTIONAL_LIGHT 0
+#define OMNI_LIGHT 1
+#define SPOT_LIGHT 2
+
+struct Light
+{
+	uint   m_Type;
+	float3 m_PositionVS;
+	float3 m_DirectionVS;
+    float  m_Range;
+	float3 m_Color;
+	float  m_Luminance;
+	float  m_SpotlightAngle;
+    float3 m_Padding;
+};
+
+cbuffer FrustumParams : register(b0)
+{
+    float4x4 g_Projection;
+    float4x4 g_InverseProjection;
+    float2   g_ScreenDimensions;
+    float    g_Near;
+    float    g_Far;
+    float3   g_ClusterCount;
+}
+
+cbuffer LightParams : register(b1)
+{
+    uint g_NumLights;
+}
+
+// Convert clip space coordinates to view space
+float4 ClipToView(float4 clip)
+{
+    // View space position.
+    float4 view = mul(g_InverseProjection, clip);
+    // Perspective projection.
+    view = view / view.w;
+ 
+    return view;
+}
+
+// Convert screen space coordinates to view space.
+float4 ScreenToView(float4 screen)
+{
+    // Convert to normalized texture coordinates
+    float2 texCoord = screen.xy / g_ScreenDimensions;
+ 
+    // Convert to clip space
+    float4 clip = float4(float2(texCoord.x, 1.0f - texCoord.y) * 2.0f - 1.0f, screen.z, screen.w);
+ 
+    return ClipToView(clip);
+}
 
 Texture2D g_GBuffer_Albedo : register(t0);
 Texture2D g_GBuffer_Normals : register(t1);

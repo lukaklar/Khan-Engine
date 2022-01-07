@@ -113,7 +113,7 @@ namespace Khan
 				viewInfo.buffer = reinterpret_cast<VulkanBuffer*>(buffer)->GetVulkanBuffer();
 				viewInfo.format = PixelFormatToVulkanFormat(desc.m_Format);
 				viewInfo.offset = desc.m_Offset;
-				viewInfo.range = desc.m_Range;
+				viewInfo.range = VK_WHOLE_SIZE;
 
 				VK_ASSERT(vkCreateBufferView(m_Device.VulkanDevice(), &viewInfo, nullptr, &bufferView), "[VULKAN] Failed to create buffer view.");
 			}

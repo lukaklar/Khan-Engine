@@ -22,6 +22,7 @@ namespace Khan
 			false,	// ResourceState_UnorderedAccess
 			true,	// ResourceState_NonPixelShaderAccess
 			true,	// ResourceState_PixelShaderAccess
+			false,	// ResourceState_PixelShaderWrite
 			true,	// ResourceState_AnyShaderAccess
 			false,	// ResourceState_StreamOut
 			false,	// ResourceState_RenderTarget

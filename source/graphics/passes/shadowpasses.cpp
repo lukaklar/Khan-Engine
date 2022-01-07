@@ -1,5 +1,5 @@
 #include "graphics/precomp.h"
-#include "graphics/passes/depthpasses.hpp"
+#include "graphics/passes/shadowpasses.hpp"
 #include "graphics/hal/physicalrenderpass.hpp"
 #include "graphics/hal/pipelinedescriptions.hpp"
 #include "graphics/hal/pixelformats.hpp"
@@ -18,8 +18,8 @@
 
 namespace Khan
 {
-	DepthPrePass::DepthPrePass()
-		: RenderPass(QueueType_Graphics, "DepthPrePass")
+	ShadowPass::ShadowPass()
+		: RenderPass(QueueType_Graphics, "ShadowPass")
 		, m_ViewProjParams(sizeof(glm::mat4))
 	{
 		{
@@ -33,7 +33,7 @@ namespace Khan
 
 		{
 			GraphicsPipelineDescription desc;
-			desc.m_VertexShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("depth_VS", "VS_Main");
+			desc.m_VertexShader = ShaderManager::Get()->GetShader<ShaderType_Vertex>("shadow_mapping_VS", "VS_ShadowMapping");
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::POSITION);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float2, VertexInputState::StreamDescriptor::StreamElement::Usage::TEXCOORD0);
 			desc.m_VertexInputState.AddStreamElement(0, VertexInputState::StreamDescriptor::StreamElement::Type::Float3, VertexInputState::StreamDescriptor::StreamElement::Usage::NORMAL);
@@ -52,12 +52,13 @@ namespace Khan
 		}
 	}
 
-	void DepthPrePass::Setup(RenderGraph& renderGraph, Renderer& renderer)
+	void ShadowPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
 		TextureDesc desc;
 		desc.m_Type = TextureType_2D;
-		desc.m_Width = renderer.GetActiveCamera()->GetViewportWidth();
-		desc.m_Height = renderer.GetActiveCamera()->GetViewportHeight();
+		// TODO: Move these values to graphics options where they would depend on the quality of shadows
+		desc.m_Width = 4096;
+		desc.m_Height = 4096;
 		desc.m_Depth = 1;
 		desc.m_ArrayLayers = 1;
 		desc.m_MipLevels = 1;
@@ -65,7 +66,7 @@ namespace Khan
 		desc.m_Flags = TextureFlag_AllowShaderResource | TextureFlag_AllowDepthStencil;
 
 		Texture* temp = renderGraph.CreateManagedResource(desc);
-		KH_DEBUGONLY(temp->SetDebugName("Depth Texture"));
+		KH_DEBUGONLY(temp->SetDebugName("Shadow Map"));
 		renderer.GetResourceBoard().m_Transient.m_GBuffer.m_Depth = temp;
 
 		TextureViewDesc viewDesc;
@@ -76,12 +77,12 @@ namespace Khan
 		viewDesc.m_BaseMipLevel = 0;
 		viewDesc.m_LevelCount = 1;
 
-		m_DepthTexture = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_DepthWriteStencilWrite);
+		m_ShadowMap = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_DepthWriteStencilWrite);
 	}
 
-	void DepthPrePass::Execute(RenderContext& context, Renderer& renderer)
+	void ShadowPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_DepthTexture);
+		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_ShadowMap);
 
 		m_ViewProjParams.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_ViewProjParams);
@@ -93,8 +94,8 @@ namespace Khan
 			RenderPipelineState* pipelineState = material->HasTwoSides() ? m_PipelineStateNoCulling : m_PipelineStateBackfaceCulling;
 
 			context.SetPipelineState(*pipelineState);
-			context.SetViewport(0.0f, 0.0f, (float)renderer.GetActiveCamera()->GetViewportWidth(), (float)renderer.GetActiveCamera()->GetViewportHeight());
-			context.SetScissor(0, 0, renderer.GetActiveCamera()->GetViewportWidth(), renderer.GetActiveCamera()->GetViewportHeight());
+			context.SetViewport(0.0f, 0.0f, (float)m_ShadowMap->GetTexture().GetDesc().m_Width, (float)m_ShadowMap->GetTexture().GetDesc().m_Height);
+			context.SetScissor(0, 0, m_ShadowMap->GetTexture().GetDesc().m_Width, m_ShadowMap->GetTexture().GetDesc().m_Height);
 
 			context.SetVertexBuffer(0, mesh->m_VertexBuffer, 0);
 			context.SetIndexBuffer(mesh->m_IndexBuffer, 0, false);
