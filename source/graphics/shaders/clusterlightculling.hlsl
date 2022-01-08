@@ -118,7 +118,7 @@ void CS_CullLights(uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupID :
  
     GroupMemoryBarrierWithGroupSync();
 
-	for (i = groupIndex; i < gs_LightCount; i += TILE_SIZE * TILE_SIZE)
+	for (i = groupIndex; i < gs_LightCount; i += 128)
     {
 		g_LightIndexList[gs_LightIndexStartOffset + i] = gs_LightList[i];
 	}

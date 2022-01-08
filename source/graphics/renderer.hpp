@@ -39,6 +39,7 @@ namespace Khan
 		float m_Near;
 		float m_Far;
 		glm::vec3 m_ClusterCount;
+		float m_TileSize;
 	};
 
 	class Renderer

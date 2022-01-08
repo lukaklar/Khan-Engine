@@ -1,6 +1,3 @@
-#define TILE_SIZE 16
-#define NUM_DEPTH_SLICES 32
-
 #define DIRECTIONAL_LIGHT 0
 #define OMNI_LIGHT 1
 #define SPOT_LIGHT 2

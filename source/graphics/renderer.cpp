@@ -53,6 +53,7 @@ namespace Khan
 			frustumParams.m_Near = m_ActiveCamera->GetNearClip();
 			frustumParams.m_Far = m_ActiveCamera->GetFarClip();
 			frustumParams.m_ClusterCount = { glm::ceil((float)m_ActiveCamera->GetViewportWidth() / K_TILE_SIZE), glm::ceil((float)m_ActiveCamera->GetViewportHeight() / K_TILE_SIZE), K_NUM_DEPTH_SLICES };
+			frustumParams.m_TileSize = K_TILE_SIZE;
 
 			m_FrustumParams.UpdateConstantData(&frustumParams, 0, sizeof(FrustumParams));
 

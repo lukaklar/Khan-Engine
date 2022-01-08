@@ -378,14 +378,13 @@ namespace Khan
 		motionComponent.m_MovementSpeed = 1.0f;
 		motionComponent.m_RotationSpeed = 0.2f;
 
-		/*LightComponent& lightComponent = player->AddComponent<LightComponent>();
-		SpotLight* light = new SpotLight();
+		LightComponent& lightComponent = player->AddComponent<LightComponent>();
+		OmniLight* light = new OmniLight();
 		light->SetActive(true);
 		light->SetColor({ 0.0f, 1.0f, 0.0f });
 		light->SetLuminance(5.0f);
-		light->SetRange(2.0f);
-		light->SetAngle(glm::radians(5.0f));
-		lightComponent.m_Light = light;*/
+		light->SetRadius(2.0f);
+		lightComponent.m_Light = light;
 
 		RenderBackend::g_Device->WaitIdle();
 

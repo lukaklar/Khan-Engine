@@ -8,6 +8,7 @@ cbuffer FrustumParams : register(b0)
     float    g_Near;
     float    g_Far;
     float3   g_ClusterCount;
+    float    g_TileSize;
 }
 
 RWStructuredBuffer<Cluster> g_Clusters : register(u0);
@@ -43,13 +44,13 @@ float3 LineIntersectionToZPlane(float3 A, float3 B, float zDistance)
     return result;
 }
 
-[numthreads(TILE_SIZE, TILE_SIZE, 1)]
+[numthreads(16, 16, 1)]
 void CS_ComputeCluster(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
     const float3 eyePos = float3(0.0f, 0.0f, 0.0f);
 
-    float3 minPointVS = ScreenToView(float4(float2(dispatchThreadID.x, dispatchThreadID.y + 1) * TILE_SIZE, -1.0f, 1.0f)).xyz;
-    float3 maxPointVS = ScreenToView(float4(float2(dispatchThreadID.x + 1, dispatchThreadID.y) * TILE_SIZE, -1.0f, 1.0f)).xyz;
+    float3 minPointVS = ScreenToView(float4(float2(dispatchThreadID.x, dispatchThreadID.y) * g_TileSize, -1.0f, 1.0f)).xyz;
+    float3 maxPointVS = ScreenToView(float4(float2(dispatchThreadID.x + 1, dispatchThreadID.y + 1) * g_TileSize, -1.0f, 1.0f)).xyz;
 
     float tileNear = -g_Near * pow(g_Far / g_Near, dispatchThreadID.z / float(g_ClusterCount.z));
     float tileFar = -g_Near * pow(g_Far / g_Near, (dispatchThreadID.z + 1) / float(g_ClusterCount.z));

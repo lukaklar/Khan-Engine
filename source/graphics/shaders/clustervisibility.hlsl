@@ -8,6 +8,7 @@ cbuffer FrustumParams : register(b0, space0)
     float    g_Near;
     float    g_Far;
     float3   g_ClusterCount;
+    float    g_TileSize;
 }
 
 cbuffer PerFrame : register(b1, space0)
@@ -24,7 +25,7 @@ RWBuffer<uint> g_ActiveClusterMask : register(u0, space0);
 
 uint GetDepthSlice(float z)
 {
-    return floor(log(z) * NUM_DEPTH_SLICES / log(g_Near / g_Far) - NUM_DEPTH_SLICES * log(g_Near) / log(g_Far / g_Near));
+    return floor(log(z) * g_ClusterCount.z / log(g_Near / g_Far) - g_ClusterCount.z * log(g_Near) / log(g_Far / g_Near));
 }
 
 float4 VS_MarkActiveClusters(float3 position : POSITION) : SV_Position
@@ -35,7 +36,7 @@ float4 VS_MarkActiveClusters(float3 position : POSITION) : SV_Position
 void PS_MarkActiveClusters(float4 position : SV_Position)
 {
     uint slice = GetDepthSlice(position.z);
-    uint3 clusterID = uint3(position.xy / TILE_SIZE, slice);
+    uint3 clusterID = uint3(position.xy / g_TileSize, slice);
 
     uint index = clusterID.x + clusterID.y * g_ClusterCount.x + clusterID.z * (g_ClusterCount.x + g_ClusterCount.y);
     g_ActiveClusterMask[index] = true;

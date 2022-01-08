@@ -9,6 +9,7 @@ cbuffer FrustumParams : register(b0)
     float    g_Near;
     float    g_Far;
     float3   g_ClusterCount;
+    float    g_TileSize;
 }
 
 Texture2D g_GBuffer_Albedo : register(t0);
@@ -52,7 +53,7 @@ float4 ScreenToView(float4 screen)
 
 uint GetDepthSlice(float z)
 {
-    return floor(log(z) * NUM_DEPTH_SLICES / log(g_Near / g_Far) - NUM_DEPTH_SLICES * log(g_Near) / log(g_Far / g_Near));
+    return floor(log(z) * g_ClusterCount.z / log(g_Near / g_Far) - g_ClusterCount.z * log(g_Near) / log(g_Far / g_Near));
 }
 
 SurfaceData UnpackGBuffer(int3 location)
@@ -74,7 +75,7 @@ SurfaceData UnpackGBuffer(int3 location)
 	return Out;
 }
 
-[numthreads(TILE_SIZE, TILE_SIZE, 1)]
+[numthreads(16, 16, 1)]
 void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
                          uint3 groupThreadID     : SV_GroupThreadID,
                          uint3 dispatchThreadID  : SV_DispatchThreadID,
@@ -83,9 +84,9 @@ void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
     int3 texCoord = int3(dispatchThreadID.xy, 0);
     SurfaceData data = UnpackGBuffer(texCoord);
     
-    uint2 numTiles = floor(g_ScreenDimensions.xy / TILE_SIZE);
+    uint2 numTiles = floor(g_ScreenDimensions.xy / g_TileSize);
     
-    uint3 clusterID = uint3(floor(dispatchThreadID.xy / TILE_SIZE), GetDepthSlice(data.m_Depth));
+    uint3 clusterID = uint3(floor(dispatchThreadID.xy / g_TileSize), GetDepthSlice(data.m_Depth));
     uint clusterIndex = clusterID.x + clusterID.y * numTiles.x + clusterID.z * (numTiles.x + numTiles.y);
  
     uint startOffset = g_LightGrid[clusterIndex].x;
