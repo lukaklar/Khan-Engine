@@ -84,10 +84,8 @@ void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
     int3 texCoord = int3(dispatchThreadID.xy, 0);
     SurfaceData data = UnpackGBuffer(texCoord);
     
-    uint2 numTiles = floor(g_ScreenDimensions.xy / g_TileSize);
-    
     uint3 clusterID = uint3(floor(dispatchThreadID.xy / g_TileSize), GetDepthSlice(data.m_Depth));
-    uint clusterIndex = clusterID.x + clusterID.y * numTiles.x + clusterID.z * (numTiles.x + numTiles.y);
+    uint clusterIndex = clusterID.x + clusterID.y * g_ClusterCount.x + clusterID.z * (g_ClusterCount.x * g_ClusterCount.y);
  
     uint startOffset = g_LightGrid[clusterIndex].x;
     uint lightCount = g_LightGrid[clusterIndex].y;

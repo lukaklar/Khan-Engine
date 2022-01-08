@@ -66,7 +66,7 @@ void CS_ComputeCluster(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     if (dispatchThreadID.x < g_ClusterCount.x && dispatchThreadID.y < g_ClusterCount.y && dispatchThreadID.z < g_ClusterCount.z)
     {
-        uint index = dispatchThreadID.x + dispatchThreadID.y * g_ClusterCount.x + dispatchThreadID.z * (g_ClusterCount.x + g_ClusterCount.y);
+        uint index = dispatchThreadID.x + dispatchThreadID.y * g_ClusterCount.x + dispatchThreadID.z * (g_ClusterCount.x * g_ClusterCount.y);
         g_Clusters[index] = cluster;
     }
 }

@@ -38,7 +38,7 @@ void PS_MarkActiveClusters(float4 position : SV_Position)
     uint slice = GetDepthSlice(position.z);
     uint3 clusterID = uint3(position.xy / g_TileSize, slice);
 
-    uint index = clusterID.x + clusterID.y * g_ClusterCount.x + clusterID.z * (g_ClusterCount.x + g_ClusterCount.y);
+    uint index = clusterID.x + clusterID.y * g_ClusterCount.x + clusterID.z * (g_ClusterCount.x * g_ClusterCount.y);
     g_ActiveClusterMask[index] = true;
 }
 
