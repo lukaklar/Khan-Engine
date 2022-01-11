@@ -87,6 +87,7 @@ namespace Khan
 						lightData.m_Type = Light::Type::Omni;
 						lightData.m_PositionVS = (camera->GetViewMatrix() * entity->GetGlobalPosition()).xyz();
 						lightData.m_Range = omni->GetRadius();
+						lightData.m_Attenuation = omni->GetAttenuation();
 						break;
 					}
 					case Light::Type::Spot:
@@ -97,7 +98,9 @@ namespace Khan
 						lightData.m_DirectionVS = (camera->GetViewMatrix() * glm::vec4(orientation.x, orientation.y, orientation.z, 0.0f)).xyz();
 						lightData.m_PositionVS = (camera->GetViewMatrix() * entity->GetGlobalPosition()).xyz();
 						lightData.m_Range = spot->GetRange();
-						lightData.m_SpotlightAngle = spot->GetAngle();
+						lightData.m_InnerConeAngle = spot->GetInnerConeAngle();
+						lightData.m_OuterConeAngle = spot->GetOuterConeAngle();
+						lightData.m_Attenuation = spot->GetAttenuation();
 						break;
 					}
 					case Light::Type::Area:

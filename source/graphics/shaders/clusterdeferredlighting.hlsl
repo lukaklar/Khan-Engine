@@ -113,9 +113,11 @@ void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
             {
                 L = light.m_PositionVS - data.m_PositionVS;
                 float distance = length(L);
+                if (distance > light.m_Range) continue;
                 L /= distance;
-                float attenuation = 1.0 / (distance * distance);
-                radiance = light.m_Color * attenuation * light.m_Luminance;
+                float distanceFalloff = 1.0f - smoothstep(light.m_Range * 0.75f, light.m_Range, distance);
+                float attenuation = 1.0 / (light.m_Attenuation.x + light.m_Attenuation.y * distance + light.m_Attenuation.z * distance * distance);
+                radiance = light.m_Color * attenuation * distanceFalloff * light.m_Luminance;
                 break;
             }
             case SPOT_LIGHT:

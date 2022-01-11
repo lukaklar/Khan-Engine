@@ -292,29 +292,6 @@ namespace Khan
 
 		processNode(scene->mRootNode, nullptr);
 
-		{
-			Entity* lightEntity = world->CreateEntity();
-			lightEntity->SetGlobalOrientation(glm::quat(0.0f, 1.0f, 0.0f, 0.0f));
-			LightComponent& lightComponent = lightEntity->AddComponent<LightComponent>();
-			DirectionalLight* light = new DirectionalLight();
-			light->SetActive(true);
-			light->SetColor({ 0.9922f, 0.9843f, 0.8275f });
-			light->SetLuminance(1.0f);
-			lightComponent.m_Light = light;
-		}
-
-		/*{
-			Entity* lightEntity = world->CreateEntity();
-			lightEntity->SetGlobalPosition(glm::vec4(0.0f, 0.0f, 2.0f, 1.0f));
-			LightComponent& lightComponent = lightEntity->AddComponent<LightComponent>();
-			OmniLight* light = new OmniLight();
-			light->SetActive(true);
-			light->SetColor({ 0.0f, 0.0f, 1.0f });
-			light->SetLuminance(5.0f);
-			light->SetRadius(2.0f);
-			lightComponent.m_Light = light;
-		}*/
-
 		for (uint32_t i = 0; i < scene->mNumLights; ++i)
 		{
 			const aiLight& light = *scene->mLights[i];
@@ -336,6 +313,7 @@ namespace Khan
 					OmniLight* omni = new OmniLight();
 					entity->SetGlobalPosition(glm::vec4(light.mPosition.x, light.mPosition.y, light.mPosition.z, 1.0f));
 					omni->SetRadius(1.0f);
+					omni->SetAttenuation({ light.mAttenuationConstant, light.mAttenuationLinear, light.mAttenuationQuadratic });
 					lightComponent.m_Light = omni;
 					break;
 				}
@@ -344,8 +322,10 @@ namespace Khan
 					SpotLight* spot = new SpotLight();
 					entity->SetGlobalPosition(glm::vec4(light.mPosition.x, light.mPosition.y, light.mPosition.z, 1.0f));
 					entity->SetGlobalOrientation(glm::quat(0.0f, light.mDirection.x, light.mDirection.y, light.mDirection.z));
-					spot->SetAngle(light.mAngleOuterCone);
 					spot->SetRange(1.0f);
+					spot->SetInnerConeAngle(light.mAngleInnerCone);
+					spot->SetOuterConeAngle(light.mAngleOuterCone);
+					spot->SetAttenuation({ light.mAttenuationConstant, light.mAttenuationLinear, light.mAttenuationQuadratic });
 					lightComponent.m_Light = spot;
 					break;
 				}
@@ -378,13 +358,27 @@ namespace Khan
 		motionComponent.m_MovementSpeed = 1.0f;
 		motionComponent.m_RotationSpeed = 0.2f;
 
-		LightComponent& lightComponent = player->AddComponent<LightComponent>();
-		OmniLight* light = new OmniLight();
-		light->SetActive(true);
-		light->SetColor({ 0.0f, 1.0f, 0.0f });
-		light->SetLuminance(5.0f);
-		light->SetRadius(2.0f);
-		lightComponent.m_Light = light;
+		{
+			LightComponent& lightComponent = player->AddComponent<LightComponent>();
+			OmniLight* light = new OmniLight();
+			light->SetActive(true);
+			light->SetColor({ 0.0f, 1.0f, 0.0f });
+			light->SetLuminance(5.0f);
+			light->SetRadius(2.0f);
+			light->SetAttenuation({ 0.0f, 0.0f, 5.0f });
+			lightComponent.m_Light = light;
+		}
+
+		{
+			Entity* lightEntity = world->CreateEntity();
+			lightEntity->SetGlobalOrientation(glm::quat(0.0f, 1.0f, 0.0f, 0.0f));
+			LightComponent& lightComponent = lightEntity->AddComponent<LightComponent>();
+			DirectionalLight* light = new DirectionalLight();
+			light->SetActive(true);
+			light->SetColor({ 0.9922f, 0.9843f, 0.8275f });
+			light->SetLuminance(1.0f);
+			lightComponent.m_Light = light;
+		}
 
 		RenderBackend::g_Device->WaitIdle();
 

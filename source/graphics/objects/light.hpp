@@ -46,9 +46,12 @@ namespace Khan
 
 		inline float GetRadius() const { return m_Radius; }
 		inline void SetRadius(float value) { m_Radius = value; }
+		inline const glm::vec3& GetAttenuation() const { return m_Attenuation; }
+		inline void SetAttenuation(const glm::vec3& value) { m_Attenuation = value; }
 
 	private:
 		float m_Radius;
+		glm::vec3 m_Attenuation;
 	};
 
 	class SpotLight : public Light
@@ -58,12 +61,18 @@ namespace Khan
 
 		inline float GetRange() const { return m_Range; }
 		inline void SetRange(float value) { m_Range = value; }
-		inline float GetAngle() const { return m_Angle; }
-		inline void SetAngle(float value) { m_Angle = value; }
+		inline float GetInnerConeAngle() const { return m_InnerConeAngle; }
+		inline void SetInnerConeAngle(float value) { m_InnerConeAngle = value; }
+		inline float GetOuterConeAngle() const { return m_OuterConeAngle; }
+		inline void SetOuterConeAngle(float value) { m_OuterConeAngle = value; }
+		inline const glm::vec3& GetAttenuation() const { return m_Attenuation; }
+		inline void SetAttenuation(const glm::vec3& value) { m_Attenuation = value; }
 
 	private:
-		float m_Angle;
 		float m_Range;
+		float m_InnerConeAngle;
+		float m_OuterConeAngle;
+		glm::vec3 m_Attenuation;
 	};
 
 	class AreaLight : public Light

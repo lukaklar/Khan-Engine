@@ -10,7 +10,9 @@ struct Light
     float  m_Range;
 	float3 m_Color;
 	float  m_Luminance;
-	float  m_SpotlightAngle;
+    float3 m_Attenuation;
+    float  m_InnerConeAngle;
+    float  m_OuterConeAngle;
     float3 m_Padding;
 };
 

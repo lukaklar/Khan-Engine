@@ -92,7 +92,7 @@ void CS_CullLights(uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupID :
             }
             case SPOT_LIGHT:
             {
-                float coneRadius = tan(radians(light.m_SpotlightAngle)) * light.m_Range;
+                float coneRadius = tan(radians(light.m_OuterConeAngle)) * light.m_Range;
                 Cone cone = { light.m_PositionVS, light.m_Range, light.m_DirectionVS, coneRadius };
                 if (ConeIntersectsCluster(cone, gs_GroupCluster))
                 {

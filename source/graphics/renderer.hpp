@@ -27,7 +27,9 @@ namespace Khan
 		float m_Range;
 		glm::vec3 m_Color;
 		float m_Luminance;
-		float m_SpotlightAngle;
+		glm::vec3 m_Attenuation;
+		float m_InnerConeAngle;
+		float m_OuterConeAngle;
 		float m_Padding[3];
 	};
 
