@@ -358,7 +358,7 @@ namespace Khan
 		motionComponent.m_MovementSpeed = 1.0f;
 		motionComponent.m_RotationSpeed = 0.2f;
 
-		{
+		/*{
 			LightComponent& lightComponent = player->AddComponent<LightComponent>();
 			OmniLight* light = new OmniLight();
 			light->SetActive(true);
@@ -366,6 +366,19 @@ namespace Khan
 			light->SetLuminance(5.0f);
 			light->SetRadius(2.0f);
 			light->SetAttenuation({ 0.0f, 0.0f, 5.0f });
+			lightComponent.m_Light = light;
+		}*/
+
+		{
+			LightComponent& lightComponent = player->AddComponent<LightComponent>();
+			SpotLight* light = new SpotLight();
+			light->SetActive(true);
+			light->SetColor({ 0.0f, 1.0f, 0.0f });
+			light->SetLuminance(5.0f);
+			light->SetRange(2.0f);
+			light->SetAttenuation({ 0.0f, 0.0f, 1.0f });
+			light->SetInnerConeAngle(glm::cos(glm::radians(12.5f)));
+			light->SetOuterConeAngle(glm::cos(glm::radians(15.0f)));
 			lightComponent.m_Light = light;
 		}
 
