@@ -127,9 +127,10 @@ void CS_DeferredLighting(uint3 groupID           : SV_GroupID,
                 if (distance > light.m_Range) continue;
                 L /= distance;
                 float theta = dot(L, normalize(-light.m_DirectionVS));
-                if (theta < light.m_OuterConeAngle) continue;
+                float cosOuterAngle = cos(light.m_OuterConeAngle);
+                if (theta < cosOuterAngle) continue;
                 float edgeSmoothness1 = 1.0f - smoothstep(light.m_Range * 0.75f, light.m_Range, distance);
-                float edgeSmoothness2 = 1.0f - smoothstep(light.m_InnerConeAngle, light.m_OuterConeAngle, theta);
+                float edgeSmoothness2 = 1.0f - smoothstep(cos(light.m_InnerConeAngle), cosOuterAngle, theta);
                 float attenuation = 1.0 / (light.m_Attenuation.x + light.m_Attenuation.y * distance + light.m_Attenuation.z * distance * distance);
                 radiance = light.m_Color * attenuation * edgeSmoothness1 * edgeSmoothness2 * light.m_Luminance;
                 break;

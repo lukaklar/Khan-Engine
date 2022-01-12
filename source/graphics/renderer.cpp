@@ -87,7 +87,7 @@ namespace Khan
 		DestroyClustersBuffer();
 
 		BufferDesc desc;
-		desc.m_Size = 2 * 4 * sizeof(float) * m_TotalNumClusters;
+		desc.m_Size = 3 * 4 * sizeof(float) * m_TotalNumClusters;
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 		m_ResourceBoard.m_Persistent.m_Clusters = RenderBackend::g_Device->CreateBuffer(desc);
 		KH_DEBUGONLY(m_ResourceBoard.m_Persistent.m_Clusters->SetDebugName("Frustum Clusters"));

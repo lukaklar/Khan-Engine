@@ -377,8 +377,8 @@ namespace Khan
 			light->SetLuminance(5.0f);
 			light->SetRange(2.0f);
 			light->SetAttenuation({ 0.0f, 0.0f, 1.0f });
-			light->SetInnerConeAngle(glm::cos(glm::radians(12.5f)));
-			light->SetOuterConeAngle(glm::cos(glm::radians(15.0f)));
+			light->SetInnerConeAngle(glm::radians(12.5f));
+			light->SetOuterConeAngle(glm::radians(15.0f));
 			lightComponent.m_Light = light;
 		}
 

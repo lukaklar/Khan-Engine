@@ -63,6 +63,8 @@ void CS_ComputeCluster(uint3 dispatchThreadID : SV_DispatchThreadID)
     Cluster cluster;
     cluster.m_AABBMin = min(min(minPointNear, minPointFar), min(maxPointNear, maxPointFar));
     cluster.m_AABBMax = max(max(minPointNear, minPointFar), max(maxPointNear, maxPointFar));
+    cluster.m_SphereCenter = (cluster.m_AABBMin + cluster.m_AABBMax) / 2;
+    cluster.m_SphereRadius = length(cluster.m_AABBMax - cluster.m_SphereCenter);
 
     if (dispatchThreadID.x < g_ClusterCount.x && dispatchThreadID.y < g_ClusterCount.y && dispatchThreadID.z < g_ClusterCount.z)
     {

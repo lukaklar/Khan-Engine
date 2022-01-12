@@ -22,4 +22,6 @@ struct Cluster
 	float  m_Padding1;
     float3 m_AABBMax;
 	float  m_Padding2;
+    float3 m_SphereCenter;
+    float  m_SphereRadius;
 };

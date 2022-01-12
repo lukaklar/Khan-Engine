@@ -8,10 +8,10 @@ struct Sphere
 
 struct Cone
 {
-    float3 m_Tip;       // Cone tip.
-    float  m_Height;    // Height of the cone.
-    float3 m_Direction; // Direction of the cone.
-    float  m_Radius;    // Bottom radius of the cone.
+    float3 m_Origin;
+    float  m_Angle;
+    float3 m_Forward;
+    float  m_Size;
 };
 
 cbuffer LightListParams : register(b0)
@@ -53,7 +53,16 @@ bool SphereIntersectsCluster(Sphere sphere, Cluster cluster)
 
 bool ConeIntersectsCluster(Cone cone, Cluster cluster)
 {
-    return true;
+    float3 V = cluster.m_SphereCenter - cone.m_Origin;
+    float VlenSq = dot(V, V);
+    float V1len = dot(V, cone.m_Forward);
+    float distanceClosestPoint = cos(cone.m_Angle) * sqrt(VlenSq - V1len * V1len) - V1len * sin(cone.m_Angle);
+ 
+    bool angleCull = distanceClosestPoint > cluster.m_SphereRadius;
+    bool frontCull = V1len > cluster.m_SphereRadius + cone.m_Size;
+    bool backCull = V1len < -cluster.m_SphereRadius;
+    
+    return !(angleCull || frontCull || backCull);
 }
 
 [numthreads(128, 1, 1)]
@@ -92,8 +101,7 @@ void CS_CullLights(uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupID :
             }
             case SPOT_LIGHT:
             {
-                float coneRadius = tan(radians(light.m_OuterConeAngle)) * light.m_Range;
-                Cone cone = { light.m_PositionVS, light.m_Range, light.m_DirectionVS, coneRadius };
+                Cone cone = { light.m_PositionVS, light.m_OuterConeAngle, light.m_DirectionVS, light.m_Range };
                 if (ConeIntersectsCluster(cone, gs_GroupCluster))
                 {
                     AppendLight(i);
