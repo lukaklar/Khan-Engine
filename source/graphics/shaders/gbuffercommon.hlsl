@@ -1,3 +1,5 @@
+#include "deferredcommon.hlsl"
+
 struct VS_IN
 {
     float3 m_Position  : POSITION;
@@ -44,7 +46,7 @@ VS_TO_PS VS_Common(VS_IN In)
 struct PS_OUT
 {
     float4 m_Albedo     : SV_Target0;
-    float3 m_Normal     : SV_Target1;
+    float2 m_Normal     : SV_Target1;
     float3 m_Emissive   : SV_Target2;
     float2 m_PBRConsts  : SV_Target3; // metallic and rougness
 };
@@ -70,7 +72,7 @@ PS_OUT PS_Common(VS_TO_PS In)
                             normalize(In.m_NormalVS));
     
     Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
-    Out.m_Normal = normalize(mul((g_NormalsTexture.Sample(g_DefaultSampler, In.m_TexCoord).xyz * 2.0f - 1.0f), TBN)) * 0.5f + 0.5f;
+    Out.m_Normal = EncodeNormal(mul((g_NormalsTexture.Sample(g_DefaultSampler, In.m_TexCoord).xyz * 2.0f - 1.0f), TBN));
     Out.m_Emissive = float3(0.0f, 0.0f, 0.0f);
     Out.m_PBRConsts = float2(g_MetalnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x, g_RoughnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x);
 
@@ -83,7 +85,7 @@ PS_OUT PS_CommonNoNormals(VS_TO_PS In)
     PS_OUT Out;
     
     Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
-    Out.m_Normal = float3(0.0, 0.0, 0.0);
+    Out.m_Normal = float2(0.0, 0.0);
     Out.m_Emissive = float3(0.0, 0.0, 0.0);
     Out.m_PBRConsts = float2(g_MetalnessTexture.Sample(g_DefaultSampler, In.m_TexCoord).x, 0.5f);
     
@@ -95,7 +97,7 @@ PS_OUT PS_CommonDiffuseOnly(VS_TO_PS In)
     PS_OUT Out;
     
     Out.m_Albedo = g_DiffuseTexture.Sample(g_DefaultSampler, In.m_TexCoord);
-    Out.m_Normal = float3(0.0, 0.0, 0.0);
+    Out.m_Normal = float2(0.0, 0.0);
     Out.m_Emissive = float3(0.0, 0.0, 0.0);
     Out.m_PBRConsts = float2(1.0, 0.0);
     
@@ -107,7 +109,7 @@ PS_OUT PS_GBufferTest(VS_TO_PS In)
     PS_OUT Out;
     
     Out.m_Albedo = float4(In.m_TexCoord, 0.0f, 1.0f);
-    Out.m_Normal = float3(0.0f, 1.0f, 0.0f);
+    Out.m_Normal = float2(0.0f, 1.0f);
     Out.m_Emissive = float3(0.0f, 0.0f, 0.0f);
     Out.m_PBRConsts = float2(0.5f, 0.5f);
     

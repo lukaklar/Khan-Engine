@@ -1,4 +1,5 @@
 #include "clustercommon.hlsl"
+#include "deferredcommon.hlsl"
 #include "pbrcommon.hlsl"
 
 cbuffer FrustumParams : register(b0)
@@ -65,8 +66,7 @@ SurfaceData UnpackGBuffer(int3 location)
     
     Out.m_Albedo = g_GBuffer_Albedo.Load(location);
     
-	Out.m_Normal = g_GBuffer_Normals.Load(location).rgb;
-	Out.m_Normal = normalize(Out.m_Normal * 2.0 - 1.0);
+    Out.m_Normal = DecodeNormal(g_GBuffer_Normals.Load(location).rg);
     
     float2 metallicAndRoughness = g_GBuffer_PBRConsts.Load(location).rg;
 	Out.m_Metallic = metallicAndRoughness.r;

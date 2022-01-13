@@ -38,7 +38,7 @@ namespace Khan
 		PhysicalRenderPassDescription desc;
 		desc.m_RenderTargetCount = 4;
 		POPULATE_RENDER_TARGET_DATA(0, PF_R8G8B8A8_SRGB, StartAccessType::Clear, EndAccessType::Keep);
-		POPULATE_RENDER_TARGET_DATA(1, PF_R11G11B10_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
+		POPULATE_RENDER_TARGET_DATA(1, PF_R16G16_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
 		POPULATE_RENDER_TARGET_DATA(2, PF_R11G11B10_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
 		POPULATE_RENDER_TARGET_DATA(3, PF_R16G16_FLOAT, StartAccessType::Clear, EndAccessType::Keep);
 		desc.m_DepthStencil.m_Format = PF_D32_FLOAT;
@@ -78,7 +78,7 @@ namespace Khan
 		viewDesc.m_LevelCount = 1;
 
 		DECLARE_GBUFFER_OUTPUT(Albedo, PF_R8G8B8A8_SRGB, ResourceState_RenderTarget);
-		DECLARE_GBUFFER_OUTPUT(Normals, PF_R11G11B10_FLOAT, ResourceState_RenderTarget);
+		DECLARE_GBUFFER_OUTPUT(Normals, PF_R16G16_FLOAT, ResourceState_RenderTarget);
 		DECLARE_GBUFFER_OUTPUT(Emissive, PF_R11G11B10_FLOAT, ResourceState_RenderTarget);
 		DECLARE_GBUFFER_OUTPUT(PBRConsts, PF_R16G16_FLOAT, ResourceState_RenderTarget);
 		

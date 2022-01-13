@@ -1,3 +1,5 @@
+#include "deferredcommon.hlsl"
+
 cbuffer FrustumParams : register(b0)
 {
     float4x4 g_Projection;
@@ -51,7 +53,7 @@ void CS_SSAOCalculate(uint3 groupID           : SV_GroupID,
     
     float depth = g_GBuffer_Depth.Load(texCoord).r;
     float3 positionVS = ScreenToView(float4(texCoord.xy, depth, 1.0f)).xyz;
-    float3 normalVS = normalize(g_GBuffer_Normals.Load(texCoord).rgb * 2.0f - 1.0f);
+    float3 normalVS = DecodeNormal(g_GBuffer_Normals.Load(texCoord).rg);
     float3 randomVec = g_Noise[(groupThreadID.y & 3) * 4 + groupThreadID.x & 3];
     
     float3 tangent = normalVS; //normalize(randomVec - normalVS * dot(randomVec, normalVS));
