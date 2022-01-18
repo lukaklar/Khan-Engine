@@ -13,10 +13,16 @@ namespace Khan
 		, m_FrustumParams(sizeof(FrustumParams))
 		, m_FrustumParamsChanged(true)
 	{
+		BufferDesc desc;
+
+		desc.m_Size = sizeof(float);
+		desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_AllowUnorderedAccess;
+		m_ResourceBoard.m_Persistent.m_AdaptedLuminance = RenderBackend::g_Device->CreateBuffer(desc);
 	}
 
 	Renderer::~Renderer()
 	{
+		RenderBackend::g_Device->DestroyBuffer(m_ResourceBoard.m_Persistent.m_AdaptedLuminance);
 		DestroyClustersBuffer();
 	}
 
@@ -74,7 +80,8 @@ namespace Khan
 		rg.AddPass(m_SSAOPass);
 		rg.AddPass(m_DeferredLightingPass);
 		//rg.AddPass(m_TransparentPass);
-		rg.AddPass(m_HDRPass);
+		rg.AddPass(m_AdaptationPass);
+		rg.AddPass(m_TonemappingPass);
 		rg.AddPass(m_FXAAPass);
 		rg.AddPass(m_FinalPass);
 

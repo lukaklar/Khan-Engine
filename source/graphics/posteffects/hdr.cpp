@@ -18,26 +18,21 @@
 
 namespace Khan
 {
-	/*HDRPass::HDRPass()
-		: RenderPass(QueueType_Compute, "HDRPass")
-		, m_DownScaleConstants(4 * sizeof(uint32_t))
-		, m_TonemapConstants(2 * sizeof(float))
+	LuminanceAdaptationPass::LuminanceAdaptationPass()
+		: RenderPass(QueueType_Compute, "LuminanceAdaptationPass")
+		, m_LuminanceHistogramBuffer(16)
+		, m_LuminanceHistogramAverageBuffer(20)
 	{
-		{
-			ComputePipelineDescription desc;
+		ComputePipelineDescription desc;
 
-			desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("DownScalePass1_CS", "CS_DownScalePass1");
-			m_DownScalePass1PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("computehistogram_CS", "CS_ComputeHistogram");
+		m_ComputeHistogramPipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
 
-			desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("DownScalePass2_CS", "CS_DownScalePass2");
-			m_DownScalePass2PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
-
-			desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("TonemapPass_CS", "CS_TonemapPass");
-			m_TonemapPassPipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
-		}
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("averagehistogram_CS", "CS_AverageHistogram");
+		m_AverageHistogramPipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
 	}
 
-	void HDRPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
+	void LuminanceAdaptationPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
 		renderGraph.EnableAsyncCompute(true);
 
@@ -46,23 +41,26 @@ namespace Khan
 			BufferDesc desc;
 			BufferViewDesc viewDesc;
 
-			desc.m_Size = sizeof(float) * 1280 * 720 / (16 * 1024);
-			desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_AllowUnorderedAccess;
+			desc.m_Size = K_NUM_HISTOGRAM_BINS * sizeof(uint32_t);
+			desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_AllowUnorderedAccess | BufferFlag_Writable;
 			temp = renderGraph.CreateManagedResource(desc);
 
 			viewDesc.m_Offset = 0;
-			viewDesc.m_Range = desc.m_Size;
-			viewDesc.m_Format = PF_NONE;
-			m_IntermediateLuminanceValues = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
+			viewDesc.m_Range = temp->GetDesc().m_Size;
+			viewDesc.m_Format = PF_R32_UINT;
+			m_Histogram = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_CopyDestination);
 
-			desc.m_Size = sizeof(float);
-			temp = renderGraph.CreateManagedResource(desc);
 
-			viewDesc.m_Range = desc.m_Size;
-			m_AverageLuminanceValue = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
+			temp = renderer.GetResourceBoard().m_Persistent.m_AdaptedLuminance;
+			viewDesc.m_Offset = 0;
+			viewDesc.m_Range = temp->GetDesc().m_Size;
+			viewDesc.m_Format = PF_R32_FLOAT;
+			m_Luminance = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 		}
 
 		{
+			Texture* temp;
+
 			TextureViewDesc viewDesc;
 			viewDesc.m_Type = TextureViewType_2D;
 			viewDesc.m_BaseArrayLayer = 0;
@@ -70,89 +68,107 @@ namespace Khan
 			viewDesc.m_BaseMipLevel = 0;
 			viewDesc.m_LevelCount = 1;
 
-			viewDesc.m_Format = renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer->GetDesc().m_Format;
-			m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer, viewDesc, ResourceState_NonPixelShaderAccess);
-
-			viewDesc.m_Format = renderer.GetResourceBoard().m_Persistent.m_FinalOutput->GetDesc().m_Format;
-			m_HDROutput = renderGraph.DeclareResourceDependency(renderer.GetResourceBoard().m_Persistent.m_FinalOutput, viewDesc, ResourceState_UnorderedAccess);
+			temp = renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer;
+			viewDesc.m_Format = temp->GetDesc().m_Format;
+			m_HDRTexture = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 		}
 	}
 
-	void HDRPass::Execute(RenderContext& context, Renderer& renderer)
+	void LuminanceAdaptationPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		uint32_t threadGroupCountX = static_cast<uint32_t>(glm::ceil(1280.0f * 720.0f / (16.0f * 1024.0f)));
-		uint32_t downScaleConsts[4] = { 1280, 720, 1280 * 720 / 16, threadGroupCountX };
-		m_DownScaleConstants.UpdateConstantData(downScaleConsts, 0, sizeof(downScaleConsts));
+		uint32_t width = renderer.GetActiveCamera()->GetViewportWidth();
+		uint32_t height = renderer.GetActiveCamera()->GetViewportHeight();
+		float oneOverLogLuminanceRange = 1.0f / (K_MAX_LOG_LUMINANCE - K_MIN_LOG_LUMINANCE);
 
-		context.SetPipelineState(*m_DownScalePass1PipelineState);
+		m_LuminanceHistogramBuffer.UpdateConstantData(&width, 0, 4);
+		m_LuminanceHistogramBuffer.UpdateConstantData(&height, 4, 4);
+		m_LuminanceHistogramBuffer.UpdateConstantData(&K_MIN_LOG_LUMINANCE, 8, 4);
+		m_LuminanceHistogramBuffer.UpdateConstantData(&oneOverLogLuminanceRange, 12, 4);
 
-		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_DownScaleConstants);
-		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_LightAccumulationBuffer);
-		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_IntermediateLuminanceValues);
-		
-		context.Dispatch(threadGroupCountX, 1, 1);
+		context.ClearBuffer(m_Histogram, 0);
+		context.SetPipelineState(*m_ComputeHistogramPipelineState);
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_LuminanceHistogramBuffer);
+		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_HDRTexture);
+		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_Histogram);
 
-		context.SetPipelineState(*m_DownScalePass2PipelineState);
+		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)width / 16);
+		uint32_t threadGroupCountY = (uint32_t)glm::ceil((float)height / 16);
+		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 
-		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 0, m_IntermediateLuminanceValues);
-		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_AverageLuminanceValue);
+		uint32_t pixelCount = width * height;
+		float logLuminanceRange = K_MAX_LOG_LUMINANCE - K_MIN_LOG_LUMINANCE;
+		std::chrono::steady_clock::time_point timeNow = std::chrono::steady_clock::now();
+		std::chrono::duration<float> elapsed_seconds = timeNow - m_LastFrameTime;
+		m_LastFrameTime = timeNow;
+		float deltaTime = elapsed_seconds.count();
+
+		m_LuminanceHistogramAverageBuffer.UpdateConstantData(&pixelCount, 0, 4);
+		m_LuminanceHistogramAverageBuffer.UpdateConstantData(&K_MIN_LOG_LUMINANCE, 4, 4);
+		m_LuminanceHistogramAverageBuffer.UpdateConstantData(&logLuminanceRange, 8, 4);
+		m_LuminanceHistogramAverageBuffer.UpdateConstantData(&deltaTime, 12, 4);
+		m_LuminanceHistogramAverageBuffer.UpdateConstantData(&K_TAU, 16, 4);
+
+		context.SetPipelineState(*m_AverageHistogramPipelineState);
+		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_LuminanceHistogramAverageBuffer);
+		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 0, m_Histogram);
+		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_Luminance);
 
 		context.Dispatch(1, 1, 1);
+	}
 
-		float tonemapConsts[2] = { 0.5, 1 };
-		m_TonemapConstants.UpdateConstantData(tonemapConsts, 0, sizeof(tonemapConsts));
-
-		context.SetPipelineState(*m_TonemapPassPipelineState);
-
-		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_LightAccumulationBuffer);
-		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 1, m_AverageLuminanceValue);
-		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_HDROutput);
-
-		uint32_t threadGroupsX = static_cast<uint32_t>(glm::ceil(1280.0f / 32.0f));
-		uint32_t threadGroupsY = static_cast<uint32_t>(glm::ceil(720.0f / 32.0f));
-
-		context.Dispatch(threadGroupsX, threadGroupsY, 1);
-	}*/
-
-	HDRPass::HDRPass()
-		: RenderPass(QueueType_Compute, "HDRPass")
+	TonemappingPass::TonemappingPass()
+		: RenderPass(QueueType_Compute, "TonemappingPass")
 	{
 		ComputePipelineDescription desc;
-		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("hdr_CS", "CS_Tonemapping");
+		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("tonemap_CS", "CS_Tonemap");
 		m_PipelineState = RenderBackend::g_Device->CreateComputePipelineState(desc);
 	}
 
-	void HDRPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
+	void TonemappingPass::Setup(RenderGraph& renderGraph, Renderer& renderer)
 	{
 		renderGraph.EnableAsyncCompute(true);
 
-		Texture* temp;
+		{
+			Buffer* temp = renderer.GetResourceBoard().m_Persistent.m_AdaptedLuminance;
 
-		TextureViewDesc viewDesc;
-		viewDesc.m_Type = TextureViewType_2D;
-		viewDesc.m_BaseArrayLayer = 0;
-		viewDesc.m_LayerCount = 1;
-		viewDesc.m_BaseMipLevel = 0;
-		viewDesc.m_LevelCount = 1;
+			BufferViewDesc viewDesc;
+			viewDesc.m_Offset = 0;
+			viewDesc.m_Range = temp->GetDesc().m_Size;
+			viewDesc.m_Format = PF_R32_FLOAT;
 
-		temp = renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer;
-		viewDesc.m_Format = temp->GetDesc().m_Format;
-		m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+			m_AdaptedLuminance = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+		}
 
-		temp = renderer.GetResourceBoard().m_Persistent.m_FinalOutput;
-		viewDesc.m_Format = temp->GetDesc().m_Format;
-		temp = renderGraph.CreateManagedResource(temp->GetDesc());
-		KH_DEBUGONLY(temp->SetDebugName("Temp PostFX"));
-		renderer.GetResourceBoard().m_Transient.m_TempPostFxSurface = temp;
-		m_HDROutput = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
+		{
+			Texture* temp;
 
-		renderer.GetResourceBoard().SwapPostFXSurfaces();
+			TextureViewDesc viewDesc;
+			viewDesc.m_Type = TextureViewType_2D;
+			viewDesc.m_BaseArrayLayer = 0;
+			viewDesc.m_LayerCount = 1;
+			viewDesc.m_BaseMipLevel = 0;
+			viewDesc.m_LevelCount = 1;
+
+			temp = renderer.GetResourceBoard().m_Transient.m_LightAccumulationBuffer;
+			viewDesc.m_Format = temp->GetDesc().m_Format;
+			m_LightAccumulationBuffer = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
+
+			temp = renderer.GetResourceBoard().m_Persistent.m_FinalOutput;
+			viewDesc.m_Format = temp->GetDesc().m_Format;
+			temp = renderGraph.CreateManagedResource(temp->GetDesc());
+			KH_DEBUGONLY(temp->SetDebugName("Temp PostFX"));
+			renderer.GetResourceBoard().m_Transient.m_TempPostFxSurface = temp;
+			m_HDROutput = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
+
+			renderer.GetResourceBoard().SwapPostFXSurfaces();
+		}
 	}
 
-	void HDRPass::Execute(RenderContext& context, Renderer& renderer)
+	void TonemappingPass::Execute(RenderContext& context, Renderer& renderer)
 	{
 		context.SetPipelineState(*m_PipelineState);
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_LightAccumulationBuffer);
+		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 1, m_AdaptedLuminance);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_HDROutput);
 
 		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);

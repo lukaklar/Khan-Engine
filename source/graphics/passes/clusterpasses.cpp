@@ -124,7 +124,7 @@ namespace Khan
 			BufferViewDesc viewDesc;
 
 			desc.m_Size = renderer.GetTotalNumClusters() * sizeof(uint32_t);
-			desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_AllowUnorderedAccess;
+			desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_AllowUnorderedAccess | BufferFlag_Writable;
 
 			temp = renderGraph.CreateManagedResource(desc);
 			KH_DEBUGONLY(temp->SetDebugName("Active Cluster Flags"));
@@ -133,7 +133,7 @@ namespace Khan
 			viewDesc.m_Offset = 0;
 			viewDesc.m_Range = temp->GetDesc().m_Size;
 			viewDesc.m_Format = PF_R32_UINT;
-			m_ActiveClusterFlags = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_PixelShaderWrite);
+			m_ActiveClusterFlags = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_CopyDestination);
 		}
 
 		{
@@ -153,6 +153,7 @@ namespace Khan
 
 	void MarkActiveClustersPass::Execute(RenderContext& context, Renderer& renderer)
 	{
+		context.ClearBuffer(m_ActiveClusterFlags, 0);
 		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_DepthTexture);
 		context.SetPipelineState(*m_PipelineState);
 		context.SetViewport(0.0f, 0.0f, (float)renderer.GetActiveCamera()->GetViewportWidth(), (float)renderer.GetActiveCamera()->GetViewportHeight());

@@ -86,10 +86,10 @@ namespace Khan
 		CompactActiveClustersPass m_CompactActiveClustersPass;
 		LightCullingPass m_LightCullingPass;
 		ClusterDeferredLightingPass m_DeferredLightingPass;
-		//DeferredLightingPass m_DeferredLightingPass;
 		//TransparentPass m_TransparentPass;
 		SSAOPass m_SSAOPass;
-		HDRPass m_HDRPass;
+		LuminanceAdaptationPass m_AdaptationPass;
+		TonemappingPass m_TonemappingPass;
 		FXAAPass m_FXAAPass;
 		FinalPass m_FinalPass;
 

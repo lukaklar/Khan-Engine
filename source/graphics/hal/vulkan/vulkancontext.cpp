@@ -382,6 +382,19 @@ namespace Khan
 		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), buffer, 1, &copy);
 	}
 
+	void VulkanRenderContext::ClearBuffer(BufferView* buffer, uint32_t clearValue)
+	{
+		m_CommandType = CommandType::Copy;
+
+		VulkanBufferView* view = reinterpret_cast<VulkanBufferView*>(buffer);
+		const VulkanBuffer& vulkanBuffer = reinterpret_cast<const VulkanBuffer&>(buffer->GetBuffer());
+
+		m_BarrierRecorder.RecordBarrier(*view, ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
+		m_BarrierRecorder.Flush(m_CommandBuffer);
+
+		vkCmdFillBuffer(m_CommandBuffer, vulkanBuffer.GetVulkanBuffer(), buffer->GetDesc().m_Offset, buffer->GetDesc().m_Range, clearValue);
+	}
+
 	void VulkanRenderContext::CopyTexture(TextureView* src, const glm::ivec3& srcOffset, TextureView* dst, const glm::ivec3& dstOffset, const glm::uvec3& size)
 	{
 		m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanTextureView*>(src), ResourceState_CopySource, m_ExecutingPass->GetExecutionQueue());

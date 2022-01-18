@@ -312,7 +312,7 @@ namespace Khan
 	{
 		if (m_BufferBarrierCount > 0 || m_ImageBarrierCount > 0)
 		{
-			vkCmdPipelineBarrier(commandBuffer, m_SrcStages, m_DstStages, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, m_BufferBarrierCount, m_BufferBarriers, m_ImageBarrierCount, m_ImageBarriers);
+			vkCmdPipelineBarrier(commandBuffer, m_SrcStages, m_DstStages, VK_DEPENDENCY_BY_REGION_BIT, m_MemoryBarrierCount, m_MemoryBarriers, m_BufferBarrierCount, m_BufferBarriers, m_ImageBarrierCount, m_ImageBarriers);
 			Reset();
 		}
 	}

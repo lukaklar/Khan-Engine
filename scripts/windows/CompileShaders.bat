@@ -20,7 +20,9 @@ if not exist "..\..\bin\shaders\vulkan\" mkdir ..\..\bin\shaders\vulkan
 %~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_DeferredLighting -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\deferredlighting.hlsl -Fo ..\..\bin\shaders\vulkan\deferredlighting_CS.spv
 %~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_DeferredLighting -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\clusterdeferredlighting.hlsl -Fo ..\..\bin\shaders\vulkan\clusterdeferredlighting_CS.spv
 
-%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_Tonemapping -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\hdr_CS.spv
+%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_ComputeHistogram -D COMPUTE_HISTOGRAM -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\computehistogram_CS.spv
+%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_AverageHistogram -D AVERAGE_HISTOGRAM -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\averagehistogram_CS.spv
+%~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_Tonemap -D TONEMAP -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\hdr.hlsl -Fo ..\..\bin\shaders\vulkan\tonemap_CS.spv
 
 %~dp0..\..\extern\VulkanSDK\Windows\Bin\dxc.exe -spirv -fvk-use-dx-layout -T cs_6_0 -E CS_FXAAFilter -fvk-b-shift 0 0 -fvk-t-shift 4 0 -fvk-u-shift 12 0 ..\..\source\graphics\shaders\fxaa.hlsl -Fo ..\..\bin\shaders\vulkan\fxaa_filter_CS.spv
 

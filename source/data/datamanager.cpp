@@ -389,7 +389,7 @@ namespace Khan
 			DirectionalLight* light = new DirectionalLight();
 			light->SetActive(true);
 			light->SetColor({ 0.9922f, 0.9843f, 0.8275f });
-			light->SetLuminance(1.0f);
+			light->SetLuminance(10.0f);
 			lightComponent.m_Light = light;
 		}
 

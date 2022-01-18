@@ -53,6 +53,7 @@ namespace Khan
 		virtual void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
 		virtual void DispatchIndirect(BufferView* buffer, uint32_t offset) override;
 
+		virtual void ClearBuffer(BufferView* buffer, uint32_t clearValue) override;
 		virtual void CopyTexture(TextureView* src, const glm::ivec3& srcOffset, TextureView* dst, const glm::ivec3& dstOffset, const glm::uvec3& size) override;
 
 		virtual void UpdateBufferFromHost(BufferView* dst, const void* src) override;

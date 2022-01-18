@@ -8,37 +8,40 @@ namespace Khan
 	class TextureView;
 	struct RenderPipelineState;
 
-	/*class HDRPass : public RenderPass
+	class LuminanceAdaptationPass : public RenderPass
 	{
 	public:
-		HDRPass();
+		LuminanceAdaptationPass();
 
 		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
-		ConstantBuffer m_DownScaleConstants;
-		ConstantBuffer m_TonemapConstants;
+		BufferView* m_Histogram;
+		BufferView* m_Luminance;
+		TextureView* m_HDRTexture;
+		RenderPipelineState* m_ComputeHistogramPipelineState;
+		RenderPipelineState* m_AverageHistogramPipelineState;
+		ConstantBuffer m_LuminanceHistogramBuffer;
+		ConstantBuffer m_LuminanceHistogramAverageBuffer;
+		std::chrono::steady_clock::time_point m_LastFrameTime;
 
-		BufferView* m_IntermediateLuminanceValues;
-		BufferView* m_AverageLuminanceValue;
+		inline static constexpr uint32_t K_NUM_HISTOGRAM_BINS = 256;
+		inline static constexpr float K_MIN_LOG_LUMINANCE = -10.0f;
+		inline static constexpr float K_MAX_LOG_LUMINANCE = 2.0f;
+		inline static constexpr float K_TAU = 1.1f;
+	};
 
-		TextureView* m_LightAccumulationBuffer;
-		TextureView* m_HDROutput;
-		RenderPipelineState* m_DownScalePass1PipelineState;
-		RenderPipelineState* m_DownScalePass2PipelineState;
-		RenderPipelineState* m_TonemapPassPipelineState;
-	};*/
-
-	class HDRPass : public RenderPass
+	class TonemappingPass : public RenderPass
 	{
 	public:
-		HDRPass();
+		TonemappingPass();
 
 		virtual void Setup(RenderGraph& renderGraph, Renderer& renderer) override;
 		virtual void Execute(RenderContext& context, Renderer& renderer) override;
 
 	private:
+		BufferView* m_AdaptedLuminance;
 		TextureView* m_LightAccumulationBuffer;
 		TextureView* m_HDROutput;
 		RenderPipelineState* m_PipelineState;

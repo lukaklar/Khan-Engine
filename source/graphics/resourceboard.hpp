@@ -12,6 +12,7 @@ namespace Khan
 		struct
 		{
 			Buffer* m_Clusters = nullptr;
+			Buffer* m_AdaptedLuminance = nullptr;
 			Texture* m_FinalOutput = nullptr;
 		} m_Persistent;
 

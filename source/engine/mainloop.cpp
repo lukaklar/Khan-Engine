@@ -25,10 +25,10 @@ namespace Khan
 			std::chrono::duration<float> elapsed_seconds = end - start;
 			dt = elapsed_seconds.count();
 			timer += dt;
-			if (timer > 1.0)
+			if (timer > 1.0f)
 			{
 				OutputDebugString((std::to_string(frames) + "\n").c_str());
-				timer = 0.0;
+				timer = 0.0f;
 				frames = 0;
 			}
 			frames++;
