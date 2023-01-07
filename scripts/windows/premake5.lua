@@ -74,7 +74,7 @@ filter "configurations:Final"
 	optimize "Speed"
 	symbols "Off"
 
-workspace "khan.engine.lib.vs2019.windows"
+workspace "khan.engine.lib.vs2022.windows"
 	location "../../projects"
 	targetdir "../../bin/lib"
 	objdir "../../tmp/lib"
