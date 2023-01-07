@@ -1,9 +1,9 @@
 #include "graphics/precomp.h"
 #include "graphics/renderer.hpp"
-#include "graphics/hal/buffer.hpp"
-#include "graphics/hal/renderbackend.hpp"
-#include "graphics/hal/renderdevice.hpp"
-#include "graphics/hal/swapchain.hpp"
+#include "graphicshal/buffer.hpp"
+#include "graphicshal/renderbackend.hpp"
+#include "graphicshal/renderdevice.hpp"
+#include "graphicshal/swapchain.hpp"
 #include "core/defines.h"
 
 namespace Khan

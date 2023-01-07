@@ -1,11 +1,11 @@
 #include "data/precomp.h"
 #include "data/texturemanager.hpp"
 #include "data/stb_image/stb_image.h"
-#include "graphics/hal/pixelformats.hpp"
-#include "graphics/hal/renderbackend.hpp"
-#include "graphics/hal/renderdevice.hpp"
-#include "graphics/hal/texture.hpp"
-#include "graphics/hal/textureview.hpp"
+#include "graphicshal/pixelformats.hpp"
+#include "graphicshal/renderbackend.hpp"
+#include "graphicshal/renderdevice.hpp"
+#include "graphicshal/texture.hpp"
+#include "graphicshal/textureview.hpp"
 
 namespace Khan
 {

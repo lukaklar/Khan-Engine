@@ -1,7 +1,7 @@
 #pragma once
 #include "graphics/renderpass.hpp"
-#include "graphics/hal/constantbuffer.hpp"
-#include "graphics/hal/pipelinedescriptions.hpp"
+#include "graphicshal/constantbuffer.hpp"
+#include "graphicshal/pipelinedescriptions.hpp"
 
 namespace Khan
 {

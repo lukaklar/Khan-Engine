@@ -1,6 +1,6 @@
 #pragma once
 #include "core/boundingvolume.h"
-#include "graphics/hal/constantbuffer.hpp"
+#include "graphicshal/constantbuffer.hpp"
 
 namespace Khan
 {

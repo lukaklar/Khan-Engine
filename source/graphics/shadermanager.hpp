@@ -1,7 +1,7 @@
 #pragma once
-#include "graphics/hal/shader.hpp"
-#include "graphics/hal/renderbackend.hpp"
-#include "graphics/hal/renderdevice.hpp"
+#include "graphicshal/shader.hpp"
+#include "graphicshal/renderbackend.hpp"
+#include "graphicshal/renderdevice.hpp"
 #include "core/singleton.h"
 
 #include <fstream>

@@ -1,7 +1,7 @@
 #include "graphics/precomp.h"
 #include "graphics/rendertask.hpp"
 #include "graphics/renderpass.hpp"
-#include "graphics/hal/rendercontext.hpp"
+#include "graphicshal/rendercontext.hpp"
 
 namespace Khan
 {

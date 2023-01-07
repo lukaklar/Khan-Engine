@@ -1,6 +1,6 @@
 #pragma once
 #include "graphics/renderpass.hpp"
-#include "graphics/hal/constantbuffer.hpp"
+#include "graphicshal/constantbuffer.hpp"
 
 namespace Khan
 {

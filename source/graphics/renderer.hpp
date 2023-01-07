@@ -1,6 +1,6 @@
 #pragma once
 #include "core/camera/camera.hpp"
-#include "graphics/hal/constantbuffer.hpp"
+#include "graphicshal/constantbuffer.hpp"
 #include "graphics/passes/clusterpasses.hpp"
 #include "graphics/passes/deferredpasses.hpp"
 #include "graphics/passes/depthpasses.hpp"
