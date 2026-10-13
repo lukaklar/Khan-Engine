@@ -4,15 +4,15 @@
 
 namespace Khan
 {
-	inline static glm::vec4 GetNormalizedPlane(const glm::vec4& plane)
+	inline static Vector4 GetNormalizedPlane(const Vector4& plane)
 	{
-		float length3 = glm::sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z);
+		float length3 = Sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z);
 		return plane / length3;
 	}
 
-	void CameraFrustum::Update(const glm::mat4& viewProjMatrix)
+	void CameraFrustum::Update(const Matrix4& viewProjMatrix)
 	{
-		glm::vec4 plane;
+		Vector4 plane;
 
 		plane[0] = viewProjMatrix[0][3] + viewProjMatrix[0][0];
 		plane[1] = viewProjMatrix[1][3] + viewProjMatrix[1][0];
@@ -57,7 +57,7 @@ namespace Khan
 		{
 			case BoundingVolume::Type::Sphere:
 				{
-					const glm::vec4 center(bv.GetSphereCenter(), 1.0f);
+					const Vector4 center(bv.GetSphereCenter(), 1.0f);
 					float radius = bv.GetSphereRadius();
 
 					for (uint32_t i = 0; i < FrustumPlane::Count; ++i)
@@ -71,8 +71,8 @@ namespace Khan
 				break;
 			case BoundingVolume::Type::AABBox:
 				{
-					glm::vec4 min(bv.GetAABBoxGlobalMin());
-					glm::vec4 max(bv.GetAABBoxGlobalMax());
+					Vector4 min(bv.GetAABBoxGlobalMin());
+					Vector4 max(bv.GetAABBoxGlobalMax());
 
 					for (uint32_t i = 0; i < FrustumPlane::Count; ++i)
 					{
@@ -85,9 +85,9 @@ namespace Khan
 				break;
 			case BoundingVolume::Type::OOBBox:
 				{
-					glm::vec4 min(bv.GetOOBBoxMin(), 1.0f);
-					glm::vec4 max(bv.GetAABBoxMax(), 1.0f);
-					glm::mat4 oobbMatrix = bv.GetParentMatrix();
+					Vector4 min(bv.GetOOBBoxMin(), 1.0f);
+					Vector4 max(bv.GetAABBoxMax(), 1.0f);
+					Matrix4 oobbMatrix = bv.GetParentMatrix();
 
 					for (uint32_t i = 0; i < FrustumPlane::Count; ++i)
 					{
@@ -103,27 +103,27 @@ namespace Khan
 		return false;
 	}
 
-	KH_FORCE_INLINE bool CameraFrustum::CullPlaneSphere(const glm::vec4& plane, const glm::vec4& center, float radius) const
+	KH_FORCE_INLINE bool CameraFrustum::CullPlaneSphere(const Vector4& plane, const Vector4& center, float radius) const
 	{
-		float dist = glm::dot(plane, center);
+		float dist = Dot(plane, center);
 		return dist > radius;
 	}
 
-	KH_FORCE_INLINE bool CameraFrustum::CullPlaneAABBox(const glm::vec4& plane, const glm::vec4& min, const glm::vec4& max) const
+	KH_FORCE_INLINE bool CameraFrustum::CullPlaneAABBox(const Vector4& plane, const Vector4& min, const Vector4& max) const
 	{
-		glm::vec4 boxPoint(plane[0] < 0.0f ? max[0] : min[0],
+		Vector4 boxPoint(plane[0] < 0.0f ? max[0] : min[0],
 			plane[1] < 0.0f ? max[1] : min[1],
 			plane[2] < 0.0f ? max[2] : min[2],
 			1.0f);
 
-		float dist = glm::dot(plane, boxPoint);
+		float dist = Dot(plane, boxPoint);
 		return dist > 0.0f;
 	}
 
-	KH_FORCE_INLINE bool CameraFrustum::CullPlaneOOBBox(const glm::vec4& plane, const glm::mat4& matrix, const glm::vec4& min, const glm::vec4& max) const
+	KH_FORCE_INLINE bool CameraFrustum::CullPlaneOOBBox(const Vector4& plane, const Matrix4& matrix, const Vector4& min, const Vector4& max) const
 	{
-		glm::mat4 invMatrix = glm::transpose(matrix);
-		glm::vec4 localPlane(invMatrix * plane);
+		Matrix4 invMatrix = Transpose(matrix);
+		Vector4 localPlane(invMatrix * plane);
 
 		return CullPlaneAABBox(localPlane, min, max);
 	}

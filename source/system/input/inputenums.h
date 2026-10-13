@@ -1,19 +1,22 @@
 #pragma once
 
-enum class InputContext
+namespace Khan
 {
-	Default,
-	Count
-};
+	enum class InputContext
+	{
+		Default,
+		Count
+	};
 
-enum class InputAction
-{
-	NoAction,
-	MoveForward,
-	MoveBack,
-	MoveLeft,
-	MoveRight,
-	MoveUp,
-	MoveDown,
-	Count
-};
+	enum class InputAction
+	{
+		NoAction,
+		MoveForward,
+		MoveBack,
+		MoveLeft,
+		MoveRight,
+		MoveUp,
+		MoveDown,
+		Count
+	};
+}

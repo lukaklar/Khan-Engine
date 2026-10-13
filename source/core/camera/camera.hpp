@@ -17,10 +17,10 @@ namespace Khan
 
 		inline const CameraFrustum& GetFrustum() const { return m_Frustum; }
 
-		inline const glm::mat4& GetProjection() const { return m_Projection; }
-		inline const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
-		inline const glm::mat4& GetViewProjection() const { return m_ViewProjection; }
-		inline const glm::mat4& GetInverseProjection() const { return m_InverseProjection; }
+		inline const Matrix4& GetProjection() const { return m_Projection; }
+		inline const Matrix4& GetViewMatrix() const { return m_ViewMatrix; }
+		inline const Matrix4& GetViewProjection() const { return m_ViewProjection; }
+		inline const Matrix4& GetInverseProjection() const { return m_InverseProjection; }
 
 		inline uint32_t GetViewportWidth() const { return m_ViewportWidth; }
 		inline uint32_t GetViewportHeight() const { return m_ViewportHeight; }
@@ -38,10 +38,10 @@ namespace Khan
 
 		CameraFrustum m_Frustum;
 
-		glm::mat4 m_Projection;
-		glm::mat4 m_ViewMatrix;
-		glm::mat4 m_ViewProjection;
-		glm::mat4 m_InverseProjection;
+		Matrix4 m_Projection;
+		Matrix4 m_ViewMatrix;
+		Matrix4 m_ViewProjection;
+		Matrix4 m_InverseProjection;
 
 		float m_FOV, m_AspectRatio, m_NearClip, m_FarClip;
 		uint32_t m_ViewportWidth = 1280, m_ViewportHeight = 720;

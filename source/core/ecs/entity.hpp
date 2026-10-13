@@ -1,7 +1,6 @@
 #pragma once
 #include "core/boundingvolume.h"
 #include <thirdparty/entt/entt.hpp>
-#include <thirdparty/glm/gtx/quaternion.hpp>
 
 namespace Khan
 {
@@ -55,12 +54,12 @@ namespace Khan
 		inline const std::vector<Component*> GetComponents() const { return m_Components; }
 		inline const std::string& GetName() const { return m_Name; }
 		inline void SetName(const std::string& value) { m_Name = value; }
-		inline const glm::vec4& GetGlobalPosition() const { return m_GlobalPosition; }
-		inline void SetGlobalPosition(const glm::vec4& value) { m_GlobalPosition = value; }
-		inline const glm::quat& GetGlobalOrientation() const { return m_GlobalOrientation; }
-		inline void SetGlobalOrientation(const glm::quat& value) { m_GlobalOrientation = value; }
-		inline const glm::mat4& GetGlobalTransform() const { return m_GlobalTransform; }
-		inline void SetGlobalTransform(const glm::mat4& value) { m_GlobalTransform = value; }
+		inline const Vector4& GetGlobalPosition() const { return m_GlobalPosition; }
+		inline void SetGlobalPosition(const Vector4& value) { m_GlobalPosition = value; }
+		inline const Quaternion& GetGlobalOrientation() const { return m_GlobalOrientation; }
+		inline void SetGlobalOrientation(const Quaternion& value) { m_GlobalOrientation = value; }
+		inline const Matrix4& GetGlobalTransform() const { return m_GlobalTransform; }
+		inline void SetGlobalTransform(const Matrix4& value) { m_GlobalTransform = value; }
 		inline const BoundingVolume& GetBoundingVolume() const { return m_BoundingVolume; }
 		inline void SetBoundingVolume(const BoundingVolume& value) { m_BoundingVolume = value; }
 		inline bool IsInFrustum() const { return m_InFrustum; }
@@ -76,12 +75,12 @@ namespace Khan
 		std::set<Entity*> m_Children;
 		std::vector<Component*> m_Components;
 		std::string m_Name = "Empty Entity";
-		glm::vec4 m_GlobalPosition;
-		glm::quat m_GlobalOrientation;
-		glm::mat4 m_GlobalTransform;
-		//glm::vec4 m_LocalPosition;
-		//glm::quat m_LocalOrientation;
-		//glm::mat4 m_LocalTransform;
+		Vector4 m_GlobalPosition;
+		Quaternion m_GlobalOrientation;
+		Matrix4 m_GlobalTransform;
+		//Vector4 m_LocalPosition;
+		//Quaternion m_LocalOrientation;
+		//Matrix4 m_LocalTransform;
 		BoundingVolume m_BoundingVolume;
 		bool m_InFrustum;
 	};

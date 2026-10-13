@@ -78,11 +78,11 @@ namespace Khan
 
 			entity->SetName(node->mName.C_Str());
 
-			//glm::mat4 transform = *reinterpret_cast<const glm::mat4*>(&node->mTransformation) * (parent ? parent->GetGlobalTransform() : glm::mat4(1.0f));
+			//Matrix4 transform = *reinterpret_cast<const Matrix4*>(&node->mTransformation) * (parent ? parent->GetGlobalTransform() : Matrix4(1.0f));
 			float scale = 0.5f;
-			glm::mat4 transform = glm::scale(glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::vec3(scale, scale, scale));
+			Matrix4 transform = Scale(Rotate(Matrix4(1.0f), Radians(-45.0f), Vector3(0.0f, 1.0f, 0.0f)), Vector3(scale, scale, scale));
 			entity->SetGlobalPosition(transform[3]);
-			entity->SetGlobalOrientation(glm::toQuat(transform));
+			entity->SetGlobalOrientation(ToQuaternion(transform));
 			entity->SetGlobalTransform(transform);
 
 			if (node->mNumMeshes > 0)
@@ -92,8 +92,8 @@ namespace Khan
 				BoundingVolume bv;
 				bv.SetType(BoundingVolume::Type::AABBox);
 
-				glm::vec3 bvMin(FLT_MAX);
-				glm::vec3 bvMax(-FLT_MAX);
+				Vector3 bvMin(FLT_MAX);
+				Vector3 bvMax(-FLT_MAX);
 
 				for (uint32_t i = 0; i < node->mNumMeshes; ++i)
 				{
@@ -108,11 +108,11 @@ namespace Khan
 
 					struct Vertex
 					{
-						glm::vec3 m_Position;
-						glm::vec2 m_TexCoord;
-						glm::vec3 m_Normal;
-						glm::vec3 m_Tangent;
-						glm::vec3 m_Bitangent;
+						Vector3 m_Position;
+						Vector2 m_TexCoord;
+						Vector3 m_Normal;
+						Vector3 m_Tangent;
+						Vector3 m_Bitangent;
 					};
 
 					std::vector<Vertex> vertices;
@@ -122,8 +122,8 @@ namespace Khan
 					meshBV.SetType(BoundingVolume::Type::AABBox);
 					meshBV.SetParentMatrixPtr(&entity->GetGlobalTransform());
 
-					glm::vec3 meshBVmin(FLT_MAX);
-					glm::vec3 meshBVmax(-FLT_MAX);
+					Vector3 meshBVmin(FLT_MAX);
+					Vector3 meshBVmax(-FLT_MAX);
 
 					bool calcBV = aimesh.mAABB.mMin == aiVector3D(0) && aimesh.mAABB.mMax == aiVector3D(0);
 
@@ -131,31 +131,31 @@ namespace Khan
 					for (uint32_t i = 0; i < aimesh.mNumVertices; ++i)
 					{
 						Vertex vertex;
-						vertex.m_Position = *reinterpret_cast<glm::vec3*>(&aimesh.mVertices[i]);
-						vertex.m_TexCoord = *reinterpret_cast<glm::vec2*>(&aimesh.mTextureCoords[0][i]);
-						vertex.m_Normal = *reinterpret_cast<glm::vec3*>(&aimesh.mNormals[i]);
-						vertex.m_Tangent = *reinterpret_cast<glm::vec3*>(&aimesh.mTangents[i]);
-						vertex.m_Bitangent = *reinterpret_cast<glm::vec3*>(&aimesh.mBitangents[i]);
+						vertex.m_Position = *reinterpret_cast<Vector3*>(&aimesh.mVertices[i]);
+						vertex.m_TexCoord = *reinterpret_cast<Vector2*>(&aimesh.mTextureCoords[0][i]);
+						vertex.m_Normal = *reinterpret_cast<Vector3*>(&aimesh.mNormals[i]);
+						vertex.m_Tangent = *reinterpret_cast<Vector3*>(&aimesh.mTangents[i]);
+						vertex.m_Bitangent = *reinterpret_cast<Vector3*>(&aimesh.mBitangents[i]);
 
 						vertices.emplace_back(vertex);
 
 						if (calcBV)
 						{
-							meshBVmin.x = std::min(meshBVmin.x, vertex.m_Position.x * scale);
-							meshBVmin.y = std::min(meshBVmin.y, vertex.m_Position.y * scale);
-							meshBVmin.z = std::min(meshBVmin.z, vertex.m_Position.z * scale);
+							meshBVmin.x = Min(meshBVmin.x, vertex.m_Position.x * scale);
+							meshBVmin.y = Min(meshBVmin.y, vertex.m_Position.y * scale);
+							meshBVmin.z = Min(meshBVmin.z, vertex.m_Position.z * scale);
 
-							meshBVmax.x = std::max(meshBVmax.x, vertex.m_Position.x * scale);
-							meshBVmax.y = std::max(meshBVmax.y, vertex.m_Position.y * scale);
-							meshBVmax.z = std::max(meshBVmax.z, vertex.m_Position.z * scale);
+							meshBVmax.x = Max(meshBVmax.x, vertex.m_Position.x * scale);
+							meshBVmax.y = Max(meshBVmax.y, vertex.m_Position.y * scale);
+							meshBVmax.z = Max(meshBVmax.z, vertex.m_Position.z * scale);
 
-							bvMin.x = std::min(bvMin.x, vertex.m_Position.x * scale);
-							bvMin.y = std::min(bvMin.y, vertex.m_Position.y * scale);
-							bvMin.z = std::min(bvMin.z, vertex.m_Position.z * scale);
+							bvMin.x = Min(bvMin.x, vertex.m_Position.x * scale);
+							bvMin.y = Min(bvMin.y, vertex.m_Position.y * scale);
+							bvMin.z = Min(bvMin.z, vertex.m_Position.z * scale);
 
-							bvMax.x = std::max(bvMax.x, vertex.m_Position.x * scale);
-							bvMax.y = std::max(bvMax.y, vertex.m_Position.y * scale);
-							bvMax.z = std::max(bvMax.z, vertex.m_Position.z * scale);
+							bvMax.x = Max(bvMax.x, vertex.m_Position.x * scale);
+							bvMax.y = Max(bvMax.y, vertex.m_Position.y * scale);
+							bvMax.z = Max(bvMax.z, vertex.m_Position.z * scale);
 						}
 					}
 
@@ -171,8 +171,8 @@ namespace Khan
 
 					if (!calcBV)
 					{
-						meshBVmin = *reinterpret_cast<const glm::vec3*>(&aimesh.mAABB.mMin);
-						meshBVmax = *reinterpret_cast<const glm::vec3*>(&aimesh.mAABB.mMax);
+						meshBVmin = *reinterpret_cast<const Vector3*>(&aimesh.mAABB.mMin);
+						meshBVmax = *reinterpret_cast<const Vector3*>(&aimesh.mAABB.mMax);
 
 						bvMin.x = std::min(bvMin.x, aimesh.mAABB.mMin.x * scale);
 						bvMin.y = std::min(bvMin.y, aimesh.mAABB.mMin.y * scale);
@@ -270,7 +270,7 @@ namespace Khan
 						}
 
 						mesh->m_Material = material;
-						mesh->m_ParentTransform.UpdateConstantData(&entity->GetGlobalTransform(), 0, sizeof(glm::mat4));
+						mesh->m_ParentTransform.UpdateConstantData(&entity->GetGlobalTransform(), 0, sizeof(Matrix4));
 
 						m_Meshes.emplace(node->mMeshes[i], mesh);
 						visualComponent.m_Meshes.push_back(mesh);
@@ -305,13 +305,13 @@ namespace Khan
 				case aiLightSource_DIRECTIONAL:
 				{
 					lightComponent.m_Light = new DirectionalLight();
-					entity->SetGlobalOrientation(glm::quat(0.0f, light.mDirection.x, light.mDirection.y, light.mDirection.z));
+					entity->SetGlobalOrientation(Quaternion(0.0f, light.mDirection.x, light.mDirection.y, light.mDirection.z));
 					break;
 				}
 				case aiLightSource_POINT:
 				{
 					OmniLight* omni = new OmniLight();
-					entity->SetGlobalPosition(glm::vec4(light.mPosition.x, light.mPosition.y, light.mPosition.z, 1.0f));
+					entity->SetGlobalPosition(Vector4(light.mPosition.x, light.mPosition.y, light.mPosition.z, 1.0f));
 					omni->SetRadius(1.0f);
 					omni->SetAttenuation({ light.mAttenuationConstant, light.mAttenuationLinear, light.mAttenuationQuadratic });
 					lightComponent.m_Light = omni;
@@ -320,8 +320,8 @@ namespace Khan
 				case aiLightSource_SPOT:
 				{
 					SpotLight* spot = new SpotLight();
-					entity->SetGlobalPosition(glm::vec4(light.mPosition.x, light.mPosition.y, light.mPosition.z, 1.0f));
-					entity->SetGlobalOrientation(glm::quat(0.0f, light.mDirection.x, light.mDirection.y, light.mDirection.z));
+					entity->SetGlobalPosition(Vector4(light.mPosition.x, light.mPosition.y, light.mPosition.z, 1.0f));
+					entity->SetGlobalOrientation(Quaternion(0.0f, light.mDirection.x, light.mDirection.y, light.mDirection.z));
 					spot->SetRange(1.0f);
 					spot->SetInnerConeAngle(light.mAngleInnerCone);
 					spot->SetOuterConeAngle(light.mAngleOuterCone);
@@ -339,16 +339,16 @@ namespace Khan
 			}
 
 			lightComponent.m_Light->SetActive(true);
-			lightComponent.m_Light->SetColor(*reinterpret_cast<const glm::vec3*>(&light.mColorDiffuse));
+			lightComponent.m_Light->SetColor(*reinterpret_cast<const Vector3*>(&light.mColorDiffuse));
 			lightComponent.m_Light->SetLuminance(1.0f);
 		}
 
 		Entity* player = world->CreateEntity();
 		player->SetParent(nullptr);
 		player->SetName("Player");
-		player->SetGlobalPosition(glm::vec4(0.0f, 0.0f, 3.0f, 1.0f));
-		player->SetGlobalOrientation(glm::quat(0.0f, 0.0f, 0.0f, -1.0f));
-		player->SetGlobalTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f))* glm::toMat4(player->GetGlobalOrientation()));
+		player->SetGlobalPosition(Vector4(0.0f, 0.0f, 3.0f, 1.0f));
+		player->SetGlobalOrientation(Quaternion(0.0f, 0.0f, 0.0f, -1.0f));
+		player->SetGlobalTransform(Translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, 3.0f)) * ToMatrix4(player->GetGlobalOrientation()));
 
 		CameraComponent& cameraComponent = player->AddComponent<CameraComponent>();
 		Camera* camera = cameraComponent.m_Camera = new Camera();
@@ -377,14 +377,14 @@ namespace Khan
 			light->SetLuminance(5.0f);
 			light->SetRange(2.0f);
 			light->SetAttenuation({ 0.0f, 0.0f, 1.0f });
-			light->SetInnerConeAngle(glm::radians(12.5f));
-			light->SetOuterConeAngle(glm::radians(15.0f));
+			light->SetInnerConeAngle(Radians(12.5f));
+			light->SetOuterConeAngle(Radians(15.0f));
 			lightComponent.m_Light = light;
 		}
 
 		{
 			Entity* lightEntity = world->CreateEntity();
-			lightEntity->SetGlobalOrientation(glm::quat(0.0f, 1.0f, 0.0f, 0.0f));
+			lightEntity->SetGlobalOrientation(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));
 			LightComponent& lightComponent = lightEntity->AddComponent<LightComponent>();
 			DirectionalLight* light = new DirectionalLight();
 			light->SetActive(true);
@@ -502,13 +502,13 @@ namespace Khan
 		Entity* model = world->CreateEntity();
 		model->SetGlobalPosition({ 0, 0, 0.5f, 1 });
 		model->SetGlobalOrientation({ 0, 0, 0, 0 });
-		glm::mat4 transform = glm::scale(glm::rotate(glm::rotate(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)), glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(scale, scale, scale));
+		Matrix4 transform = Scale(Rotate(Rotate(Rotate(Translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, 0.0f)), Radians(-45.0f), Vector3(1.0f, 0.0f, 0.0f)), Radians(45.0f), Vector3(0.0f, 1.0f, 0.0f)), 0.0f, Vector3(0.0f, 0.0f, 1.0f)), Vector3(scale, scale, scale));
 		model->SetGlobalTransform(transform);
 
 		BoundingVolume bv;
 		bv.SetType(BoundingVolume::Type::OOBBox);
-		bv.SetOOBBoxMin(glm::vec3(-1.0f, -1.0f, -1.0f));
-		bv.SetOOBBoxMax(glm::vec3(1.0f, 1.0f, 1.0f));
+		bv.SetOOBBoxMin(Vector3(-1.0f, -1.0f, -1.0f));
+		bv.SetOOBBoxMax(Vector3(1.0f, 1.0f, 1.0f));
 		bv.SetParentMatrixPtr(&model->GetGlobalTransform());
 
 		model->SetBoundingVolume(bv);
@@ -522,7 +522,7 @@ namespace Khan
 		material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("gbuffer_test_PS", "PS_GBufferTest"));
 
 		mesh->m_Material = material;
-		mesh->m_ParentTransform.UpdateConstantData(&model->GetGlobalTransform(), 0, sizeof(glm::mat4));
+		mesh->m_ParentTransform.UpdateConstantData(&model->GetGlobalTransform(), 0, sizeof(Matrix4));
 
 		VisualComponent& visual = model->AddComponent<VisualComponent>();
 		visual.m_Meshes.push_back(mesh);
@@ -530,7 +530,7 @@ namespace Khan
 
 		{
 			Entity* entity = world->CreateEntity();
-			entity->SetGlobalOrientation(glm::quat(0.0f, -1.0f, -1.0f, 0.0f));
+			entity->SetGlobalOrientation(Quaternion(0.0f, -1.0f, -1.0f, 0.0f));
 
 			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
 			DirectionalLight* directional = new DirectionalLight();
@@ -542,7 +542,7 @@ namespace Khan
 
 		{
 			Entity* entity = world->CreateEntity();
-			entity->SetGlobalPosition(glm::vec4(0, 0, 0, 1));
+			entity->SetGlobalPosition(Vector4(0, 0, 0, 1));
 
 			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
 			OmniLight* omni = new OmniLight();
@@ -555,14 +555,14 @@ namespace Khan
 
 		/*{
 			Entity* entity = world->CreateEntity();
-			entity->SetGlobalPosition(glm::vec4(0, 0, 0, 1));
+			entity->SetGlobalPosition(Vector4(0, 0, 0, 1));
 
 			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
 			SpotLight* spot = new SpotLight();
 			spot->SetActive(true);
 			spot->SetColor({ 1.0f, 1.0f, 0.0f });
 			spot->SetLuminance(1.0f);
-			spot->SetDirection(glm::vec3(0.0f, 0.0f, 1.0f));
+			spot->SetDirection(Vector3(0.0f, 0.0f, 1.0f));
 			spot->SetAngle(0.4f);
 			spot->SetRange(1.0f);
 			lightComponent.m_Light = spot;
@@ -582,9 +582,9 @@ namespace Khan
 
 		Entity* player = world->CreateEntity();
 		player->SetName("Player");
-		player->SetGlobalPosition(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-		player->SetGlobalOrientation(glm::quat(0.0f, 0.0f, 0.0f, -1.0f));
-		player->SetGlobalTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f))* glm::toMat4(player->GetGlobalOrientation()));
+		player->SetGlobalPosition(Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+		player->SetGlobalOrientation(Quaternion(0.0f, 0.0f, 0.0f, -1.0f));
+		player->SetGlobalTransform(Translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, 1.0f)) * ToMatrix4(player->GetGlobalOrientation()));
 
 		CameraComponent& cameraComponent = player->AddComponent<CameraComponent>();
 		Camera* camera = cameraComponent.m_Camera = new Camera();
@@ -663,14 +663,14 @@ namespace Khan
 		Entity* model = world->CreateEntity();
 		model->SetGlobalPosition({ 0, 0, 0.5f, 1 });
 		model->SetGlobalOrientation({ 0, 0, 0, 0 });
-		//glm::mat4 transform = glm::scale(glm::rotate(glm::rotate(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)), glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(scale, scale, scale));
-		glm::mat4 transform = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.5f)), glm::vec3(scale, scale, scale));
+		//Matrix4 transform = Scale(Totate(Rotate(Rotate(Translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, 0.0f)), Radians(-45.0f), Vector3(1.0f, 0.0f, 0.0f)), Radians(45.0f), Vector3(0.0f, 1.0f, 0.0f)), 0.0f, Vector3(0.0f, 0.0f, 1.0f)), Vector3(scale, scale, scale));
+		Matrix4 transform = Scale(Translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, -0.5f)), Vector3(scale, scale, scale));
 		model->SetGlobalTransform(transform);
 
 		BoundingVolume bv;
 		bv.SetType(BoundingVolume::Type::OOBBox);
-		bv.SetOOBBoxMin(glm::vec3(-1.0f, -1.0f, -1.0f));
-		bv.SetOOBBoxMax(glm::vec3(1.0f, 1.0f, 1.0f));
+		bv.SetOOBBoxMin(Vector3(-1.0f, -1.0f, -1.0f));
+		bv.SetOOBBoxMax(Vector3(1.0f, 1.0f, 1.0f));
 		bv.SetParentMatrixPtr(&model->GetGlobalTransform());
 
 		model->SetBoundingVolume(bv);
@@ -684,7 +684,7 @@ namespace Khan
 		material->SetPixelShader(ShaderManager::Get()->GetShader<ShaderType_Pixel>("common_diff_only_PS", "PS_CommonDiffuseOnly"));
 
 		mesh->m_Material = material;
-		mesh->m_ParentTransform.UpdateConstantData(&model->GetGlobalTransform(), 0, sizeof(glm::mat4));
+		mesh->m_ParentTransform.UpdateConstantData(&model->GetGlobalTransform(), 0, sizeof(Matrix4));
 		material->AddTexture(0, TextureManager::Get()->LoadTexture("..\\..\\assets\\test.jpg"));
 
 		VisualComponent& visual = model->AddComponent<VisualComponent>();
@@ -693,7 +693,7 @@ namespace Khan
 
 		{
 			Entity* entity = world->CreateEntity();
-			entity->SetGlobalOrientation(glm::quat(0.0f, -1.0f, -1.0f, 0.0f));
+			entity->SetGlobalOrientation(Quaternion(0.0f, -1.0f, -1.0f, 0.0f));
 
 			LightComponent& lightComponent = entity->AddComponent<LightComponent>();
 			DirectionalLight* directional = new DirectionalLight();
@@ -705,9 +705,9 @@ namespace Khan
 
 		Entity* player = world->CreateEntity();
 		player->SetName("Player");
-		player->SetGlobalPosition(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-		player->SetGlobalOrientation(glm::quat(0.0f, 0.0f, 0.0f, -1.0f));
-		player->SetGlobalTransform(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::toMat4(player->GetGlobalOrientation()));
+		player->SetGlobalPosition(Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+		player->SetGlobalOrientation(Quaternion(0.0f, 0.0f, 0.0f, -1.0f));
+		player->SetGlobalTransform(Translate(Matrix4(1.0f), Vector3(0.0f, 0.0f, 1.0f)) * ToMatrix4(player->GetGlobalOrientation()));
 
 		CameraComponent& cameraComponent = player->AddComponent<CameraComponent>();
 		Camera* camera = cameraComponent.m_Camera = new Camera();

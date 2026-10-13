@@ -1,5 +1,5 @@
 #pragma once
-#include <thirdparty/glm/glm.hpp>
+#include "core/math.h"
 
 namespace Khan
 {
@@ -17,8 +17,8 @@ namespace Khan
 		virtual ~Light() = 0;
 
 		inline Type GetType() const { return m_Type; }
-		inline const glm::vec3& GetColor() const { return m_Color; }
-		inline void SetColor(const glm::vec3& value) { m_Color = value; }
+		inline const Vector3& GetColor() const { return m_Color; }
+		inline void SetColor(const Vector3& value) { m_Color = value; }
 		inline float GetLuminance() const { return m_Luminance; }
 		inline void SetLuminance(float value) { m_Luminance = value; }
 		inline bool IsActive() const { return m_Active; }
@@ -28,7 +28,7 @@ namespace Khan
 		Light(Type type) : m_Type(type) {}
 
 		const Type m_Type;
-		glm::vec3 m_Color;
+		Vector3 m_Color;
 		float m_Luminance;
 		bool m_Active;
 	};
@@ -46,12 +46,12 @@ namespace Khan
 
 		inline float GetRadius() const { return m_Radius; }
 		inline void SetRadius(float value) { m_Radius = value; }
-		inline const glm::vec3& GetAttenuation() const { return m_Attenuation; }
-		inline void SetAttenuation(const glm::vec3& value) { m_Attenuation = value; }
+		inline const Vector3& GetAttenuation() const { return m_Attenuation; }
+		inline void SetAttenuation(const Vector3& value) { m_Attenuation = value; }
 
 	private:
 		float m_Radius;
-		glm::vec3 m_Attenuation;
+		Vector3 m_Attenuation;
 	};
 
 	class SpotLight : public Light
@@ -65,14 +65,14 @@ namespace Khan
 		inline void SetInnerConeAngle(float value) { m_InnerConeAngle = value; }
 		inline float GetOuterConeAngle() const { return m_OuterConeAngle; }
 		inline void SetOuterConeAngle(float value) { m_OuterConeAngle = value; }
-		inline const glm::vec3& GetAttenuation() const { return m_Attenuation; }
-		inline void SetAttenuation(const glm::vec3& value) { m_Attenuation = value; }
+		inline const Vector3& GetAttenuation() const { return m_Attenuation; }
+		inline void SetAttenuation(const Vector3& value) { m_Attenuation = value; }
 
 	private:
 		float m_Range;
 		float m_InnerConeAngle;
 		float m_OuterConeAngle;
-		glm::vec3 m_Attenuation;
+		Vector3 m_Attenuation;
 	};
 
 	class AreaLight : public Light

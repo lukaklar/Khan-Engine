@@ -4,7 +4,7 @@
 namespace Khan
 {
 	Mesh::Mesh()
-		: m_ParentTransform(sizeof(glm::mat4))
+		: m_ParentTransform(sizeof(Matrix4))
 	{
 	}
 }

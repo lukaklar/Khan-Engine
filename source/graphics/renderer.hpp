@@ -1,5 +1,6 @@
 #pragma once
 #include "core/camera/camera.hpp"
+#include "core/math.h"
 #include "graphicshal/constantbuffer.hpp"
 #include "graphics/passes/clusterpasses.hpp"
 #include "graphics/passes/deferredpasses.hpp"
@@ -22,12 +23,12 @@ namespace Khan
 	struct ShaderLightData
 	{
 		uint32_t m_Type;
-		glm::vec3 m_PositionVS;
-		glm::vec3 m_DirectionVS;
+		Vector3 m_PositionVS;
+		Vector3 m_DirectionVS;
 		float m_Range;
-		glm::vec3 m_Color;
+		Vector3 m_Color;
 		float m_Luminance;
-		glm::vec3 m_Attenuation;
+		Vector3 m_Attenuation;
 		float m_InnerConeAngle;
 		float m_OuterConeAngle;
 		float m_Padding[3];
@@ -35,12 +36,12 @@ namespace Khan
 
 	struct FrustumParams
 	{
-		glm::mat4 m_Projection;
-		glm::mat4 m_InverseProjection;
-		glm::vec2 m_ScreenDimensions;
+		Matrix4 m_Projection;
+		Matrix4 m_InverseProjection;
+		Vector2 m_ScreenDimensions;
 		float m_Near;
 		float m_Far;
-		glm::vec3 m_ClusterCount;
+		Vector3 m_ClusterCount;
 		float m_TileSize;
 	};
 

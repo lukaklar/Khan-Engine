@@ -14,6 +14,7 @@
 #include "graphics/renderer.hpp"
 #include "graphics/rendergraph.hpp"
 #include "graphics/shadermanager.hpp"
+#include "core/math.h"
 
 namespace Khan
 {
@@ -50,8 +51,8 @@ namespace Khan
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_InputTexture);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_OutputTexture);
 
-		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
-		uint32_t threadGroupCountY = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		uint32_t threadGroupCountX = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32_t threadGroupCountY = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 }

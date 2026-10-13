@@ -20,7 +20,7 @@ namespace Khan
 {
 	ShadowPass::ShadowPass()
 		: RenderPass(QueueType_Graphics, "ShadowPass")
-		, m_ViewProjParams(sizeof(glm::mat4))
+		, m_ViewProjParams(sizeof(Matrix4))
 	{
 		{
 			PhysicalRenderPassDescription desc;
@@ -84,7 +84,7 @@ namespace Khan
 	{
 		context.BeginPhysicalRenderPass(*m_PhysicalRenderPass, nullptr, m_ShadowMap);
 
-		m_ViewProjParams.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
+		m_ViewProjParams.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(Matrix4));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_ViewProjParams);
 
 		for (auto mesh : renderer.GetOpaqueMeshes())

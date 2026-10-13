@@ -147,7 +147,7 @@ namespace Khan
 			StartAccessType attachmentStartAccess = renderPass.GetDesc().m_RenderTargets[i].m_StartAccess;
 			if (attachmentStartAccess == StartAccessType::Clear)
 			{
-				const glm::vec4& color = renderPass.GetRenderTargetClearColor(i);
+				const Vector4& color = renderPass.GetRenderTargetClearColor(i);
 				clearValues[clearValueCount++] = { color.r, color.g, color.b, color.a };
 			}
 			else if (attachmentStartAccess == StartAccessType::Keep)
@@ -395,7 +395,7 @@ namespace Khan
 		vkCmdFillBuffer(m_CommandBuffer, vulkanBuffer.GetVulkanBuffer(), buffer->GetDesc().m_Offset, buffer->GetDesc().m_Range, clearValue);
 	}
 
-	void VulkanRenderContext::CopyTexture(TextureView* src, const glm::ivec3& srcOffset, TextureView* dst, const glm::ivec3& dstOffset, const glm::uvec3& size)
+	void VulkanRenderContext::CopyTexture(TextureView* src, const Vector3I& srcOffset, TextureView* dst, const Vector3I& dstOffset, const Vector3U& size)
 	{
 		m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanTextureView*>(src), ResourceState_CopySource, m_ExecutingPass->GetExecutionQueue());
 		m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanTextureView*>(dst), ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());

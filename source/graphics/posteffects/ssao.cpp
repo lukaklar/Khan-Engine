@@ -15,13 +15,14 @@
 #include "graphics/rendergraph.hpp"
 #include "graphics/shadermanager.hpp"
 #include "core/defines.h"
+#include "core/math.h"
 
 namespace Khan
 {
 	SSAOPass::SSAOPass()
 		: RenderPass(QueueType_Compute, "SSAOPass")
-		, m_SampleParams((64 + 16) * sizeof(glm::vec4))
-		, m_ProjectionParams(sizeof(glm::mat4))
+		, m_SampleParams((64 + 16) * sizeof(Vector4))
+		, m_ProjectionParams(sizeof(Matrix4))
 	{
 		auto lerp = [](float a, float b, float f) -> float
 		{
@@ -31,11 +32,11 @@ namespace Khan
 		std::uniform_real_distribution<float> randomFloats(0.0f, 1.0f);
 		std::default_random_engine generator;
 
-		glm::vec4 ssaoKernel[64];
+		Vector4 ssaoKernel[64];
 		for (unsigned int i = 0; i < 64; ++i)
 		{
-			glm::vec4 sample(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator), 0.0f);
-			sample = glm::normalize(sample);
+			Vector4 sample(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator), 0.0f);
+			sample = Normalize(sample);
 			sample *= randomFloats(generator);
 			float scale = i / 64.0f;
 
@@ -45,14 +46,14 @@ namespace Khan
 			ssaoKernel[i] = sample;
 		}
 
-		glm::vec4 ssaoNoise[16];
+		Vector4 ssaoNoise[16];
 		for (unsigned int i = 0; i < 16; i++)
 		{
-			ssaoNoise[i] = glm::vec4(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, 0.0f, 0.0f);
+			ssaoNoise[i] = Vector4(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, 0.0f, 0.0f);
 		}
 
-		m_SampleParams.UpdateConstantData(ssaoKernel, 0, 64 * sizeof(glm::vec4));
-		m_SampleParams.UpdateConstantData(ssaoNoise, 64 * sizeof(glm::vec4), 16 * sizeof(glm::vec4));
+		m_SampleParams.UpdateConstantData(ssaoKernel, 0, 64 * sizeof(Vector4));
+		m_SampleParams.UpdateConstantData(ssaoNoise, 64 * sizeof(Vector4), 16 * sizeof(Vector4));
 
 		ComputePipelineDescription desc;
 
@@ -108,8 +109,8 @@ namespace Khan
 
 	void SSAOPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
-		uint32_t threadGroupCountY = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		uint32_t threadGroupCountX = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32_t threadGroupCountY = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 
 		context.SetPipelineState(*m_CalculationPipelineState);
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetFrustumParams());

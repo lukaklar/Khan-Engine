@@ -33,7 +33,7 @@ namespace Khan
 {
 	GBufferPass::GBufferPass()
 		: RenderPass(QueueType_Graphics, "GBufferPass")
-		, m_PerFrameConsts(sizeof(glm::mat4) * 2)
+		, m_PerFrameConsts(sizeof(Matrix4) * 2)
 	{
 		PhysicalRenderPassDescription desc;
 		desc.m_RenderTargetCount = 4;
@@ -98,8 +98,8 @@ namespace Khan
 
 		context.BeginPhysicalRenderPass(*m_PipelineDesc.m_PhysicalRenderPass, renderTargets, m_GBuffer_Depth);
 
-		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
-		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewMatrix(), sizeof(glm::mat4), sizeof(glm::mat4));
+		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(Matrix4));
+		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewMatrix(), sizeof(Matrix4), sizeof(Matrix4));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_PerFrameConsts);
 
 		for (auto* mesh : renderer.GetOpaqueMeshes())

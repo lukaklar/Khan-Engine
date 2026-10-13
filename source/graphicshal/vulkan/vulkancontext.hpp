@@ -54,7 +54,7 @@ namespace Khan
 		virtual void DispatchIndirect(BufferView* buffer, uint32_t offset) override;
 
 		virtual void ClearBuffer(BufferView* buffer, uint32_t clearValue) override;
-		virtual void CopyTexture(TextureView* src, const glm::ivec3& srcOffset, TextureView* dst, const glm::ivec3& dstOffset, const glm::uvec3& size) override;
+		virtual void CopyTexture(TextureView* src, const Vector3I& srcOffset, TextureView* dst, const Vector3I& dstOffset, const Vector3U& size) override;
 
 		virtual void UpdateBufferFromHost(BufferView* dst, const void* src) override;
 

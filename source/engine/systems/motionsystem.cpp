@@ -3,8 +3,8 @@
 #include "engine/components/motioncomponent.hpp"
 #include "core/ecs/entity.hpp"
 #include "core/ecs/world.hpp"
+#include "core/math.h"
 #include "system/input/inputmanager.hpp"
-#include <thirdparty/glm/gtx/transform.hpp>
 
 namespace Khan
 {
@@ -15,15 +15,15 @@ namespace Khan
 		for (Entity* entity : group->GetEntities())
 		{
 			const MotionComponent& motion = entity->GetComponent<MotionComponent>();
-			const glm::quat& orientation = entity->GetGlobalOrientation();
-			glm::vec3 direction = glm::normalize(glm::vec3(orientation.x, orientation.y, orientation.z));
-			glm::vec3 position = entity->GetGlobalPosition().xyz();
+			const Quaternion& orientation = entity->GetGlobalOrientation();
+			Vector3 direction = Normalize(Vector3(orientation.x, orientation.y, orientation.z));
+			Vector3 position = entity->GetGlobalPosition().xyz();
 			InputManager* inputMgr = InputManager::Get();
-			glm::ivec2 cursorDelta = inputMgr->GetCursorDelta();
-			glm::vec3 up(0.0f, 1.0f, 0.0f);
+			Vector2I cursorDelta = inputMgr->GetCursorDelta();
+			Vector3 up(0.0f, 1.0f, 0.0f);
 
-			glm::vec3 strafeDirection = glm::normalize(glm::cross(direction, up));
-			direction = glm::normalize(glm::mat3(glm::rotate(glm::radians(-cursorDelta.x * motion.m_RotationSpeed), up) * glm::rotate(glm::radians(-cursorDelta.y * motion.m_RotationSpeed), strafeDirection)) * direction);			
+			Vector3 strafeDirection = Normalize(Cross(direction, up));
+			direction = Normalize(Matrix3(Rotate(Radians(-cursorDelta.x * motion.m_RotationSpeed), up) * Rotate(Radians(-cursorDelta.y * motion.m_RotationSpeed), strafeDirection)) * direction);			
 
 			if (inputMgr->IsActionActive(InputAction::MoveForward))
 			{
@@ -50,9 +50,9 @@ namespace Khan
 				position -= motion.m_MovementSpeed * up * dt;
 			}
 
-			entity->SetGlobalPosition(glm::vec4(position.x, position.y, position.z, 1.0f));
-			entity->SetGlobalOrientation(glm::quat(0.0f, direction));
-			entity->SetGlobalTransform(glm::translate(glm::mat4(1.0f), position) * glm::toMat4(entity->GetGlobalOrientation()));
+			entity->SetGlobalPosition(Vector4(position.x, position.y, position.z, 1.0f));
+			entity->SetGlobalOrientation(Quaternion(0.0f, direction));
+			entity->SetGlobalTransform(Translate(Matrix4(1.0f), position) * ToMatrix4(entity->GetGlobalOrientation()));
 
 			inputMgr->ResetCursorDelta();
 		}

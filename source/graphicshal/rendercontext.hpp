@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <thirdparty/glm/glm.hpp>
+#include "core/math.h"
 
 namespace Khan
 {
@@ -50,7 +50,7 @@ namespace Khan
 		virtual void DispatchIndirect(BufferView* buffer, uint32_t offset) = 0;
 
 		virtual void ClearBuffer(BufferView* buffer, uint32_t clearValue) = 0;
-		virtual void CopyTexture(TextureView* src, const glm::ivec3& srcOffset, TextureView* dst, const glm::ivec3& dstOffset, const glm::uvec3& size) = 0;
+		virtual void CopyTexture(TextureView* src, const Vector3I& srcOffset, TextureView* dst, const Vector3I& dstOffset, const Vector3U& size) = 0;
 
 		virtual void UpdateBufferFromHost(BufferView* dst, const void* src) = 0;
 

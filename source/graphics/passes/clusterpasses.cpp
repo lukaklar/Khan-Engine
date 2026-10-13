@@ -80,15 +80,15 @@ namespace Khan
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetFrustumParams());
 		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_Clusters);
 
-		glm::vec2 threadGroupsXY = { renderer.GetActiveCamera()->GetViewportWidth(), renderer.GetActiveCamera()->GetViewportHeight() };
-		threadGroupsXY = glm::ceil(threadGroupsXY / (float)renderer.GetScreenTileSize());
-		threadGroupsXY = glm::ceil(threadGroupsXY / (float)renderer.GetScreenTileSize());
+		Vector2 threadGroupsXY = { renderer.GetActiveCamera()->GetViewportWidth(), renderer.GetActiveCamera()->GetViewportHeight() };
+		threadGroupsXY = Ceil(threadGroupsXY / (float)renderer.GetScreenTileSize());
+		threadGroupsXY = Ceil(threadGroupsXY / (float)renderer.GetScreenTileSize());
 		context.Dispatch((uint32_t)threadGroupsXY.x, (uint32_t)threadGroupsXY.y, renderer.GetNumDepthSlices());
 	}
 
 	MarkActiveClustersPass::MarkActiveClustersPass()
 		: RenderPass(QueueType_Graphics, "MarkActiveClustersPass")
-		, m_PerFrameConsts(sizeof(glm::mat4))
+		, m_PerFrameConsts(sizeof(Matrix4))
 	{
 		{
 			PhysicalRenderPassDescription desc;
@@ -159,7 +159,7 @@ namespace Khan
 		context.SetViewport(0.0f, 0.0f, (float)renderer.GetActiveCamera()->GetViewportWidth(), (float)renderer.GetActiveCamera()->GetViewportHeight());
 		context.SetScissor(0, 0, renderer.GetActiveCamera()->GetViewportWidth(), renderer.GetActiveCamera()->GetViewportHeight());
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetFrustumParams());
-		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(glm::mat4));
+		m_PerFrameConsts.UpdateConstantData(&renderer.GetActiveCamera()->GetViewProjection(), 0, sizeof(Matrix4));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &m_PerFrameConsts);
 		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_ActiveClusterFlags);
 
@@ -232,7 +232,7 @@ namespace Khan
 		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_ActiveClusterIndexList);
 		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 1, m_CullingDispatchArgs);
 
-		uint32_t threadGroupCountX = (uint32_t)glm::ceil(numClusters / 64.0f);
+		uint32_t threadGroupCountX = (uint32_t)Ceil(numClusters / 64.0f);
 		context.Dispatch(threadGroupCountX, 1, 1);
 	}
 

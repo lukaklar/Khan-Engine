@@ -13,6 +13,7 @@
 #include "graphics/rendergraph.hpp"
 #include "graphics/shadermanager.hpp"
 #include "core/defines.h"
+#include "core/math.h"
 
 #define DECLARE_GBUFFER_INPUT(target, state)\
 temp = renderer.GetResourceBoard().m_Transient.m_GBuffer.m_##target;\
@@ -113,8 +114,8 @@ namespace Khan
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 7, m_LightGrid);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_LightingResult);
 
-		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
-		uint32_t threadGroupCountY = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		uint32_t threadGroupCountX = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32_t threadGroupCountY = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 
@@ -202,8 +203,8 @@ namespace Khan
 
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_LightingResult);
 
-		uint32_t threadGroupCountX = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
-		uint32_t threadGroupCountY = (uint32_t)glm::ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		uint32_t threadGroupCountX = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32_t threadGroupCountY = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 }

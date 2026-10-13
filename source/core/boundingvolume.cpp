@@ -1,30 +1,29 @@
 #include "core/precomp.h"
 #include "core/boundingvolume.h"
-#include <thirdparty/glm/gtx/transform.hpp>
 
 namespace Khan
 {
-	glm::mat4 BoundingVolume::GetOOBBoxMatrix() const
+	Matrix4 BoundingVolume::GetOOBBoxMatrix() const
 	{
 		if (m_Type == Type::OOBBox)
 		{
 			return GetParentMatrix();
 		}
 
-		return glm::identity<glm::mat4>();
+		return Identity<Matrix4>();
 	}
 
-	glm::mat4 BoundingVolume::GetParentMatrix() const
+	Matrix4 BoundingVolume::GetParentMatrix() const
 	{
 		if (m_ParentMatrix)
 			return *m_ParentMatrix;
 		else
-			return glm::identity<glm::mat4>();
+			return Identity<Matrix4>();
 	}
 
-	glm::vec4 BoundingVolume::GetAABBoxGlobalMin() const
+	Vector4 BoundingVolume::GetAABBoxGlobalMin() const
 	{
-		glm::vec4 globalMin(m_Min, 1.0f);
+		Vector4 globalMin(m_Min, 1.0f);
 
 		if (m_ParentMatrix)
 		{
@@ -34,14 +33,14 @@ namespace Khan
 		return globalMin;
 	}
 
-	void BoundingVolume::SetAABBoxGlobalMin(const glm::vec3& value)
+	void BoundingVolume::SetAABBoxGlobalMin(const Vector3& value)
 	{
-		m_Min = m_ParentMatrix ? value - glm::vec3((*m_ParentMatrix)[3]) : value;
+		m_Min = m_ParentMatrix ? value - Vector3((*m_ParentMatrix)[3]) : value;
 	}
 
-	glm::vec4 BoundingVolume::GetAABBoxGlobalMax() const
+	Vector4 BoundingVolume::GetAABBoxGlobalMax() const
 	{
-		glm::vec4 globalMax(m_Max, 1.0f);
+		Vector4 globalMax(m_Max, 1.0f);
 
 		if (m_ParentMatrix)
 		{
@@ -51,8 +50,8 @@ namespace Khan
 		return globalMax;
 	}
 
-	void BoundingVolume::SetAABBoxGlobalMax(const glm::vec3& value)
+	void BoundingVolume::SetAABBoxGlobalMax(const Vector3& value)
 	{
-		m_Max = m_ParentMatrix ? value - glm::vec3((*m_ParentMatrix)[3]) : value;
+		m_Max = m_ParentMatrix ? value - Vector3((*m_ParentMatrix)[3]) : value;
 	}
 }

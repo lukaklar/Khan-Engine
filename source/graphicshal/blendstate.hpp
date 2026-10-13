@@ -79,7 +79,7 @@ namespace Khan
         };
 
         BlendMode m_BlendModes[K_MAX_RENDER_TARGETS];
-        //glm::vec4 m_ConstantBlendFactor;
+        //Vector4 m_ConstantBlendFactor;
         bool m_IndependentBlendEnabled = false;
         bool m_AlphaToCoverageEnabled = false;
     };
