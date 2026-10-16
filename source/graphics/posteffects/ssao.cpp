@@ -16,6 +16,7 @@
 #include "graphics/shadermanager.hpp"
 #include "core/defines.h"
 #include "core/math.h"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -109,8 +110,8 @@ namespace Khan
 
 	void SSAOPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		uint32_t threadGroupCountX = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
-		uint32_t threadGroupCountY = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		uint32 threadGroupCountX = (uint32)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32 threadGroupCountY = (uint32)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 
 		context.SetPipelineState(*m_CalculationPipelineState);
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetFrustumParams());

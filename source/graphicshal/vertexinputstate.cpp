@@ -27,7 +27,7 @@ namespace Khan
 		}
 	}
 
-	uint32_t VertexInputState::StreamDescriptor::StreamElement::GetSemanticIndex() const
+	uint32 VertexInputState::StreamDescriptor::StreamElement::GetSemanticIndex() const
 	{
 		switch (m_Usage)
 		{
@@ -48,7 +48,7 @@ namespace Khan
 		}
 	}
 
-	uint32_t VertexInputState::StreamDescriptor::StreamElement::GetSize() const
+	uint32 VertexInputState::StreamDescriptor::StreamElement::GetSize() const
 	{
 		switch (m_Type)
 		{
@@ -82,7 +82,7 @@ namespace Khan
 		++m_NumElements;
 	}
 
-	void VertexInputState::AddStreamElement(uint32_t stream, StreamDescriptor::StreamElement::Type type, StreamDescriptor::StreamElement::Usage usage)
+	void VertexInputState::AddStreamElement(uint32 stream, StreamDescriptor::StreamElement::Type type, StreamDescriptor::StreamElement::Usage usage)
 	{
 		m_StreamDescriptors[stream].AddStreamElement(type, usage);
 		m_ActiveStreamMask |= 1 << stream;

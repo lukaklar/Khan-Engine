@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/utility.h"
 #include "graphicshal/vulkan/vulkandevice.hpp"
 #include "graphicshal/vulkan/vulkantransientresourcemanager.hpp"
 #include "system/assert.h"
@@ -21,16 +22,16 @@ namespace Khan
 
 	void VulkanTransientResourceManager::Destroy()
 	{
-		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
+		for (uint32 i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
 		{
-			for (uint32_t j = 0; j < m_BufferViewPoolIndex[i]; ++j)
+			for (uint32 j = 0; j < m_BufferViewPoolIndex[i]; ++j)
 			{
 				m_DummyBufferPool[i][j].~VulkanBuffer();
 				m_BufferViewPool[i][j].~VulkanBufferView();
 			}
 			m_BufferViewPoolIndex[i] = 0;
 
-			for (uint32_t j = 0; j < m_TextureViewPoolIndex[i]; ++j)
+			for (uint32 j = 0; j < m_TextureViewPoolIndex[i]; ++j)
 			{
 				m_DummyTexturePool[i][j].~VulkanTexture();
 				m_TextureViewPool[i][j].~VulkanTextureView();
@@ -38,14 +39,14 @@ namespace Khan
 			m_TextureViewPoolIndex[i] = 0;
 		}
 
-		for (uint32_t i = 0; i < m_BufferPoolIndex; ++i)
+		for (uint32 i = 0; i < m_BufferPoolIndex; ++i)
 		{
 			vmaDestroyBuffer(m_Allocator, m_BufferPool[i].GetVulkanBuffer(), m_BufferPool[i].VulkanAllocation());
 			m_BufferPool[i].~VulkanBuffer();
 		}
 		m_BufferPoolIndex = 0;
 
-		for (uint32_t i = 0; i < m_TexturePoolIndex; ++i)
+		for (uint32 i = 0; i < m_TexturePoolIndex; ++i)
 		{
 			vmaDestroyImage(m_Allocator, m_TexturePool[i].VulkanImage(), m_TexturePool[i].VulkanAllocation());
 			m_TexturePool[i].~VulkanTexture();
@@ -68,9 +69,9 @@ namespace Khan
 		return m_Device;
 	}
 
-	Buffer* VulkanTransientResourceManager::FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc, uint32_t resourceIndex)
+	Buffer* VulkanTransientResourceManager::FindOrCreateBuffer(const RenderPass* pass, const BufferDesc& desc, uint32 resourceIndex)
 	{
-		std::pair key(pass, desc);
+		TPair<const RenderPass*, const BufferDesc&> key(pass, desc);
 		auto it = m_DescToBufferMap[key].find(resourceIndex);
 		if (it != m_DescToBufferMap[key].end())
 		{
@@ -99,7 +100,7 @@ namespace Khan
 	{
 		VkBufferView bufferView;
 
-		std::pair key(buffer, desc);
+		TPair<Buffer*, const BufferViewDesc&> key(buffer, desc);
 		auto it = m_BufferViewMap.find(key);
 		if (it != m_BufferViewMap.end())
 		{
@@ -132,9 +133,9 @@ namespace Khan
 		return view;
 	}
 
-	Texture* VulkanTransientResourceManager::FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc, uint32_t resourceIndex)
+	Texture* VulkanTransientResourceManager::FindOrCreateTexture(const RenderPass* pass, const TextureDesc& desc, uint32 resourceIndex)
 	{
-		std::pair key(pass, desc);
+		TPair<const RenderPass*, const TextureDesc&> key(pass, desc);
 		auto it = m_DescToTextureMap[key].find(resourceIndex);
 		if (it != m_DescToTextureMap[key].end())
 		{
@@ -171,7 +172,7 @@ namespace Khan
 	{
 		VkImageView imageView;
 
-		std::pair key(texture, desc);
+		TPair<Texture*, const TextureViewDesc&> key(texture, desc);
 		auto it = m_ImageViewMap.find(key);
 		if (it != m_ImageViewMap.end())
 		{
@@ -201,32 +202,32 @@ namespace Khan
 		return view;
 	}
 
-	void VulkanTransientResourceManager::ResetFrame(uint32_t frameIndex)
+	void VulkanTransientResourceManager::ResetFrame(uint32 frameIndex)
 	{
 		m_CurrentFrameIndex = frameIndex;
 
-		for (uint32_t i = 0; i < m_BufferViewPoolIndex[frameIndex]; ++i)
+		for (uint32 i = 0; i < m_BufferViewPoolIndex[frameIndex]; ++i)
 		{
 			m_DummyBufferPool[frameIndex][i].~VulkanBuffer();
 			m_BufferViewPool[frameIndex][i].~VulkanBufferView();
 		}
 		m_BufferViewPoolIndex[frameIndex] = 0;
 
-		/*for (uint32_t i = 0; i < m_BufferPoolIndex; ++i)
+		/*for (uint32 i = 0; i < m_BufferPoolIndex; ++i)
 		{
 			vmaDestroyBuffer(m_Allocator, m_BufferPool[i].GetVulkanBuffer(), m_BufferPool[i].VulkanAllocation());
 			m_BufferPool[i].~VulkanBuffer();
 		}
 		m_BufferPoolIndex = 0;*/
 
-		for (uint32_t i = 0; i < m_TextureViewPoolIndex[frameIndex]; ++i)
+		for (uint32 i = 0; i < m_TextureViewPoolIndex[frameIndex]; ++i)
 		{
 			m_DummyTexturePool[frameIndex][i].~VulkanTexture();
 			m_TextureViewPool[frameIndex][i].~VulkanTextureView();
 		}
 		m_TextureViewPoolIndex[frameIndex] = 0;
 
-		/*for (uint32_t i = 0; i < m_TexturePoolIndex; ++i)
+		/*for (uint32 i = 0; i < m_TexturePoolIndex; ++i)
 		{
 			vmaDestroyImage(m_Allocator, m_TexturePool[i].VulkanImage(), m_TexturePool[i].VulkanAllocation());
 			m_TexturePool[i].~VulkanTexture();

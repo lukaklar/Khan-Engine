@@ -1,6 +1,8 @@
 #pragma once
 #include "core/camera/camera.hpp"
+#include "core/containers.h"
 #include "core/math.h"
+#include "core/primitivetypes.h"
 #include "graphicshal/constantbuffer.hpp"
 #include "graphics/passes/clusterpasses.hpp"
 #include "graphics/passes/deferredpasses.hpp"
@@ -22,7 +24,7 @@ namespace Khan
 
 	struct ShaderLightData
 	{
-		uint32_t m_Type;
+		uint32 m_Type;
 		Vector3 m_PositionVS;
 		Vector3 m_DirectionVS;
 		float m_Range;
@@ -58,20 +60,20 @@ namespace Khan
 		inline ResourceBoard& GetResourceBoard() { return m_ResourceBoard; }
 		inline ThreadPool& GetThreadPool() { return m_ThreadPool; }
 
-		inline std::vector<Mesh*>& GetOpaqueMeshes() { return m_OpaqueMeshes; }
-		//inline std::map<float, Mesh*>& GetTransparentMeshes() { return m_TransparentMeshes; }
+		inline TArray<Mesh*>& GetOpaqueMeshes() { return m_OpaqueMeshes; }
+		//inline TMap<float, Mesh*>& GetTransparentMeshes() { return m_TransparentMeshes; }
 
-		inline std::vector<ShaderLightData>& GetActiveLightData() { return m_ActiveLightData; }
+		inline TArray<ShaderLightData>& GetActiveLightData() { return m_ActiveLightData; }
 
 		inline const Camera* GetActiveCamera() const { return m_ActiveCamera; }
 		inline void SetActiveCamera(const Camera* camera) { m_ActiveCamera = camera; }
 
 		inline ConstantBuffer& GetFrustumParams() { return m_FrustumParams; }
 
-		inline uint32_t GetTotalNumClusters() const { return m_TotalNumClusters; }
+		inline uint32 GetTotalNumClusters() const { return m_TotalNumClusters; }
 
-		inline uint32_t GetScreenTileSize() const { return K_TILE_SIZE; }
-		inline uint32_t GetNumDepthSlices() const { return K_NUM_DEPTH_SLICES; }
+		inline uint32 GetScreenTileSize() const { return K_TILE_SIZE; }
+		inline uint32 GetNumDepthSlices() const { return K_NUM_DEPTH_SLICES; }
 
 	private:
 		void SchedulePasses();
@@ -97,19 +99,19 @@ namespace Khan
 		ResourceBoard m_ResourceBoard;
 		ThreadPool m_ThreadPool;
 
-		std::vector<Mesh*> m_OpaqueMeshes;
-		//std::map<float, Mesh*> m_TransparentMeshes;
+		TArray<Mesh*> m_OpaqueMeshes;
+		//TMap<float, Mesh*> m_TransparentMeshes;
 
-		std::vector<ShaderLightData> m_ActiveLightData;
+		TArray<ShaderLightData> m_ActiveLightData;
 
 		const Camera* m_ActiveCamera;
 
 		ConstantBuffer m_FrustumParams;
 
-		uint32_t m_TotalNumClusters;
+		uint32 m_TotalNumClusters;
 		bool m_FrustumParamsChanged;
 
-		inline static constexpr uint32_t K_TILE_SIZE = 16;
-		inline static constexpr uint32_t K_NUM_DEPTH_SLICES = 32;
+		inline static constexpr uint32 K_TILE_SIZE = 16;
+		inline static constexpr uint32 K_NUM_DEPTH_SLICES = 32;
 	};
 }

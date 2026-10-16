@@ -1,6 +1,7 @@
 #include "core/precomp.h"
 #include "core/camera/camerafrustum.hpp"
 #include "core/boundingvolume.h"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -60,7 +61,7 @@ namespace Khan
 					const Vector4 center(bv.GetSphereCenter(), 1.0f);
 					float radius = bv.GetSphereRadius();
 
-					for (uint32_t i = 0; i < FrustumPlane::Count; ++i)
+					for (uint32 i = 0; i < FrustumPlane::Count; ++i)
 					{
 						if (CullPlaneSphere(m_Planes[i], center, radius))
 						{
@@ -74,7 +75,7 @@ namespace Khan
 					Vector4 min(bv.GetAABBoxGlobalMin());
 					Vector4 max(bv.GetAABBoxGlobalMax());
 
-					for (uint32_t i = 0; i < FrustumPlane::Count; ++i)
+					for (uint32 i = 0; i < FrustumPlane::Count; ++i)
 					{
 						if (CullPlaneAABBox(m_Planes[i], min, max))
 						{
@@ -89,7 +90,7 @@ namespace Khan
 					Vector4 max(bv.GetAABBoxMax(), 1.0f);
 					Matrix4 oobbMatrix = bv.GetParentMatrix();
 
-					for (uint32_t i = 0; i < FrustumPlane::Count; ++i)
+					for (uint32 i = 0; i < FrustumPlane::Count; ++i)
 					{
 						if (CullPlaneOOBBox(m_Planes[i], oobbMatrix, min, max))
 						{

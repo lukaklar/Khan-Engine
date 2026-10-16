@@ -1,7 +1,6 @@
 #pragma once
+#include "core/primitivetypes.h"
 #include "graphics/rendergraph.hpp"
-#include <cstdint>
-#include <vector>
 
 namespace Khan
 {
@@ -28,9 +27,9 @@ namespace Khan
 		virtual ~RenderDevice() {}
 
 		inline const DisplayAdapter& GetAdapter() const { return m_Adapter; }
-		inline const std::vector<RenderContext*>& GetContexts() const { return m_Contexts; }
+		inline const TArray<RenderContext*>& GetContexts() const { return m_Contexts; }
 		inline RenderGraph& GetRenderGraph() { return m_RenderGraph; }
-		inline uint64_t FrameNumber() const { return m_FrameCounter; }
+		inline uint64 FrameNumber() const { return m_FrameCounter; }
 
 		virtual Buffer* CreateBuffer(const BufferDesc& desc, const void* initData = nullptr) = 0;
 		virtual BufferView* CreateBufferView(Buffer* buffer, const BufferViewDesc& desc) = 0;
@@ -55,12 +54,12 @@ namespace Khan
 
 		virtual void WaitIdle() = 0;
 
-		virtual void OnFlip(uint32_t frameIndex) = 0;
+		virtual void OnFlip(uint32 frameIndex) = 0;
 
 	protected:
-		std::vector<RenderContext*> m_Contexts;
+		TArray<RenderContext*> m_Contexts;
 		const DisplayAdapter& m_Adapter;
-		uint64_t m_FrameCounter;
+		uint64 m_FrameCounter;
 
 		RenderGraph m_RenderGraph;
 	};

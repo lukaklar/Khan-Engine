@@ -2,11 +2,12 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/defines.h"
+#include "core/math.h"
 #include "graphicshal/pixelformats.hpp"
 #include "graphicshal/vulkan/vulkanswapchain.hpp"
 #include "graphicshal/vulkan/vulkandevice.hpp"
 #include "graphicshal/vulkan/vulkandisplay.hpp"
-#include "core/defines.h"
 
 namespace Khan
 {
@@ -24,7 +25,7 @@ namespace Khan
 
 	VulkanSwapchain::~VulkanSwapchain()
 	{
-		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
+		for (uint32 i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
 		{
 			vkDestroyFence(m_Device.VulkanDevice(), m_FrameFences[i], nullptr);
 			vkDestroySemaphore(m_Device.VulkanDevice(), m_PresentCompleteSemaphores[i], nullptr);
@@ -39,15 +40,15 @@ namespace Khan
 		vkDestroySwapchainKHR(m_Device.VulkanDevice(), m_Swapchain, nullptr);
 	}
 
-	void VulkanSwapchain::CreateSwapchain(uint32_t width, uint32_t height, bool vsync, bool hdr)
+	void VulkanSwapchain::CreateSwapchain(uint32 width, uint32 height, bool vsync, bool hdr)
 	{
 		VkSwapchainKHR oldSwapchain = m_Swapchain;
 
 		VkExtent2D swapchainImageExtent;
 		if (m_Display.VulkanCurrentExtent().width == UINT32_MAX)
 		{
-			swapchainImageExtent.width = std::max(m_Display.VulkanMinExtent().width, std::min(m_Display.VulkanMaxExtent().width, width));
-			swapchainImageExtent.height = std::max(m_Display.VulkanMinExtent().height, std::min(m_Display.VulkanMaxExtent().height, height));
+			swapchainImageExtent.width = Max(m_Display.VulkanMinExtent().width, Min(m_Display.VulkanMaxExtent().width, width));
+			swapchainImageExtent.height = Max(m_Display.VulkanMinExtent().height, Min(m_Display.VulkanMaxExtent().height, height));
 		}
 		else
 		{
@@ -83,9 +84,9 @@ namespace Khan
 			delete reinterpret_cast<VulkanTexture*>(texture);
 		}
 
-		uint32_t swapchainImageCount;
+		uint32 swapchainImageCount;
 		VK_ASSERT(vkGetSwapchainImagesKHR(m_Device.VulkanDevice(), m_Swapchain, &swapchainImageCount, nullptr), "[VULKAN] Failed to get swapchain image count.");
-		std::vector<VkImage> swapchainImages(swapchainImageCount);
+		TArray<VkImage> swapchainImages(swapchainImageCount);
 		VK_ASSERT(vkGetSwapchainImagesKHR(m_Device.VulkanDevice(), m_Swapchain, &swapchainImageCount, swapchainImages.data()), "[VULKAN] Failed to get swapchain images.");
 
 		TextureDesc textureDesc;
@@ -99,7 +100,7 @@ namespace Khan
 		textureDesc.m_Flags = TextureFlag_AllowRenderTarget | TextureFlag_AllowShaderResource | TextureFlag_AllowUnorderedAccess | TextureFlag_Writable | TextureFlag_Readable;
 
 		m_BackBuffers.resize(swapchainImageCount);
-		for (uint32_t i = 0; i < swapchainImageCount; ++i)
+		for (uint32 i = 0; i < swapchainImageCount; ++i)
 		{
 			m_BackBuffers[i] = new VulkanTexture(swapchainImages[i], nullptr, textureDesc);
 			KH_DEBUGONLY(m_BackBuffers[i]->SetDebugName("SwapChainBackBuffer");)
@@ -112,7 +113,7 @@ namespace Khan
 		VkFenceCreateInfo fenceInfo = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
+		for (uint32 i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
 		{
 			VK_ASSERT(vkCreateSemaphore(m_Device.VulkanDevice(), &semaphoreInfo, nullptr, &m_RenderCompleteSemaphores[i]), "[VULKAN] Failed to create render complete semaphore.");
 			VK_ASSERT(vkCreateSemaphore(m_Device.VulkanDevice(), &semaphoreInfo, nullptr, &m_PresentCompleteSemaphores[i]), "[VULKAN] Failed to create present complete semaphore.");

@@ -16,7 +16,7 @@ namespace Khan
 
 	void VulkanUploadManager::Destroy()
 	{
-		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
+		for (uint32 i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
 		{
 			m_FreeStagingBuffers.insert(m_FreeStagingBuffers.end(), m_UsedStagingBuffers[i].begin(), m_UsedStagingBuffers[i].end());
 		}

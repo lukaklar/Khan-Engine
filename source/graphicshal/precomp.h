@@ -1,14 +1,7 @@
 #pragma once
 
-#include <algorithm>
 #include <atomic>
-#include <bitset>
-#include <map>
 #include <mutex>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
 
 #ifdef KH_GFXAPI_VULKAN
 #define VK_USE_PLATFORM_WIN32_KHR

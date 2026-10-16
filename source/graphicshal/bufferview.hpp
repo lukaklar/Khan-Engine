@@ -1,6 +1,5 @@
 #pragma once
-
-#include <cstdint>
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -9,8 +8,8 @@ namespace Khan
 
 	struct BufferViewDesc
 	{
-		uint32_t m_Offset;
-		uint32_t m_Range;
+		uint32 m_Offset;
+		uint32 m_Range;
 		PixelFormat m_Format;
 
 		inline bool operator==(const BufferViewDesc& other) const

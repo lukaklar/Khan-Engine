@@ -9,7 +9,7 @@ namespace Khan
 	VulkanBarrierRecorder::VulkanBarrierRecorder(const DisplayAdapter& adapter)
 		: m_Adapter(adapter)
 	{
-		for (uint32_t i = 0; i < 32; ++i)
+		for (uint32 i = 0; i < 32; ++i)
 		{
 			VkImageMemoryBarrier& imageBarrier = m_ImageBarriers[i];
 			imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

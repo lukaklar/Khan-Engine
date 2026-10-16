@@ -1,5 +1,8 @@
 #pragma once
 #include "core/ecs/entitygroup.hpp"
+#include "core/memory.h"
+#include "core/string.h"
+#include "core/utility.h"
 #include <thirdparty/entt/entt.hpp>
 
 namespace Khan
@@ -17,12 +20,12 @@ namespace Khan
 		Entity* CreateEntity();
 		void DestroyEntity(Entity* entity);
 
-		inline const std::vector<Entity*>& GetEntities() const { return m_Entities; }
+		inline const TArray<Entity*>& GetEntities() const { return m_Entities; }
 
 		template<typename... ComponentTypes>
-		std::shared_ptr<EntityGroup> GetEntityGroup()
+		TSharedPtr<EntityGroup> GetEntityGroup()
 		{
-			std::vector<Entity*> entities;
+			TArray<Entity*> entities;
 
 			auto view = m_Registry.view<ComponentTypes...>();
 			for (entt::entity id : view)
@@ -30,19 +33,19 @@ namespace Khan
 				entities.push_back(m_EntityMap.find(id)->second);
 			}
 
-			return std::make_shared<EntityGroup>(std::move(entities));
+			return MakeShared<EntityGroup>(Move(entities));
 		}
 
-		inline const std::string& GetName() const { return m_Name; }
+		inline const String& GetName() const { return m_Name; }
 
 	private:
 		static World* ms_CurrentWorld;
 
 		entt::registry m_Registry;
 		// Possibility to optimize: create default constructor for Entity and create a fixed size array where you would create Entities
-		std::map<entt::entity, Entity*> m_EntityMap;
-		std::vector<Entity*> m_Entities;
+		TMap<entt::entity, Entity*> m_EntityMap;
+		TArray<Entity*> m_Entities;
 
-		std::string m_Name;
+		String m_Name;
 	};
 }

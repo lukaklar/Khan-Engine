@@ -1,6 +1,6 @@
 #pragma once
 #include "core/ecs/component.hpp"
-#include <vector>
+#include "core/containers.h"
 
 namespace Khan
 {
@@ -9,6 +9,6 @@ namespace Khan
 	struct VisualComponent : Component
 	{
 		//float m_Scale; // x, y, z
-		std::vector<Mesh*> m_Meshes;
+		TArray<Mesh*> m_Meshes;
 	};
 }

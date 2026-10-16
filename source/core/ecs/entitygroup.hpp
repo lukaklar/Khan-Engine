@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include "core/containers.h"
 
 namespace Khan
 {
@@ -8,14 +8,14 @@ namespace Khan
 	class EntityGroup
 	{
 	public:
-		EntityGroup(std::vector<Entity*>&& entities)
+		EntityGroup(TArray<Entity*>&& entities)
 			: m_Entities(entities)
 		{
 		}
 
-		inline const std::vector<Entity*>& GetEntities() const { return m_Entities; }
+		inline const TArray<Entity*>& GetEntities() const { return m_Entities; }
 
 	private:
-		std::vector<Entity*> m_Entities;
+		TArray<Entity*> m_Entities;
 	};
 }

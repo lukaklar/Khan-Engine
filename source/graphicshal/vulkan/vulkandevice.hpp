@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/primitivetypes.h"
 #include "graphicshal/queuetype.hpp"
 #include "graphicshal/renderdevice.hpp"
 #include "graphicshal/vulkan/vulkandevicememorymanager.hpp"
@@ -57,7 +58,7 @@ namespace Khan
 
 		virtual void WaitIdle() override;
 
-		virtual void OnFlip(uint32_t frameIndex) override;
+		virtual void OnFlip(uint32 frameIndex) override;
 
 	private:
 		void SubmitCommands(VkCommandBuffer commandBuffer, const RenderGraph::Node* rgSubmitInfo);
@@ -75,8 +76,8 @@ namespace Khan
 		VulkanSemaphoreAllocator m_SemaphoreAllocator;
 
 		std::mutex m_CommandSubmitLock;
-		std::map<uint64_t, std::pair<VkCommandBuffer, const RenderGraph::Node*>> m_CommandSubmissions;
-		std::unordered_map<uint64_t, VkSemaphore> m_BufferIdToSemaphoreMap;
+		TMap<uint64_t, TPair<VkCommandBuffer, const RenderGraph::Node*>> m_CommandSubmissions;
+		THashMap<uint64_t, VkSemaphore> m_BufferIdToSemaphoreMap;
 
 		VulkanCommandPool m_GraphicsCommandPool;
 		VulkanCommandPool m_CopyCommandPool;

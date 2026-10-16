@@ -1,11 +1,13 @@
 #pragma once
 
+#include "core/primitivetypes.h"
+
 namespace Khan
 {
 	struct CommandLineOptions
 	{
-		uint32_t m_WindowWidth;
-		uint32_t m_WindowHeight;
+		uint32 m_WindowWidth;
+		uint32 m_WindowHeight;
 		bool m_Fullscreen;
 		bool m_VSyncEnabled;
 		bool m_GPUDebugEnabled;

@@ -7,6 +7,9 @@
 #include "graphics/renderer.hpp"
 #include "graphics/renderpass.hpp"
 #include "graphics/rendertask.hpp"
+#include "core/algorithms.h"
+#include "core/math.h"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -37,17 +40,17 @@ namespace Khan
 			true	// ResourceState_Present
 	};
 
-	inline uint64_t RenderGraph::ConstructSubresourceID(uint64_t resourceID, uint32_t subresourceIndex)
+	inline uint64 RenderGraph::ConstructSubresourceID(uint64 resourceID, uint32 subresourceIndex)
 	{
 		return resourceID & (~0ull << 32) ^ (resourceID << 32) | subresourceIndex;
 	}
 
-	inline std::pair<uint64_t, uint32_t> RenderGraph::DecodeSubresourceName(uint64_t name)
+	inline TPair<uint64, uint32> RenderGraph::DecodeSubresourceName(uint64 name)
 	{
 		return { 0, 0 };
 	}
 
-	uint64_t RenderGraph::NodeCountForQueue(uint64_t queueIndex) const
+	uint64 RenderGraph::NodeCountForQueue(uint64 queueIndex) const
 	{
 		auto countIt = m_QueueNodeCounters.find(queueIndex);
 		return countIt != m_QueueNodeCounters.end() ? countIt->second : 0;
@@ -97,7 +100,7 @@ namespace Khan
 	BufferView* RenderGraph::DeclareResourceDependency(Buffer* buffer, const BufferViewDesc& desc, ResourceState startState, ResourceState endState, bool keepContent)
 	{
 		BufferView* view = m_TransientResourceManager->FindOrCreateBufferView(buffer, desc);		
-		uint64_t resourceID = pair_hash{}(std::pair(buffer, desc));
+		uint64 resourceID = pair_hash{}(TPair<Buffer*, BufferViewDesc>(buffer, desc));
 
 		Node* node = m_ActivePassNode.second;
 		node->m_AllBuffers.push_back(view);
@@ -128,7 +131,7 @@ namespace Khan
 	TextureView* RenderGraph::DeclareResourceDependency(Texture* texture, const TextureViewDesc& desc, ResourceState startState, ResourceState endState, bool keepContent)
 	{
 		TextureView* view = m_TransientResourceManager->FindOrCreateTextureView(texture, desc);
-		uint64_t resourceID = pair_hash{}(std::pair(texture, desc));
+		uint64 resourceID = pair_hash{}(TPair<Texture*, TextureViewDesc>(texture, desc));
 
 		Node* node = m_ActivePassNode.second;
 		node->m_AllTextures.push_back(view);
@@ -177,7 +180,7 @@ namespace Khan
 	{
 		m_AdjacencyLists.resize(m_PassNodes.size());
 
-		for (uint64_t nodeIdx = 0; nodeIdx < m_PassNodes.size(); ++nodeIdx)
+		for (uint64 nodeIdx = 0; nodeIdx < m_PassNodes.size(); ++nodeIdx)
 		{
 			Node& node = m_PassNodes[nodeIdx];
 
@@ -186,17 +189,17 @@ namespace Khan
 				continue;
 			}
 
-			std::vector<uint64_t>& adjacentNodeIndices = m_AdjacencyLists[nodeIdx];
+			TArray<uint64>& adjacentNodeIndices = m_AdjacencyLists[nodeIdx];
 
-			//for (uint64_t otherNodeIdx = 0; otherNodeIdx < m_PassNodes.size(); ++otherNodeIdx)
-			for (uint64_t otherNodeIdx = nodeIdx + 1; otherNodeIdx < m_PassNodes.size(); ++otherNodeIdx)
+			//for (uint64 otherNodeIdx = 0; otherNodeIdx < m_PassNodes.size(); ++otherNodeIdx)
+			for (uint64 otherNodeIdx = nodeIdx + 1; otherNodeIdx < m_PassNodes.size(); ++otherNodeIdx)
 			{
 				// Do not check dependencies on itself
 				//if (nodeIdx == otherNodeIdx) continue;
 
 				Node& otherNode = m_PassNodes[otherNodeIdx];
 
-				auto establishAdjacency = [&](uint64_t otherNodeReadResource) -> bool
+				auto establishAdjacency = [&](uint64 otherNodeReadResource) -> bool
 				{
 					// If other node reads a subresource written by the current node, then it depends on current node and is an adjacent dependency
 					bool otherNodeDependsOnCurrentNode =
@@ -218,12 +221,12 @@ namespace Khan
 					return false;
 				};
 
-				for (uint64_t otherNodeReadResource : otherNode.m_ReadSubresources)
+				for (uint64 otherNodeReadResource : otherNode.m_ReadSubresources)
 				{
 					if (establishAdjacency(otherNodeReadResource)) break;
 				}
 
-				/*for (uint64_t otherNodeReadResource : otherNode.mAliasedSubresources)
+				/*for (uint64 otherNodeReadResource : otherNode.mAliasedSubresources)
 				{
 					if (establishAdjacency(otherNodeReadResource)) break;
 				}*/
@@ -231,7 +234,7 @@ namespace Khan
 		}
 	}
 
-	void RenderGraph::DepthFirstSearch(uint64_t nodeIndex, std::vector<bool>& visited, std::vector<bool>& onStack, bool& isCyclic)
+	void RenderGraph::DepthFirstSearch(uint64 nodeIndex, TArray<bool>& visited, TArray<bool>& onStack, bool& isCyclic)
 	{
 		if (isCyclic)
 			return;
@@ -239,9 +242,9 @@ namespace Khan
 		visited[nodeIndex] = true;
 		onStack[nodeIndex] = true;
 
-		uint64_t adjacencyListIndex = m_PassNodes[nodeIndex].m_IndexInUnorderedList;
+		uint64 adjacencyListIndex = m_PassNodes[nodeIndex].m_IndexInUnorderedList;
 
-		for (uint64_t neighbour : m_AdjacencyLists[adjacencyListIndex])
+		for (uint64 neighbour : m_AdjacencyLists[adjacencyListIndex])
 		{
 			if (visited[neighbour] && onStack[neighbour])
 			{
@@ -261,12 +264,12 @@ namespace Khan
 
 	inline void RenderGraph::TopologicalSort()
 	{
-		std::vector<bool> visitedNodes(m_PassNodes.size(), false);
-		std::vector<bool> onStackNodes(m_PassNodes.size(), false);
+		TArray<bool> visitedNodes(m_PassNodes.size(), false);
+		TArray<bool> onStackNodes(m_PassNodes.size(), false);
 
 		bool isCyclic = false;
 
-		for (uint64_t nodeIndex = 0; nodeIndex < m_PassNodes.size(); ++nodeIndex)
+		for (uint64 nodeIndex = 0; nodeIndex < m_PassNodes.size(); ++nodeIndex)
 		{
 			const Node& node = m_PassNodes[nodeIndex];
 
@@ -278,28 +281,28 @@ namespace Khan
 			}
 		}
 
-		std::reverse(m_TopologicallySortedNodes.begin(), m_TopologicallySortedNodes.end());
+		Reverse(m_TopologicallySortedNodes.begin(), m_TopologicallySortedNodes.end());
 	}
 
 	inline void RenderGraph::BuildDependencyLevels()
 	{
-		std::vector<uint64_t> longestDistances(m_PassNodes.size(), 0);
+		TArray<uint64> longestDistances(m_PassNodes.size(), 0);
 
-		uint64_t dependencyLevelCount = 1;
+		uint64 dependencyLevelCount = 1;
 
 		// Perform longest node distance search
-		for (uint64_t nodeIndex = 0; nodeIndex < m_TopologicallySortedNodes.size(); ++nodeIndex)
+		for (uint64 nodeIndex = 0; nodeIndex < m_TopologicallySortedNodes.size(); ++nodeIndex)
 		{
-			uint64_t originalIndex = m_TopologicallySortedNodes[nodeIndex]->m_IndexInUnorderedList;
-			uint64_t adjacencyListIndex = originalIndex;
+			uint64 originalIndex = m_TopologicallySortedNodes[nodeIndex]->m_IndexInUnorderedList;
+			uint64 adjacencyListIndex = originalIndex;
 
-			for (uint64_t adjacentNodeIndex : m_AdjacencyLists[adjacencyListIndex])
+			for (uint64 adjacentNodeIndex : m_AdjacencyLists[adjacencyListIndex])
 			{
 				if (longestDistances[adjacentNodeIndex] < longestDistances[originalIndex] + 1)
 				{
-					uint64_t newLongestDistance = longestDistances[originalIndex] + 1;
+					uint64 newLongestDistance = longestDistances[originalIndex] + 1;
 					longestDistances[adjacentNodeIndex] = newLongestDistance;
-					dependencyLevelCount = std::max(newLongestDistance + 1, dependencyLevelCount);
+					dependencyLevelCount = Max(newLongestDistance + 1, dependencyLevelCount);
 				}
 			}
 		}
@@ -311,41 +314,41 @@ namespace Khan
 		for (auto nodeIndex = 0; nodeIndex < m_TopologicallySortedNodes.size(); ++nodeIndex)
 		{
 			Node* node = m_TopologicallySortedNodes[nodeIndex];
-			uint64_t levelIndex = longestDistances[node->m_IndexInUnorderedList];
+			uint64 levelIndex = longestDistances[node->m_IndexInUnorderedList];
 			DependencyLevel& dependencyLevel = m_DependencyLevels[levelIndex];
 			dependencyLevel.m_LevelIndex = levelIndex;
 			dependencyLevel.AddNode(node);
 			node->m_DependencyLevelIndex = levelIndex;
-			m_DetectedQueueCount = std::max(m_DetectedQueueCount, node->m_ExecutionQueueIndex + 1);
+			m_DetectedQueueCount = Max(m_DetectedQueueCount, node->m_ExecutionQueueIndex + 1);
 		}
 	}
 
 	
 	inline void RenderGraph::FinalizeDependencyLevels()
 	{
-		uint32_t globalExecutionIndex = 0;
+		uint32 globalExecutionIndex = 0;
 
 		m_NodesInGlobalExecutionOrder.resize(m_TopologicallySortedNodes.size(), nullptr);
 		m_NodesPerQueue.resize(m_DetectedQueueCount);
-		std::vector<const Node*> perQueuePreviousNodes(m_DetectedQueueCount, nullptr);
+		TArray<const Node*> perQueuePreviousNodes(m_DetectedQueueCount, nullptr);
 
 		for (DependencyLevel& dependencyLevel : m_DependencyLevels)
 		{
-			uint64_t localExecutionIndex = 0;
+			uint64 localExecutionIndex = 0;
 
-			std::unordered_map<uint64_t, std::unordered_set<uint64_t>> resourceReadingQueueTracker;
+			THashMap<uint64, THashSet<uint64>> resourceReadingQueueTracker;
 			dependencyLevel.m_NodesPerQueue.resize(m_DetectedQueueCount);
 
 			for (Node* node : dependencyLevel.m_Nodes)
 			{
 				// Track which resource is read by which queue in this dependency level
-				for (uint64_t subresourceName : node->ReadSubresources())
+				for (uint64 subresourceName : node->ReadSubresources())
 				{
 					resourceReadingQueueTracker[subresourceName].insert(node->m_ExecutionQueueIndex);
 				}
 
 				// Associate written subresource with render pass that writes to it for quick access when needed
-				/*for (uint64_t subresourceName : node->WrittenSubresources())
+				/*for (uint64 subresourceName : node->WrittenSubresources())
 				{
 					m_WrittenSubresourceToPassMap[subresourceName] = node;
 				}*/
@@ -367,7 +370,7 @@ namespace Khan
 
 				perQueuePreviousNodes[node->m_ExecutionQueueIndex] = node;
 
-				//for (uint64_t resourceName : node->AllResources())
+				//for (uint64 resourceName : node->AllResources())
 				//{
 				//	auto timelineIt = mResourceUsageTimelines.find(resourceName);
 				//	bool timelineExists = timelineIt != mResourceUsageTimelines.end();
@@ -401,7 +404,7 @@ namespace Khan
 				// If resource is read by more than one queue
 				if (queueIndices.size() > 1)
 				{
-					for (uint64_t queueIndex : queueIndices)
+					for (uint64 queueIndex : queueIndices)
 					{
 						dependencyLevel.m_QueuesInvoledInCrossQueueResourceReads.insert(queueIndex);
 						dependencyLevel.m_SubresourcesReadByMultipleQueues.insert(subresourceName);
@@ -425,7 +428,7 @@ namespace Khan
 			for (Node* node : dependencyLevel.m_Nodes)
 			{
 				// Closest node to sync with on each queue
-				std::vector<const Node*> closestNodesToSyncWith{ m_DetectedQueueCount, nullptr };
+				TArray<const Node*> closestNodesToSyncWith{ m_DetectedQueueCount, nullptr };
 
 				// Find closest dependencies from other queues for the current node
 				for (const Node* dependencyNode : node->m_NodesToSyncWith)
@@ -442,7 +445,7 @@ namespace Khan
 				node->m_NodesToSyncWith.clear();
 
 				// Compute initial SSIS
-				for (uint64_t queueIdx = 0; queueIdx < m_DetectedQueueCount; ++queueIdx)
+				for (uint64 queueIdx = 0; queueIdx < m_DetectedQueueCount; ++queueIdx)
 				{
 					const Node* closestNode = closestNodesToSyncWith[queueIdx];
 
@@ -456,7 +459,7 @@ namespace Khan
 						// Previous node can be null if we're dealing with first node in the queue
 						if (previousNodeOnNodesQueue)
 						{
-							uint64_t syncIndexForOtherQueueFromPreviousNode = previousNodeOnNodesQueue->m_SynchronizationIndexSet[queueIdx];
+							uint64 syncIndexForOtherQueueFromPreviousNode = previousNodeOnNodesQueue->m_SynchronizationIndexSet[queueIdx];
 							node->m_SynchronizationIndexSet[queueIdx] = syncIndexForOtherQueueFromPreviousNode;
 						}
 					}
@@ -479,15 +482,15 @@ namespace Khan
 			for (Node* node : dependencyLevel.m_Nodes)
 			{
 				// Keep track of queues we still need to sync with
-				std::unordered_set<uint64_t> queueToSyncWithIndices;
+				THashSet<uint64> queueToSyncWithIndices;
 
 				// Store nodes and queue syncs they cover
-				std::vector<SyncCoverage> syncCoverageArray;
+				TArray<SyncCoverage> syncCoverageArray;
 
 				// Final optimized list of nodes without redundant dependencies
-				std::vector<const Node*> optimalNodesToSyncWith;
+				TArray<const Node*> optimalNodesToSyncWith;
 
-				std::vector<const Node*> nodesToRemove;
+				TArray<const Node*> nodesToRemove;
 
 				for (const Node* nodeToSyncWith : node->m_NodesToSyncWith)
 				{
@@ -496,7 +499,7 @@ namespace Khan
 
 				while (!queueToSyncWithIndices.empty())
 				{
-					uint64_t maxNumberOfSyncsCoveredBySingleNode = 0;
+					uint64 maxNumberOfSyncsCoveredBySingleNode = 0;
 
 					for (auto dependencyNodeIdx = 0u; dependencyNodeIdx < node->m_NodesToSyncWith.size(); ++dependencyNodeIdx)
 					{
@@ -508,12 +511,12 @@ namespace Khan
 						// or even all of them through indirect synchronizations, 
 						// which will make other synchronizations previously detected for this node redundant.
 
-						std::vector<uint64_t> syncedQueueIndices;
+						TArray<uint64> syncedQueueIndices;
 
-						for (uint64_t queueIndex : queueToSyncWithIndices)
+						for (uint64 queueIndex : queueToSyncWithIndices)
 						{
-							uint64_t currentNodeDesiredSyncIndex = node->m_SynchronizationIndexSet[queueIndex];
-							uint64_t dependencyNodeSyncIndex = dependencyNode->m_SynchronizationIndexSet[queueIndex];
+							uint64 currentNodeDesiredSyncIndex = node->m_SynchronizationIndexSet[queueIndex];
+							uint64 dependencyNodeSyncIndex = dependencyNode->m_SynchronizationIndexSet[queueIndex];
 
 							KH_ASSERT(currentNodeDesiredSyncIndex != Node::InvalidSynchronizationIndex,
 								"Bug! Node that wants to sync with some queue must have a valid sync index for that queue.");
@@ -531,7 +534,7 @@ namespace Khan
 						}
 
 						syncCoverageArray.emplace_back(SyncCoverage{ dependencyNode, dependencyNodeIdx, syncedQueueIndices });
-						maxNumberOfSyncsCoveredBySingleNode = std::max(maxNumberOfSyncsCoveredBySingleNode, syncedQueueIndices.size());
+						maxNumberOfSyncsCoveredBySingleNode = Max(maxNumberOfSyncsCoveredBySingleNode, syncedQueueIndices.size());
 					}
 
 					for (const SyncCoverage& syncCoverage : syncCoverageArray)
@@ -549,11 +552,11 @@ namespace Khan
 
 								// Update SSIS
 								auto& index = node->m_SynchronizationIndexSet[syncCoverage.m_NodeToSyncWith->m_ExecutionQueueIndex];
-								index = std::max(index, node->m_SynchronizationIndexSet[syncCoverage.m_NodeToSyncWith->m_ExecutionQueueIndex]);
+								index = Max(index, node->m_SynchronizationIndexSet[syncCoverage.m_NodeToSyncWith->m_ExecutionQueueIndex]);
 							}
 
 							// Remove covered queues from the list of queues we need to sync with
-							for (uint64_t syncedQueueIndex : syncCoverage.m_SyncedQueueIndices)
+							for (uint64 syncedQueueIndex : syncCoverage.m_SyncedQueueIndices)
 							{
 								queueToSyncWithIndices.erase(syncedQueueIndex);
 							}
@@ -570,7 +573,7 @@ namespace Khan
 
 					for (const Node* nodeToRemove : nodesToRemove)
 					{
-						node->m_NodesToSyncWith.erase(std::find(node->m_NodesToSyncWith.begin(), node->m_NodesToSyncWith.end(), nodeToRemove));
+						node->m_NodesToSyncWith.erase(Find(node->m_NodesToSyncWith.begin(), node->m_NodesToSyncWith.end(), nodeToRemove));
 					}
 
 					syncCoverageArray.clear();
@@ -623,11 +626,11 @@ namespace Khan
 
 	void RenderGraph::Execute(Renderer& renderer)
 	{
-		const std::vector<RenderContext*> contexts = m_TransientResourceManager->GetDevice().GetContexts();
-		uint64_t ctxCount = contexts.size();
+		const TArray<RenderContext*> contexts = m_TransientResourceManager->GetDevice().GetContexts();
+		uint64 ctxCount = contexts.size();
 		ThreadPool& threadPool = renderer.GetThreadPool();
 
-		uint64_t currentCtxIdx = 0;
+		uint64 currentCtxIdx = 0;
 		for (Node* node : m_NodesInGlobalExecutionOrder)
 		{
 			RenderTask task(node->m_Pass, *contexts[currentCtxIdx], renderer);
@@ -661,33 +664,33 @@ namespace Khan
 	{
 	}
 
-	void RenderGraph::Node::AddReadDependency(uint64_t resourceID, uint32_t firstSubresourceIndex, uint32_t subresourceCount)
+	void RenderGraph::Node::AddReadDependency(uint64 resourceID, uint32 firstSubresourceIndex, uint32 subresourceCount)
 	{
-		//for (uint32_t i = 0; i < subresourceCount; ++i)
+		//for (uint32 i = 0; i < subresourceCount; ++i)
 		//{
-			//uint64_t subresourceID = ConstructSubresourceID(resourceID, firstSubresourceIndex + i);
+			//uint64 subresourceID = ConstructSubresourceID(resourceID, firstSubresourceIndex + i);
 			m_ReadSubresources.insert(resourceID);
 			m_ReadAndWrittenSubresources.insert(resourceID);
 			m_AllResources.insert(resourceID);
 		//}
 	}
-	void RenderGraph::Node::AddWriteDependency(uint64_t resourceID, uint32_t firstSubresourceIndex, uint32_t subresourceCount)
+	void RenderGraph::Node::AddWriteDependency(uint64 resourceID, uint32 firstSubresourceIndex, uint32 subresourceCount)
 	{
-		//for (uint32_t i = 0; i < subresourceCount; ++i)
+		//for (uint32 i = 0; i < subresourceCount; ++i)
 		//{
-			//uint64_t subresourceID = ConstructSubresourceID(resourceID, firstSubresourceIndex + i);
+			//uint64 subresourceID = ConstructSubresourceID(resourceID, firstSubresourceIndex + i);
 			m_WrittenSubresources.insert(resourceID);
 			m_ReadAndWrittenSubresources.insert(resourceID);
 			m_AllResources.insert(resourceID);
 		//}
 	}
 
-	bool RenderGraph::Node::HasDependency(uint64_t resourceID, uint32_t subresourceIndex) const
+	bool RenderGraph::Node::HasDependency(uint64 resourceID, uint32 subresourceIndex) const
 	{
 		return HasDependency(ConstructSubresourceID(resourceID, subresourceIndex));
 	}
 
-	bool RenderGraph::Node::HasDependency(uint64_t subresourceID) const
+	bool RenderGraph::Node::HasDependency(uint64 subresourceID) const
 	{
 		return m_ReadAndWrittenSubresources.find(subresourceID) != m_ReadAndWrittenSubresources.end();
 	}
@@ -697,12 +700,12 @@ namespace Khan
 		return !m_ReadAndWrittenSubresources.empty();
 	}
 
-	std::pair<ResourceState, uint64_t> RenderGraph::Node::GetBarrierDataForResource(const Resource& resource)
+	TPair<ResourceState, uint64> RenderGraph::Node::GetBarrierDataForResource(const Resource& resource)
 	{
-		uint64_t resourceID = m_ResourceToIdMap[&const_cast<Resource&>(resource)];
+		uint64 resourceID = m_ResourceToIdMap[&const_cast<Resource&>(resource)];
 
 		ResourceState state = m_ResourceStateTransition[resourceID].second;
-		uint64_t queue = m_ExecutionQueueIndex;
+		uint64 queue = m_ExecutionQueueIndex;
 		auto it = m_ResourceQueueTransfer.find(resourceID);
 		if (it != m_ResourceQueueTransfer.end())
 		{
@@ -751,7 +754,7 @@ namespace Khan
 		m_Nodes.push_back(node);
 	}
 
-	RenderGraph::Node* RenderGraph::DependencyLevel::RemoveNode(std::list<Node*>::iterator it)
+	RenderGraph::Node* RenderGraph::DependencyLevel::RemoveNode(TList<Node*>::iterator it)
 	{
 		Node* node = *it;
 		m_Nodes.erase(it);

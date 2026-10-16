@@ -1,8 +1,32 @@
 #pragma once
 
+#include <array>
+#include <bitset>
+#include <deque>
+#include <forward_list>
+#include <functional>
+#include <initializer_list>
+#include <list>
 #include <map>
+#include <memory>
+#include <optional>
+#include <queue>
+#include <set>
+//#include <span>
+#include <stack>
 #include <string>
 #include <typeindex>
-#include <unordered_map>
-#include <unordered_set>
+#include <type_traits>
 #include <vector>
+#include <unordered_set>
+#include <unordered_map>
+#include <utility>
+
+#include <thirdparty/glm/glm.hpp>
+#include <thirdparty/glm/gtc/constants.hpp>
+#include <thirdparty/glm/gtc/epsilon.hpp>
+#include <thirdparty/glm/gtc/matrix_transform.hpp>
+#include <thirdparty/glm/gtc/quaternion.hpp>
+#include <thirdparty/glm/gtx/norm.hpp>
+#include <thirdparty/glm/gtx/quaternion.hpp>
+#include <thirdparty/glm/gtx/transform.hpp>

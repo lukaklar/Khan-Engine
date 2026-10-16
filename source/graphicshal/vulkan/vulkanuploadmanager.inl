@@ -9,7 +9,7 @@
 
 namespace Khan
 {
-	KH_FORCE_INLINE uint32_t VulkanUploadManager::Upload(const void* src, uint32_t size)
+	KH_FORCE_INLINE uint32 VulkanUploadManager::Upload(const void* src, uint32 size)
 	{
 		m_Lock.lock();
 
@@ -52,7 +52,7 @@ namespace Khan
 			}
 		}
 
-		uint32_t startOffset = KH_ALIGN(m_CurrentStagingBuffer->m_Offset, K_STAGING_BUFFER_ALIGNMENT);
+		uint32 startOffset = KH_ALIGN(m_CurrentStagingBuffer->m_Offset, K_STAGING_BUFFER_ALIGNMENT);
 		m_CurrentStagingBuffer->m_Offset = startOffset + size;
 
 		m_Lock.unlock();
@@ -62,7 +62,7 @@ namespace Khan
 		return startOffset;
 	}
 
-	KH_FORCE_INLINE void VulkanUploadManager::ResetFrame(uint32_t frameIndex)
+	KH_FORCE_INLINE void VulkanUploadManager::ResetFrame(uint32 frameIndex)
 	{
 		if (m_CurrentStagingBuffer != nullptr)
 		{

@@ -5,7 +5,7 @@ namespace Khan
 {
     const char* SplashScreen::ms_WindowClassName = "SplashScreen";
 
-    SplashScreen::SplashScreen(const char* programName /* = "Khan Engine" */, const char* imageName /* = "splash.bmp" */, uint32_t width /* = 400 */, uint32_t height /* = 300 */)
+    SplashScreen::SplashScreen(const char* programName /* = "Khan Engine" */, const char* imageName /* = "splash.bmp" */, uint32 width /* = 400 */, uint32 height /* = 300 */)
         : m_hInstance(GetModuleHandle(NULL)), m_hBitmap(NULL), m_ImageName(imageName), m_Width(width), m_Height(height)
     {
         WNDCLASSEX wcx = {};
@@ -17,8 +17,8 @@ namespace Khan
 
         RegisterClassEx(&wcx);
 
-        int32_t screenWidth = GetSystemMetrics(SM_CXSCREEN);
-        int32_t screenHeight = GetSystemMetrics(SM_CYSCREEN);
+        int32 screenWidth = GetSystemMetrics(SM_CXSCREEN);
+        int32 screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
         RECT windowRect;
         windowRect.left = (screenWidth - width) / 2;

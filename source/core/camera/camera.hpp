@@ -1,5 +1,6 @@
 #pragma once
 #include "core/camera/camerafrustum.hpp"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -44,6 +45,6 @@ namespace Khan
 		Matrix4 m_InverseProjection;
 
 		float m_FOV, m_AspectRatio, m_NearClip, m_FarClip;
-		uint32_t m_ViewportWidth = 1280, m_ViewportHeight = 720;
+		uint32 m_ViewportWidth = 1280, m_ViewportHeight = 720;
 	};
 }

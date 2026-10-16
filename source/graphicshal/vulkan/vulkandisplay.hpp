@@ -2,6 +2,8 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/primitivetypes.h"
+
 namespace Khan
 {
 	class DisplayAdapter;
@@ -18,8 +20,8 @@ namespace Khan
 		inline VkExtent2D VulkanMaxExtent() const { return m_MaxExtent; }
 		inline VkCompositeAlphaFlagBitsKHR VulkanCompositeAlpha() const { return m_CompositeAlpha; }
 		inline VkPresentModeKHR VulkanNoVSyncPresentMode() const { return m_NoVSyncPresentMode; }
-		inline uint32_t VulkanVSyncImageCount() const { return m_VSyncImageCount; }
-		inline uint32_t VulkanNoVSyncImageCount() const { return m_NoVSyncImageCount; }
+		inline uint32 VulkanVSyncImageCount() const { return m_VSyncImageCount; }
+		inline uint32 VulkanNoVSyncImageCount() const { return m_NoVSyncImageCount; }
 		inline VkSurfaceTransformFlagBitsKHR VulkanPreTransform() const { return m_PreTransform; }
 		inline VkSurfaceFormatKHR VulkanHDRSurfaceFormat() const { return m_HDRSurfaceFormat; }
 		inline VkSurfaceFormatKHR VulkanSDRSurfaceFormat() const { return m_SDRSurfaceFormat; }
@@ -31,8 +33,8 @@ namespace Khan
 		VkExtent2D m_MaxExtent;
 		VkCompositeAlphaFlagBitsKHR m_CompositeAlpha;
 		VkPresentModeKHR m_NoVSyncPresentMode;
-		uint32_t m_VSyncImageCount;
-		uint32_t m_NoVSyncImageCount;
+		uint32 m_VSyncImageCount;
+		uint32 m_NoVSyncImageCount;
 		VkSurfaceTransformFlagBitsKHR m_PreTransform;
 		VkSurfaceFormatKHR m_HDRSurfaceFormat;
 		VkSurfaceFormatKHR m_SDRSurfaceFormat;

@@ -1,5 +1,7 @@
 #pragma once
+#include "core/containers.h"
 #include "core/singleton.h"
+#include "core/string.h"
 
 namespace Khan
 {
@@ -16,7 +18,7 @@ namespace Khan
 		TextureManager();
 		~TextureManager();
 
-		std::vector<Texture*> m_Textures;
-		std::unordered_map<std::string, TextureView*> m_TextureViewMap;
+		TArray<Texture*> m_Textures;
+		THashMap<String, TextureView*> m_TextureViewMap;
 	};
 }

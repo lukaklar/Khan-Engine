@@ -47,7 +47,7 @@ namespace Khan
 		return sqlite3_exec(m_Database, sql, callback, nullptr, nullptr) == SQLITE_OK;
 	}
 
-	std::string SQLiteDatabase::GetLastError() const
+	String SQLiteDatabase::GetLastError() const
 	{
 		return sqlite3_errmsg(m_Database);
 	}

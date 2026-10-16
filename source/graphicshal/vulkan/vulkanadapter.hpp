@@ -2,6 +2,8 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/containers.h"
+#include "core/primitivetypes.h"
 #include "graphicshal/queuetype.hpp"
 
 namespace Khan
@@ -22,15 +24,15 @@ namespace Khan
 		inline const VkPhysicalDeviceFeatures& GetEnabledFeatures() const { return m_Features; }
 		//inline bool SupportsAsyncCompute() const { return m_QueueFamilyIndices[QueueType_Compute] != UINT32_MAX; }
 		//inline bool HasDMA() const { m_QueueFamilyIndices[QueueType_Copy] != UINT32_MAX; }
-		inline const uint32_t* GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
-		inline const std::vector<const char*>& GetSupportedExtensions() const { return m_SupportedExtensions; }
+		inline const uint32* GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
+		inline const TArray<const char*>& GetSupportedExtensions() const { return m_SupportedExtensions; }
 
 	private:
 		VkPhysicalDevice m_Adapter;
 		VkPhysicalDeviceProperties m_Properties;
 		VkPhysicalDeviceFeatures m_Features;
-		uint32_t m_QueueFamilyIndices[QueueType_Count];
-		std::vector<const char*> m_SupportedExtensions;
+		uint32 m_QueueFamilyIndices[QueueType_Count];
+		TArray<const char*> m_SupportedExtensions;
 	};
 }
 

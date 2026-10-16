@@ -1,6 +1,7 @@
 #include "system/precomp.h"
 #include "system/window.hpp"
 #include "system/input/inputmanager.hpp"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -9,8 +10,8 @@ namespace Khan
 		static bool s_Running;
 		static HINSTANCE s_hInstance;
 		HWND g_hWnd;
-		uint32_t g_Width;
-		uint32_t g_Height;
+		uint32 g_Width;
+		uint32 g_Height;
 		const char* g_Title;
 
 		static void HideCursor()
@@ -42,7 +43,7 @@ namespace Khan
 			{
 			case WM_INPUT:
 			{
-				std::vector<uint8_t> rawBuffer;
+				TArray<byte> rawBuffer;
 				UINT size;
 
 				if (FAILED(GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER))))
@@ -73,12 +74,12 @@ namespace Khan
 			case WM_KEYDOWN:
 			{
 				bool prevState = (lparam & (1 << 30)) != 0;
-				InputManager::Get()->OnKeyPressed(static_cast<int32_t>(wparam), LOWORD(lparam), prevState ? InputType::Repeat : InputType::Press);
+				InputManager::Get()->OnKeyPressed(static_cast<int32>(wparam), LOWORD(lparam), prevState ? InputType::Repeat : InputType::Press);
 				break;
 			}
 			case WM_KEYUP:
 			{
-				InputManager::Get()->OnKeyPressed(static_cast<int32_t>(wparam), LOWORD(lparam), InputType::Release);
+				InputManager::Get()->OnKeyPressed(static_cast<int32>(wparam), LOWORD(lparam), InputType::Release);
 				break;
 			}
 			case WM_LBUTTONDOWN:
@@ -156,7 +157,7 @@ namespace Khan
 			return 0;
 		}
 
-		void Initialize(const char* title, uint32_t width, uint32_t height)
+		void Initialize(const char* title, uint32 width, uint32 height)
 		{
 			g_Title = title;
 			g_Width = width;

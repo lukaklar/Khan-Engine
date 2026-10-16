@@ -1,11 +1,10 @@
 #pragma once
 
 #include "system/assert.h"
-#include <string>
 
 namespace Khan
 {
-	KH_FORCE_INLINE void ConstantBuffer::UpdateConstantData(const void* data, uint32_t offset, uint32_t size)
+	KH_FORCE_INLINE void ConstantBuffer::UpdateConstantData(const void* data, uint32 offset, uint32 size)
 	{
 		KH_ASSERT(offset + size <= m_Size, "Constant buffer overflow.");
 		std::memcpy(m_ShadowData + offset, data, size);
@@ -17,17 +16,17 @@ namespace Khan
 		return m_ShadowData;
 	}
 
-	KH_FORCE_INLINE uint32_t ConstantBuffer::Size() const
+	KH_FORCE_INLINE uint32 ConstantBuffer::Size() const
 	{
 		return m_Size;
 	}
 
-	KH_FORCE_INLINE uint32_t ConstantBuffer::GetDynamicOffset() const
+	KH_FORCE_INLINE uint32 ConstantBuffer::GetDynamicOffset() const
 	{
 		return m_DynamicOffset;
 	}
 
-	KH_FORCE_INLINE void ConstantBuffer::SetDynamicOffset(uint32_t offset)
+	KH_FORCE_INLINE void ConstantBuffer::SetDynamicOffset(uint32 offset)
 	{
 		m_DynamicOffset = offset;
 	}

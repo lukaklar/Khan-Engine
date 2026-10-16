@@ -42,7 +42,7 @@ namespace Khan
 			BufferDesc desc;
 			BufferViewDesc viewDesc;
 
-			desc.m_Size = K_NUM_HISTOGRAM_BINS * sizeof(uint32_t);
+			desc.m_Size = K_NUM_HISTOGRAM_BINS * sizeof(uint32);
 			desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_AllowUnorderedAccess | BufferFlag_Writable;
 			temp = renderGraph.CreateManagedResource(desc);
 
@@ -77,8 +77,8 @@ namespace Khan
 
 	void LuminanceAdaptationPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		uint32_t width = renderer.GetActiveCamera()->GetViewportWidth();
-		uint32_t height = renderer.GetActiveCamera()->GetViewportHeight();
+		uint32 width = renderer.GetActiveCamera()->GetViewportWidth();
+		uint32 height = renderer.GetActiveCamera()->GetViewportHeight();
 		float oneOverLogLuminanceRange = 1.0f / (K_MAX_LOG_LUMINANCE - K_MIN_LOG_LUMINANCE);
 
 		m_LuminanceHistogramBuffer.UpdateConstantData(&width, 0, 4);
@@ -92,11 +92,11 @@ namespace Khan
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_HDRTexture);
 		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_Histogram);
 
-		uint32_t threadGroupCountX = (uint32_t)Ceil((float)width / 16);
-		uint32_t threadGroupCountY = (uint32_t)Ceil((float)height / 16);
+		uint32 threadGroupCountX = (uint32)Ceil((float)width / 16);
+		uint32 threadGroupCountY = (uint32)Ceil((float)height / 16);
 		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 
-		uint32_t pixelCount = width * height;
+		uint32 pixelCount = width * height;
 		float logLuminanceRange = K_MAX_LOG_LUMINANCE - K_MIN_LOG_LUMINANCE;
 		std::chrono::steady_clock::time_point timeNow = std::chrono::steady_clock::now();
 		std::chrono::duration<float> elapsed_seconds = timeNow - m_LastFrameTime;
@@ -172,8 +172,8 @@ namespace Khan
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 1, m_AdaptedLuminance);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_HDROutput);
 
-		uint32_t threadGroupCountX = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
-		uint32_t threadGroupCountY = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		uint32 threadGroupCountX = (uint32)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32 threadGroupCountY = (uint32)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 }

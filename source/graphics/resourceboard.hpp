@@ -1,5 +1,5 @@
 #pragma once
-#include <algorithm>
+#include "core/utility.h"
 
 namespace Khan
 {
@@ -42,6 +42,6 @@ namespace Khan
 
 		inline Texture* GetPostFXSrc() const { return m_Persistent.m_FinalOutput; }
 		inline Texture* GetPostFXDst() const { return m_Transient.m_TempPostFxSurface; }
-		inline void SwapPostFXSurfaces() { std::swap(m_Persistent.m_FinalOutput, m_Transient.m_TempPostFxSurface); }
+		inline void SwapPostFXSurfaces() { Swap(m_Persistent.m_FinalOutput, m_Transient.m_TempPostFxSurface); }
 	};
 }

@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/primitivetypes.h"
 #include "graphicshal/config.h"
 #include "graphicshal/vulkan/vk_mem_alloc.h"
 
@@ -13,13 +14,13 @@ namespace Khan
 		void Create(VmaAllocator allocator);
 		void Destroy(VmaAllocator allocator);
 
-		uint32_t Upload(const void* src, uint32_t size);
-		void ResetFrame(uint32_t frameIndex);
+		uint32 Upload(const void* src, uint32 size);
+		void ResetFrame(uint32 frameIndex);
 
 		VkBuffer CurrentBuffer() const;
 
 	private:
-		static constexpr uint32_t K_UNIFORM_BUFFER_SIZE = 16 * 1024 * 1024;
+		static constexpr uint32 K_UNIFORM_BUFFER_SIZE = 16 * 1024 * 1024;
 
 		struct FramePool
 		{
@@ -28,8 +29,8 @@ namespace Khan
 
 			VkBuffer m_Buffer;
 			VmaAllocation m_Allocation;
-			uint8_t* m_MappedMemory;
-			std::atomic<uint32_t> m_Offset;
+			byte* m_MappedMemory;
+			std::atomic<uint32> m_Offset;
 		} m_FramePools[K_MAX_FRAMES_IN_FLIGHT], *m_CurrentPool;
 	};
 }

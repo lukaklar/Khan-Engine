@@ -1,6 +1,7 @@
 #pragma once
 #include "graphics/renderpass.hpp"
 #include "graphicshal/constantbuffer.hpp"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -26,7 +27,7 @@ namespace Khan
 		ConstantBuffer m_LuminanceHistogramAverageBuffer;
 		std::chrono::steady_clock::time_point m_LastFrameTime;
 
-		inline static constexpr uint32_t K_NUM_HISTOGRAM_BINS = 256;
+		inline static constexpr uint32 K_NUM_HISTOGRAM_BINS = 256;
 		inline static constexpr float K_MIN_LOG_LUMINANCE = -10.0f;
 		inline static constexpr float K_MAX_LOG_LUMINANCE = 2.0f;
 		inline static constexpr float K_TAU = 1.1f;

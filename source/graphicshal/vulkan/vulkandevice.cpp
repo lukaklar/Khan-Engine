@@ -18,7 +18,7 @@ namespace Khan
 		VkDeviceQueueCreateInfo queueInfos[QueueType_Count];
 		float queuePriority = 1.0f;
 
-		for (uint32_t i = 0; i < QueueType_Count; ++i)
+		for (uint32 i = 0; i < QueueType_Count; ++i)
 		{
 			queueInfos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queueInfos[i].pNext = nullptr;
@@ -36,13 +36,13 @@ namespace Khan
 		deviceInfo.pQueueCreateInfos = queueInfos;
 		deviceInfo.enabledLayerCount = 0;
 		deviceInfo.ppEnabledLayerNames = nullptr;
-		deviceInfo.enabledExtensionCount = static_cast<uint32_t>(adapter.GetSupportedExtensions().size());
+		deviceInfo.enabledExtensionCount = static_cast<uint32>(adapter.GetSupportedExtensions().size());
 		deviceInfo.ppEnabledExtensionNames = adapter.GetSupportedExtensions().data();
 		deviceInfo.pEnabledFeatures = &adapter.GetEnabledFeatures();
 
 		VK_ASSERT(vkCreateDevice(m_Adapter.VulkanAdapter(), &deviceInfo, nullptr, &m_Device), "[VULKAN] Failed to create device.");
 
-		for (uint32_t i = 0; i < QueueType_Count; ++i)
+		for (uint32 i = 0; i < QueueType_Count; ++i)
 		{
 			vkGetDeviceQueue(m_Device, adapter.GetQueueFamilyIndices()[i], 0, &m_CommandQueues[i]);
 		}
@@ -54,7 +54,7 @@ namespace Khan
 		m_UploadManager.Create(m_MemoryManager.VulkanMemoryAllocator());
 		m_SemaphoreAllocator.Create(m_Device);
 
-		for (uint32_t i = 0; i < 1; ++i)
+		for (uint32 i = 0; i < 1; ++i)
 		{
 			m_Contexts.push_back(new VulkanRenderContext(*this));
 		}
@@ -98,7 +98,7 @@ namespace Khan
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		VK_ASSERT(vkBeginCommandBuffer(cpyCmdBuf, &beginInfo), "[VULKAN] Failed to begin cpy command buffer.");
 
-		uint32_t offset = m_UploadManager.Upload(initData, desc.m_Size);
+		uint32 offset = m_UploadManager.Upload(initData, desc.m_Size);
 
 		m_BarrierRecorder.RecordBarrier(*buffer, ResourceState_CopyDestination, QueueType_Copy);
 		m_BarrierRecorder.Flush(cpyCmdBuf);
@@ -186,7 +186,7 @@ namespace Khan
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		VK_ASSERT(vkBeginCommandBuffer(cpyCmdBuf, &beginInfo), "[VULKAN] Failed to begin cpy command buffer.");
 
-		uint32_t offset = m_UploadManager.Upload(initData, desc.m_Width * desc.m_Height * 4);
+		uint32 offset = m_UploadManager.Upload(initData, desc.m_Width * desc.m_Height * 4);
 
 		m_BarrierRecorder.RecordBarrier(*texture, ResourceState_CopyDestination, QueueType_Copy);
 		m_BarrierRecorder.Flush(cpyCmdBuf);
@@ -278,7 +278,7 @@ namespace Khan
 	{
 		VkShaderModuleCreateInfo shaderModuleInfo = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
 		shaderModuleInfo.codeSize = desc.m_BytecodeSize;
-		shaderModuleInfo.pCode = reinterpret_cast<const uint32_t*>(desc.m_Bytecode);
+		shaderModuleInfo.pCode = reinterpret_cast<const uint32*>(desc.m_Bytecode);
 
 		VkShaderModule shaderModule;
 		VK_ASSERT(vkCreateShaderModule(m_Device, &shaderModuleInfo, nullptr, &shaderModule), "[VULKAN] Failed to create shader module.");
@@ -346,7 +346,7 @@ namespace Khan
 		VK_ASSERT(vkDeviceWaitIdle(m_Device), "[VULKAN] Failed to wait device idle.");
 	}
 
-	void VulkanRenderDevice::OnFlip(uint32_t frameIndex)
+	void VulkanRenderDevice::OnFlip(uint32 frameIndex)
 	{
 		++m_FrameCounter;
 
@@ -381,7 +381,7 @@ namespace Khan
 		// TODO: Tweak this function to submit more submit infos instead of just one each time synchronization is needed
 		static const VkPipelineStageFlags s_WaitStagesForQueues[QueueType_Count] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT };
 		
-		std::vector<VkCommandBuffer> commandBuffers[QueueType_Count];
+		TArray<VkCommandBuffer> commandBuffers[QueueType_Count];
 
 		for (auto [cmdBufId, data] : m_CommandSubmissions)
 		{
@@ -391,8 +391,8 @@ namespace Khan
 
 			if (info->IsSyncSignalRequired() || !info->NodesToSyncWith().empty())
 			{
-				std::vector<VkSemaphore> waitSemaphores;
-				std::vector<VkPipelineStageFlags> waitStages;
+				TArray<VkSemaphore> waitSemaphores;
+				TArray<VkPipelineStageFlags> waitStages;
 
 				VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 
@@ -402,10 +402,10 @@ namespace Khan
 					waitStages.push_back(s_WaitStagesForQueues[syncNode->m_ExecutionQueueIndex]);
 				}
 
-				submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+				submitInfo.waitSemaphoreCount = static_cast<uint32>(waitSemaphores.size());
 				submitInfo.pWaitSemaphores = waitSemaphores.data();
 				submitInfo.pWaitDstStageMask = waitStages.data();
-				submitInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers[info->m_ExecutionQueueIndex].size());
+				submitInfo.commandBufferCount = static_cast<uint32>(commandBuffers[info->m_ExecutionQueueIndex].size());
 				submitInfo.pCommandBuffers = commandBuffers[info->m_ExecutionQueueIndex].data();
 
 				if (info->IsSyncSignalRequired())
@@ -420,13 +420,13 @@ namespace Khan
 			}
 		}
 
-		for (uint32_t i = 0; i < QueueType_Count; ++i)
+		for (uint32 i = 0; i < QueueType_Count; ++i)
 		{
 			auto& cmdBuffers = commandBuffers[i];
 			if (!cmdBuffers.empty())
 			{
 				VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-				submitInfo.commandBufferCount = static_cast<uint32_t>(cmdBuffers.size());
+				submitInfo.commandBufferCount = static_cast<uint32>(cmdBuffers.size());
 				submitInfo.pCommandBuffers = cmdBuffers.data();
 
 				VK_ASSERT(vkQueueSubmit(m_CommandQueues[i], 1, &submitInfo, VK_NULL_HANDLE), "[VULKAN] Failed to submit to queue.");

@@ -40,7 +40,7 @@ namespace Khan
 		//		futures[0] = std::async(std::launch::async, &InitWindowAndGraphics);
 		//		// init physics, sound etc.
 		//
-		//		for (int32_t i = 0; i < 1; ++i)
+		//		for (int32 i = 0; i < 1; ++i)
 		//		{
 		//			futures[i].wait();
 		//			success = success && futures[i].get();

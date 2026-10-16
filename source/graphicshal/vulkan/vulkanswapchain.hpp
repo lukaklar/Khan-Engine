@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/primitivetypes.h"
 #include "graphicshal/config.h"
 #include "graphicshal/swapchain.hpp"
 
@@ -20,7 +21,7 @@ namespace Khan
 		virtual void Flip() override;
 
 	private:
-		void CreateSwapchain(uint32_t width, uint32_t height, bool vsync, bool hdr);
+		void CreateSwapchain(uint32 width, uint32 height, bool vsync, bool hdr);
 		void CreateSynchronizationPrimitives();
 
 		VulkanRenderDevice& m_Device;

@@ -76,8 +76,8 @@ filter "configurations:Final"
 
 workspace "khan.engine.lib.vs2022.windows"
 	location "../../projects"
-	targetdir "../../bin/lib"
-	objdir "../../tmp/lib"
+	targetdir "../../binaries/lib"
+	objdir "../../intermediates/lib"
 	staticruntime "On"
 
 	include "lib/zlib.lua"

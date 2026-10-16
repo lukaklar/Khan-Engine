@@ -1,6 +1,5 @@
 #pragma once
-
-#include <cstdint>
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -22,10 +21,10 @@ namespace Khan
 	{
 		TextureViewType m_Type;
 		PixelFormat m_Format;
-		uint32_t m_BaseArrayLayer;
-		uint32_t m_LayerCount;
-		uint32_t m_BaseMipLevel;
-		uint32_t m_LevelCount;
+		uint32 m_BaseArrayLayer;
+		uint32 m_LayerCount;
+		uint32 m_BaseMipLevel;
+		uint32 m_LevelCount;
 
 		inline bool operator==(const TextureViewDesc& other) const
 		{

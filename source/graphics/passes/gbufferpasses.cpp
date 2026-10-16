@@ -11,10 +11,11 @@
 #include "graphicshal/textureview.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/rendergraph.hpp"
-#include "core/defines.h"
 #include "graphics/objects/mesh.hpp"
 #include "graphics/materials/material.hpp"
 #include "graphics/shadermanager.hpp"
+#include "core/defines.h"
+#include "core/primitivetypes.h"
 
 #define DECLARE_GBUFFER_OUTPUT(target, format, state)\
 desc.m_Format = format;\
@@ -118,7 +119,7 @@ namespace Khan
 			context.SetViewport(0.0f, 0.0f, (float)renderer.GetActiveCamera()->GetViewportWidth(), (float)renderer.GetActiveCamera()->GetViewportHeight());
 			context.SetScissor(0, 0, m_GBuffer_Depth->GetTexture().GetDesc().m_Width, m_GBuffer_Depth->GetTexture().GetDesc().m_Height);
 
-			uint32_t i = 0;
+			uint32 i = 0;
 			for (auto& texture : material->GetTextures())
 			{
 				context.SetSRVTexture(ResourceBindFrequency_PerMaterial, texture.m_Binding, texture.m_Texture);

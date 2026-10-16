@@ -27,7 +27,7 @@ namespace Khan
 		m_MaxExtent = surfaceCapabilities.maxImageExtent;
 
 		m_CompositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		std::vector<VkCompositeAlphaFlagBitsKHR> compositeAlphaFlags = {
+		TArray<VkCompositeAlphaFlagBitsKHR> compositeAlphaFlags = {
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 			VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
 			VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
@@ -42,12 +42,12 @@ namespace Khan
 			};
 		}
 
-		uint32_t presentModeCount;
+		uint32 presentModeCount;
 		VK_ASSERT(vkGetPhysicalDeviceSurfacePresentModesKHR(adapter.VulkanAdapter(), m_Surface, &presentModeCount, nullptr), "[VULKAN] Failed to get present mode count.");
-		std::vector<VkPresentModeKHR> presentModes(presentModeCount);
+		TArray<VkPresentModeKHR> presentModes(presentModeCount);
 		VK_ASSERT(vkGetPhysicalDeviceSurfacePresentModesKHR(adapter.VulkanAdapter(), m_Surface, &presentModeCount, presentModes.data()), "[VULKAN] Failed to enumerate present modes.");
 
-		for (uint32_t i = 0; i < presentModeCount; ++i)
+		for (uint32 i = 0; i < presentModeCount; ++i)
 		{
 			if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
@@ -60,7 +60,7 @@ namespace Khan
 			}
 		}
 
-		auto CalculateImageCount = [](uint32_t& imageCount, uint32_t minImageCount, uint32_t maxImageCount)
+		auto CalculateImageCount = [](uint32& imageCount, uint32 minImageCount, uint32 maxImageCount)
 		{
 			if (imageCount < minImageCount)
 			{
@@ -87,9 +87,9 @@ namespace Khan
 			m_PreTransform = surfaceCapabilities.currentTransform;
 		}
 
-		uint32_t surfaceFormatCount;
+		uint32 surfaceFormatCount;
 		VK_ASSERT(vkGetPhysicalDeviceSurfaceFormatsKHR(adapter.VulkanAdapter(), m_Surface, &surfaceFormatCount, nullptr), "[VULKAN] Failed to get surface format count.");
-		std::vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
+		TArray<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
 		VK_ASSERT(vkGetPhysicalDeviceSurfaceFormatsKHR(adapter.VulkanAdapter(), m_Surface, &surfaceFormatCount, surfaceFormats.data()), "[VULKAN] Failed to enumerate surface formats.");
 
 		if ((surfaceFormatCount == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED))

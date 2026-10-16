@@ -37,18 +37,18 @@ namespace Khan
 		VkAttachmentDescription attachments[K_MAX_RENDER_TARGETS + 1];
 		VkAttachmentReference colorAttachmentReferences[K_MAX_RENDER_TARGETS];
 		VkAttachmentReference depthStencilAttachmentReference;
-		uint32_t attachmentCount = desc.m_RenderTargetCount;
+		uint32 attachmentCount = desc.m_RenderTargetCount;
 		bool depthStencilUsed = desc.m_DepthStencil.m_Format != PF_NONE;
 		bool dependencyNecessary = false;
 
-		for (uint32_t i = 0; i < desc.m_RenderTargetCount; ++i)
+		for (uint32 i = 0; i < desc.m_RenderTargetCount; ++i)
 		{
 			VkAttachmentDescription& attachment = attachments[i];
 			attachment.flags = 0;
 			attachment.format = PixelFormatToVulkanFormat(desc.m_RenderTargets[i].m_Format);
 			attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-			attachment.loadOp = s_VkLoadOps[static_cast<uint32_t>(desc.m_RenderTargets[i].m_StartAccess)];
-			attachment.storeOp = s_VkStoreOps[static_cast<uint32_t>(desc.m_RenderTargets[i].m_EndAccess)];
+			attachment.loadOp = s_VkLoadOps[static_cast<uint32>(desc.m_RenderTargets[i].m_StartAccess)];
+			attachment.storeOp = s_VkStoreOps[static_cast<uint32>(desc.m_RenderTargets[i].m_EndAccess)];
 			attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			attachment.initialLayout = desc.m_RenderTargets[i].m_StartAccess == StartAccessType::Keep ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
@@ -68,10 +68,10 @@ namespace Khan
 			attachment.flags = 0;
 			attachment.format = PixelFormatToVulkanFormat(desc.m_DepthStencil.m_Format);
 			attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-			attachment.loadOp = s_VkLoadOps[static_cast<uint32_t>(desc.m_DepthStencil.m_DepthStartAccess)];
-			attachment.storeOp = s_VkStoreOps[static_cast<uint32_t>(desc.m_DepthStencil.m_DepthEndAccess)];
-			attachment.stencilLoadOp = s_VkLoadOps[static_cast<uint32_t>(desc.m_DepthStencil.m_StencilStartAccess)];
-			attachment.stencilStoreOp = s_VkStoreOps[static_cast<uint32_t>(desc.m_DepthStencil.m_StencilEndAccess)];
+			attachment.loadOp = s_VkLoadOps[static_cast<uint32>(desc.m_DepthStencil.m_DepthStartAccess)];
+			attachment.storeOp = s_VkStoreOps[static_cast<uint32>(desc.m_DepthStencil.m_DepthEndAccess)];
+			attachment.stencilLoadOp = s_VkLoadOps[static_cast<uint32>(desc.m_DepthStencil.m_StencilStartAccess)];
+			attachment.stencilStoreOp = s_VkStoreOps[static_cast<uint32>(desc.m_DepthStencil.m_StencilEndAccess)];
 			attachment.initialLayout = depthOrStencilLoaded ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
 			attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 

@@ -8,6 +8,8 @@
 #include "graphicshal/vulkan/vulkancontext.hpp"
 #include "graphicshal/vulkan/vulkandevice.hpp"
 #include "graphics/renderpass.hpp"
+#include "core/containers.h"
+#include "core/math.h"
 #include "system/assert.h"
 
 namespace Khan
@@ -19,7 +21,7 @@ namespace Khan
 		, m_DescriptorUpdater(m_Device.VulkanDevice())
 		, m_CurrentFramebuffers(&m_Framebuffers[0])
 	{
-		for (uint32_t i = 0; i < QueueType_Count; ++i)
+		for (uint32 i = 0; i < QueueType_Count; ++i)
 		{
 			m_CommandPools[i].Create(m_Device.VulkanDevice(), m_Device.GetAdapter().GetQueueFamilyIndices()[i]);
 		}
@@ -27,12 +29,12 @@ namespace Khan
 
 	VulkanRenderContext::~VulkanRenderContext()
 	{
-		for (uint32_t i = 0; i < QueueType_Count; ++i)
+		for (uint32 i = 0; i < QueueType_Count; ++i)
 		{
 			m_CommandPools[i].Destroy();
 		}
 
-		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
+		for (uint32 i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
 		{
 			for (VkFramebuffer framebuffer : m_Framebuffers[i])
 			{
@@ -50,7 +52,7 @@ namespace Khan
 	{
 		m_ExecutingPass = &pass;
 
-		for (uint32_t i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
+		for (uint32 i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
 		{
 			m_VertexBuffers[i] = nullptr;
 			m_VBOffsets[i] = 0;
@@ -67,18 +69,18 @@ namespace Khan
 		m_ViewportDirty = false;
 		m_ScissorDirty = false;
 
-		for (uint32_t set = 0; set < ResourceBindFrequency_Count; ++set)
+		for (uint32 set = 0; set < ResourceBindFrequency_Count; ++set)
 		{
-			for (uint32_t i = 0; i < K_MAX_CBV; ++i)
+			for (uint32 i = 0; i < K_MAX_CBV; ++i)
 			{
 				m_CBuffers[set][i] = nullptr;
 			}
-			for (uint32_t i = 0; i < K_MAX_SRV; ++i)
+			for (uint32 i = 0; i < K_MAX_SRV; ++i)
 			{
 				m_SRVBuffers[set][i] = nullptr;
 				m_SRVTextures[set][i] = nullptr;
 			}
-			for (uint32_t i = 0; i < K_MAX_UAV; ++i)
+			for (uint32 i = 0; i < K_MAX_UAV; ++i)
 			{
 				m_UAVBuffers[set][i] = nullptr;
 				m_UAVTextures[set][i] = nullptr;
@@ -104,14 +106,14 @@ namespace Khan
 
 		for (BufferView* view : rgNode->AllBuffers())
 		{
-			std::pair<ResourceState, uint64_t> barrierData = rgNode->GetBarrierDataForResource(view->GetBuffer());
+			TPair<ResourceState, uint64_t> barrierData = rgNode->GetBarrierDataForResource(view->GetBuffer());
 			m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanBufferView*>(view), barrierData.first, (QueueType)barrierData.second);
 			m_BarrierRecorder.Flush(m_CommandBuffer);
 		}
 
 		for (TextureView* view : rgNode->AllTextures())
 		{
-			std::pair<ResourceState, uint64_t> barrierData = rgNode->GetBarrierDataForResource(view->GetTexture());
+			TPair<ResourceState, uint64_t> barrierData = rgNode->GetBarrierDataForResource(view->GetTexture());
 			m_BarrierRecorder.RecordBarrier(*reinterpret_cast<VulkanTextureView*>(view), barrierData.first, (QueueType)barrierData.second);
 			m_BarrierRecorder.Flush(m_CommandBuffer);
 		}
@@ -131,18 +133,18 @@ namespace Khan
 #endif // KH_DEBUG
 
 		VkClearValue clearValues[K_MAX_RENDER_TARGETS + 1];
-		uint32_t clearValueCount = 0;
+		uint32 clearValueCount = 0;
 		VkImageView attachments[K_MAX_RENDER_TARGETS + 1];
-		uint32_t attachmentCount = renderPass.GetDesc().m_RenderTargetCount;
-		uint32_t width = UINT32_MAX, height = UINT32_MAX;
+		uint32 attachmentCount = renderPass.GetDesc().m_RenderTargetCount;
+		uint32 width = UINT32_MAX, height = UINT32_MAX;
 		
-		for (uint32_t i = 0; i < renderPass.GetDesc().m_RenderTargetCount; ++i)
+		for (uint32 i = 0; i < renderPass.GetDesc().m_RenderTargetCount; ++i)
 		{
 			VulkanTextureView* textureView = reinterpret_cast<VulkanTextureView*>(renderTargets[i]);
 
 			attachments[i] = textureView->VulkanImageView();
-			width = std::min(width, textureView->GetTexture().GetDesc().m_Width);
-			height = std::min(height, textureView->GetTexture().GetDesc().m_Height);
+			width = Min(width, textureView->GetTexture().GetDesc().m_Width);
+			height = Min(height, textureView->GetTexture().GetDesc().m_Height);
 
 			StartAccessType attachmentStartAccess = renderPass.GetDesc().m_RenderTargets[i].m_StartAccess;
 			if (attachmentStartAccess == StartAccessType::Clear)
@@ -165,8 +167,8 @@ namespace Khan
 			VulkanTextureView* textureView = reinterpret_cast<VulkanTextureView*>(depthStencilBuffer);
 
 			attachments[attachmentCount++] = textureView->VulkanImageView();
-			width = std::min(width, textureView->GetTexture().GetDesc().m_Width);
-			height = std::min(height, textureView->GetTexture().GetDesc().m_Height);
+			width = Min(width, textureView->GetTexture().GetDesc().m_Width);
+			height = Min(height, textureView->GetTexture().GetDesc().m_Height);
 
 			StartAccessType depthStartAccess = renderPass.GetDesc().m_DepthStencil.m_DepthStartAccess;
 			StartAccessType stencilStartAccess = renderPass.GetDesc().m_DepthStencil.m_StencilStartAccess;
@@ -219,7 +221,7 @@ namespace Khan
 		vkCmdEndRenderPass(m_CommandBuffer);
 	}
 
-	void VulkanRenderContext::SetVertexBuffer(uint32_t location, Buffer* vertexBuffer, uint32_t offset)
+	void VulkanRenderContext::SetVertexBuffer(uint32 location, Buffer* vertexBuffer, uint32 offset)
 	{
 		VulkanBuffer* vb = reinterpret_cast<VulkanBuffer*>(vertexBuffer);
 		if (m_VertexBuffers[location] != vb)
@@ -230,7 +232,7 @@ namespace Khan
 		}
 	}
 
-	void VulkanRenderContext::SetIndexBuffer(Buffer* indexBuffer, uint32_t offset, bool useTwoByteIndex)
+	void VulkanRenderContext::SetIndexBuffer(Buffer* indexBuffer, uint32 offset, bool useTwoByteIndex)
 	{
 		VulkanBuffer* ib = reinterpret_cast<VulkanBuffer*>(indexBuffer);
 		if (m_IndexBuffer != ib)
@@ -242,7 +244,7 @@ namespace Khan
 		}
 	}
 
-	void VulkanRenderContext::SetConstantBuffer(ResourceBindFrequency frequency, uint32_t binding, ConstantBuffer* cbuffer)
+	void VulkanRenderContext::SetConstantBuffer(ResourceBindFrequency frequency, uint32 binding, ConstantBuffer* cbuffer)
 	{
 		if (m_CBuffers[frequency][binding] != cbuffer || cbuffer->IsDirty())
 		{
@@ -251,7 +253,7 @@ namespace Khan
 		}
 	}
 
-	void VulkanRenderContext::SetSRVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture)
+	void VulkanRenderContext::SetSRVTexture(ResourceBindFrequency frequency, uint32 binding, TextureView* texture)
 	{
 		if (m_SRVTextures[frequency][binding] != texture)
 		{
@@ -261,7 +263,7 @@ namespace Khan
 		}
 	}
 
-	void VulkanRenderContext::SetSRVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer)
+	void VulkanRenderContext::SetSRVBuffer(ResourceBindFrequency frequency, uint32 binding, BufferView* buffer)
 	{
 		if (m_SRVBuffers[frequency][binding] != buffer)
 		{
@@ -271,7 +273,7 @@ namespace Khan
 		}
 	}
 
-	void VulkanRenderContext::SetUAVTexture(ResourceBindFrequency frequency, uint32_t binding, TextureView* texture)
+	void VulkanRenderContext::SetUAVTexture(ResourceBindFrequency frequency, uint32 binding, TextureView* texture)
 	{
 		if (m_UAVTextures[frequency][binding] != texture)
 		{
@@ -281,7 +283,7 @@ namespace Khan
 		}
 	}
 
-	void VulkanRenderContext::SetUAVBuffer(ResourceBindFrequency frequency, uint32_t binding, BufferView* buffer)
+	void VulkanRenderContext::SetUAVBuffer(ResourceBindFrequency frequency, uint32 binding, BufferView* buffer)
 	{
 		if (m_UAVBuffers[frequency][binding] != buffer)
 		{
@@ -311,7 +313,7 @@ namespace Khan
 		m_ViewportDirty = true;
 	}
 
-	void VulkanRenderContext::SetScissor(int32_t left, int32_t top, uint32_t width, uint32_t height)
+	void VulkanRenderContext::SetScissor(int32 left, int32 top, uint32 width, uint32 height)
 	{
 		m_Scissor.offset.x = left;
 		m_Scissor.offset.y = top;
@@ -320,7 +322,7 @@ namespace Khan
 		m_ScissorDirty = true;
 	}
 
-	void VulkanRenderContext::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+	void VulkanRenderContext::DrawInstanced(uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance)
 	{
 		KH_ASSERT(m_IsRenderPassInProgress, "Cannot issue draw commands until a valid render pass is in progress. Please begin a render pass before drawing.");
 		m_CommandType = CommandType::Draw;
@@ -332,7 +334,7 @@ namespace Khan
 		vkCmdDraw(m_CommandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 	}
 
-	void VulkanRenderContext::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
+	void VulkanRenderContext::DrawIndexedInstanced(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, int32 vertexOffset, uint32 firstInstance)
 	{
 		KH_ASSERT(m_IsRenderPassInProgress, "Cannot issue draw commands until a valid render pass is in progress. Please begin a render pass before drawing.");
 		m_CommandType = CommandType::Draw;
@@ -344,7 +346,7 @@ namespace Khan
 		vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
-	void VulkanRenderContext::Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ)
+	void VulkanRenderContext::Dispatch(uint32 threadGroupCountX, uint32 threadGroupCountY, uint32 threadGroupCountZ)
 	{
 		m_CommandType = CommandType::Dispatch;
 		BindPipeline();
@@ -353,7 +355,7 @@ namespace Khan
 		vkCmdDispatch(m_CommandBuffer, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 	}
 
-	void VulkanRenderContext::DispatchIndirect(BufferView* buffer, uint32_t offset)
+	void VulkanRenderContext::DispatchIndirect(BufferView* buffer, uint32 offset)
 	{
 		m_CommandType = CommandType::Dispatch;
 		BindPipeline();
@@ -368,7 +370,7 @@ namespace Khan
 		
 		VulkanBufferView* view = reinterpret_cast<VulkanBufferView*>(dst);
 
-		uint32_t offset = m_Device.m_UploadManager.Upload(src, dst->GetDesc().m_Range);
+		uint32 offset = m_Device.m_UploadManager.Upload(src, dst->GetDesc().m_Range);
 
 		m_BarrierRecorder.RecordBarrier(*view, ResourceState_CopyDestination, m_ExecutingPass->GetExecutionQueue());
 		m_BarrierRecorder.Flush(m_CommandBuffer);
@@ -382,7 +384,7 @@ namespace Khan
 		vkCmdCopyBuffer(m_CommandBuffer, m_Device.m_UploadManager.CurrentBuffer(), buffer, 1, &copy);
 	}
 
-	void VulkanRenderContext::ClearBuffer(BufferView* buffer, uint32_t clearValue)
+	void VulkanRenderContext::ClearBuffer(BufferView* buffer, uint32 clearValue)
 	{
 		m_CommandType = CommandType::Copy;
 
@@ -417,7 +419,7 @@ namespace Khan
 		vkCmdCopyImage(m_CommandBuffer, reinterpret_cast<VulkanTexture&>(src->GetTexture()).VulkanImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, reinterpret_cast<VulkanTexture&>(dst->GetTexture()).VulkanImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 	}
 
-	void VulkanRenderContext::ResetFrame(uint32_t frameIndex)
+	void VulkanRenderContext::ResetFrame(uint32 frameIndex)
 	{
 		m_CurrentFramebuffers = &m_Framebuffers[frameIndex];
 		for (VkFramebuffer framebuffer : *m_CurrentFramebuffers)
@@ -438,7 +440,7 @@ namespace Khan
 	{
 		if (m_CommandType == CommandType::Draw)
 		{
-			for (uint32_t i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
+			for (uint32 i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
 			{
 				if (m_VertexBuffers[i] != nullptr && m_VBDirty[i])
 				{
@@ -456,9 +458,9 @@ namespace Khan
 
 		ResourceState srvResourceState = m_CommandType == CommandType::Dispatch ? ResourceState_NonPixelShaderAccess : ResourceState_PixelShaderAccess;
 		ResourceState uavResourceState = m_CommandType == CommandType::Dispatch ? ResourceState_UnorderedAccess : ResourceState_PixelShaderWrite;
-		for (uint32_t set = m_FirstDirtySet; set < ResourceBindFrequency_Count; ++set)
+		for (uint32 set = m_FirstDirtySet; set < ResourceBindFrequency_Count; ++set)
 		{
-			for (uint32_t binding = 0; binding < K_MAX_SRV; ++binding)
+			for (uint32 binding = 0; binding < K_MAX_SRV; ++binding)
 			{
 				VulkanTextureView* texture = m_SRVTextures[set][binding];
 				if (texture != nullptr)
@@ -476,7 +478,7 @@ namespace Khan
 				}
 			}
 
-			for (uint32_t binding = 0; binding < K_MAX_UAV; ++binding)
+			for (uint32 binding = 0; binding < K_MAX_UAV; ++binding)
 			{
 				VulkanTextureView* texture = m_UAVTextures[set][binding];
 				if (texture != nullptr)
@@ -501,9 +503,9 @@ namespace Khan
 		if (m_CommandType == CommandType::Draw)
 		{
 			VkBuffer vbs[K_MAX_VERTEX_DATA_STREAMS];
-			uint32_t count = 0;
-			uint32_t first = 0;
-			for (uint32_t i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
+			uint32 count = 0;
+			uint32 first = 0;
+			for (uint32 i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
 			{
 				if (m_VertexBuffers[i] != nullptr && m_VBDirty[i])
 				{
@@ -535,18 +537,18 @@ namespace Khan
 		m_DescriptorPool.AllocateDescriptorSets(ResourceBindFrequency_Count - m_FirstDirtySet, m_PipelineState->m_DescriptorSetLayout + m_FirstDirtySet, descriptorSets + m_FirstDirtySet);
 		m_DescriptorUpdater.Reset();
 
-		for (uint32_t set = m_FirstDirtySet; set < ResourceBindFrequency_Count; ++set)
+		for (uint32 set = m_FirstDirtySet; set < ResourceBindFrequency_Count; ++set)
 		{
 			m_DescriptorUpdater.SetDescriptorSet(descriptorSets[set]);
 
 			VkBuffer uniformBufferForFrame = m_Device.m_UniformBufferAllocator.CurrentBuffer();
-			for (uint32_t binding = 0; binding < K_MAX_CBV; ++binding)
+			for (uint32 binding = 0; binding < K_MAX_CBV; ++binding)
 			{
 				ConstantBuffer* cbuffer = m_CBuffers[set][binding];
 				if (cbuffer != nullptr)
 				{
-					uint32_t size = cbuffer->Size();
-					uint32_t offset = cbuffer->GetDynamicOffset();
+					uint32 size = cbuffer->Size();
+					uint32 offset = cbuffer->GetDynamicOffset();
 					if (cbuffer->IsDirty())
 					{
 						offset = m_Device.m_UniformBufferAllocator.Upload(cbuffer->Data(), size);
@@ -557,7 +559,7 @@ namespace Khan
 				}
 			}
 
-			for (uint32_t binding = 0; binding < K_MAX_SRV; ++binding)
+			for (uint32 binding = 0; binding < K_MAX_SRV; ++binding)
 			{
 				const VulkanTextureView* texture = m_SRVTextures[set][binding];
 				if (texture != nullptr)
@@ -583,7 +585,7 @@ namespace Khan
 				}
 			}
 
-			for (uint32_t binding = 0; binding < K_MAX_UAV; ++binding)
+			for (uint32 binding = 0; binding < K_MAX_UAV; ++binding)
 			{
 				const VulkanTextureView* texture = m_UAVTextures[set][binding];
 				if (texture != nullptr)

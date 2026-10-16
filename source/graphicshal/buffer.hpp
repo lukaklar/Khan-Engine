@@ -1,10 +1,10 @@
 #pragma once
-
+#include "core/primitivetypes.h"
 #include "graphicshal/resource.hpp"
 
 namespace Khan
 {
-	using BufferFlags = uint32_t;
+	using BufferFlags = uint32;
 	enum BufferFlag
 	{
 		BufferFlag_None						= 0x000,
@@ -19,7 +19,7 @@ namespace Khan
 
 	struct BufferDesc
 	{
-		uint32_t m_Size;
+		uint32 m_Size;
 		BufferFlags m_Flags;
 
 		inline bool operator==(const BufferDesc& other) const

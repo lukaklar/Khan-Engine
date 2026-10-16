@@ -15,6 +15,8 @@
 #include "graphicshal/texture.hpp"
 #include "graphicshal/textureview.hpp"
 #include "core/defines.h"
+#include "core/containers.h"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -28,7 +30,7 @@ namespace Khan
 		renderGraph.EnableDMA(true);
 
 		BufferDesc desc;
-		desc.m_Size = static_cast<uint32_t>(renderer.GetActiveLightData().size() * sizeof(ShaderLightData));
+		desc.m_Size = static_cast<uint32>(renderer.GetActiveLightData().size() * sizeof(ShaderLightData));
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource | BufferFlag_Writable;
 
 		Buffer* temp = renderGraph.CreateManagedResource(desc);
@@ -45,8 +47,8 @@ namespace Khan
 
 	void LightDataUploadPass::Execute(RenderContext& context, Renderer& renderer)
 	{
-		std::vector<ShaderLightData>& lights = renderer.GetActiveLightData();
-		uint32_t sizeInBytes = static_cast<uint32_t>(lights.size() * sizeof(ShaderLightData));
+		TArray<ShaderLightData>& lights = renderer.GetActiveLightData();
+		uint32 sizeInBytes = static_cast<uint32>(lights.size() * sizeof(ShaderLightData));
 
 		context.UpdateBufferFromHost(m_LightData, lights.data());
 	}
@@ -83,7 +85,7 @@ namespace Khan
 		Vector2 threadGroupsXY = { renderer.GetActiveCamera()->GetViewportWidth(), renderer.GetActiveCamera()->GetViewportHeight() };
 		threadGroupsXY = Ceil(threadGroupsXY / (float)renderer.GetScreenTileSize());
 		threadGroupsXY = Ceil(threadGroupsXY / (float)renderer.GetScreenTileSize());
-		context.Dispatch((uint32_t)threadGroupsXY.x, (uint32_t)threadGroupsXY.y, renderer.GetNumDepthSlices());
+		context.Dispatch((uint32)threadGroupsXY.x, (uint32)threadGroupsXY.y, renderer.GetNumDepthSlices());
 	}
 
 	MarkActiveClustersPass::MarkActiveClustersPass()
@@ -123,7 +125,7 @@ namespace Khan
 			BufferDesc desc;
 			BufferViewDesc viewDesc;
 
-			desc.m_Size = renderer.GetTotalNumClusters() * sizeof(uint32_t);
+			desc.m_Size = renderer.GetTotalNumClusters() * sizeof(uint32);
 			desc.m_Flags = BufferFlag_AllowShaderResource | BufferFlag_AllowUnorderedAccess | BufferFlag_Writable;
 
 			temp = renderGraph.CreateManagedResource(desc);
@@ -178,7 +180,7 @@ namespace Khan
 
 	CompactActiveClustersPass::CompactActiveClustersPass()
 		: RenderPass(QueueType_Compute, "CompactActiveClustersPass")
-		, m_ClusterParams(sizeof(uint32_t))
+		, m_ClusterParams(sizeof(uint32))
 	{
 		ComputePipelineDescription desc;
 		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("compactactiveclusters_CS", "CS_CompactActiveClusters");
@@ -200,7 +202,7 @@ namespace Khan
 		viewDesc.m_Format = PF_R32_UINT;
 		m_ActiveClusterFlags = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
-		desc.m_Size = sizeof(uint32_t) * renderer.GetTotalNumClusters();
+		desc.m_Size = sizeof(uint32) * renderer.GetTotalNumClusters();
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 		temp = renderGraph.CreateManagedResource(desc);
 		KH_DEBUGONLY(temp->SetDebugName("Active Cluster Index List"));
@@ -209,7 +211,7 @@ namespace Khan
 		viewDesc.m_Range = desc.m_Size;
 		m_ActiveClusterIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
-		desc.m_Size = 3 * sizeof(uint32_t);
+		desc.m_Size = 3 * sizeof(uint32);
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowIndirect;
 		temp = renderGraph.CreateManagedResource(desc);
 		KH_DEBUGONLY(temp->SetDebugName("Culling Dispatch Args"));
@@ -224,21 +226,21 @@ namespace Khan
 	{
 		context.SetPipelineState(*m_PipelineState);
 
-		uint32_t numClusters = static_cast<uint32_t>(renderer.GetTotalNumClusters());
-		m_ClusterParams.UpdateConstantData(&numClusters, 0, sizeof(uint32_t));
+		uint32 numClusters = static_cast<uint32>(renderer.GetTotalNumClusters());
+		m_ClusterParams.UpdateConstantData(&numClusters, 0, sizeof(uint32));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_ClusterParams);
 
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 0, m_ActiveClusterFlags);
 		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 0, m_ActiveClusterIndexList);
 		context.SetUAVBuffer(ResourceBindFrequency_PerFrame, 1, m_CullingDispatchArgs);
 
-		uint32_t threadGroupCountX = (uint32_t)Ceil(numClusters / 64.0f);
+		uint32 threadGroupCountX = (uint32)Ceil(numClusters / 64.0f);
 		context.Dispatch(threadGroupCountX, 1, 1);
 	}
 
 	LightCullingPass::LightCullingPass()
 		: RenderPass(QueueType_Compute, "LightCullingPass")
-		, m_LightParams(sizeof(uint32_t))
+		, m_LightParams(sizeof(uint32))
 	{
 		ComputePipelineDescription desc;
 		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("clusterlightculling_CS", "CS_CullLights");
@@ -270,7 +272,7 @@ namespace Khan
 		viewDesc.m_Format = PF_NONE;
 		m_Lights = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_NonPixelShaderAccess);
 
-		desc.m_Size = sizeof(uint32_t);
+		desc.m_Size = sizeof(uint32);
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess;
 		temp = renderGraph.CreateManagedResource(desc);
 		KH_DEBUGONLY(temp->SetDebugName("Light Index Counter"));
@@ -278,7 +280,7 @@ namespace Khan
 		viewDesc.m_Range = desc.m_Size;
 		m_LightIndexCounter = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
-		desc.m_Size = 720000 * sizeof(uint32_t);
+		desc.m_Size = 720000 * sizeof(uint32);
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 		temp = renderGraph.CreateManagedResource(desc);
 		KH_DEBUGONLY(temp->SetDebugName("Light Index List"));
@@ -288,7 +290,7 @@ namespace Khan
 		viewDesc.m_Format = PF_R32_UINT;
 		m_LightIndexList = renderGraph.DeclareResourceDependency(temp, viewDesc, ResourceState_UnorderedAccess);
 
-		desc.m_Size = 2 * sizeof(uint32_t) * renderer.GetTotalNumClusters();
+		desc.m_Size = 2 * sizeof(uint32) * renderer.GetTotalNumClusters();
 		desc.m_Flags = BufferFlag_AllowUnorderedAccess | BufferFlag_AllowShaderResource;
 		temp = renderGraph.CreateManagedResource(desc);
 		KH_DEBUGONLY(temp->SetDebugName("Light Grid"));
@@ -307,8 +309,8 @@ namespace Khan
 	{
 		context.SetPipelineState(*m_PipelineState);
 
-		uint32_t numLights = static_cast<uint32_t>(renderer.GetActiveLightData().size());
-		m_LightParams.UpdateConstantData(&numLights, 0, sizeof(uint32_t));
+		uint32 numLights = static_cast<uint32>(renderer.GetActiveLightData().size());
+		m_LightParams.UpdateConstantData(&numLights, 0, sizeof(uint32));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &m_LightParams);
 
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 0, m_Clusters);

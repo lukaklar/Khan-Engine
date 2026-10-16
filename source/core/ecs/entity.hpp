@@ -1,5 +1,9 @@
 #pragma once
 #include "core/boundingvolume.h"
+#include "core/containers.h"
+#include "core/primitivetypes.h"
+#include "core/string.h"
+#include "core/typetraits.h"
 #include <thirdparty/entt/entt.hpp>
 
 namespace Khan
@@ -10,50 +14,50 @@ namespace Khan
 	{
 		friend class World;
 	public:
-		template<typename T, typename... Args>
-		T& AddComponent(Args&&... args)
+		template<typename TComponent, typename... TArgs>
+		TComponent& AddComponent(TArgs&&... args)
 		{
-			static_assert(std::is_base_of<Component, T>::value, "New components need to inherit from the Component base class.");
-			T& component = m_World->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			static_assert(IsBaseOf<Component, TComponent>, "New components need to inherit from the Component base class.");
+			TComponent& component = m_World->m_Registry.emplace<TComponent>(m_EntityHandle, Forward<TArgs>(args)...);
 			component.m_Owner = this;
 			m_Components.emplace_back(&component);
 			return component;
 		}
 
-		template<typename T>
-		T& GetComponent()
+		template<typename TComponent>
+		TComponent& GetComponent()
 		{
-			return m_World->m_Registry.get<T>(m_EntityHandle);
+			return m_World->m_Registry.get<TComponent>(m_EntityHandle);
 		}
 
 #ifdef KH_DEBUG
-		template<typename T>
+		template<typename TComponent>
 		bool HasComponent()
 		{
-			return m_World->m_Registry.all_of<T>(m_EntityHandle);
+			return m_World->m_Registry.all_of<TComponent>(m_EntityHandle);
 		}
 #endif // KH_DEBUG
 
-		template<typename T>
+		template<typename TComponent>
 		void RemoveComponent()
 		{
-			Component* component = &m_World->m_Registry.get<T>(m_EntityHandle);
-			m_World->m_Registry.remove<T>(m_EntityHandle);
-			m_Components.erase(std::find(m_Components.begin(), m_Components.end(), component));
+			Component* component = &m_World->m_Registry.get<TComponent>(m_EntityHandle);
+			m_World->m_Registry.remove<TComponent>(m_EntityHandle);
+			m_Components.erase(Find(m_Components.begin(), m_Components.end(), component));
 		}
 
 		void AddChild(Entity* child);
 		void RemoveChild(Entity* child);
 
 		inline bool IsValid() const { return m_EntityHandle != entt::null; }
-		inline uint32_t GetID() const { return static_cast<uint32_t>(m_EntityHandle); }
+		inline uint32 GetID() const { return static_cast<uint32>(m_EntityHandle); }
 		inline World* GetWorld() const { return m_World; }
 		inline Entity* GetParent() const { return m_ParentEntity; }
 		inline void SetParent(Entity* value) { m_ParentEntity = value; }
-		inline const std::set<Entity*>& GetChildren() const { return m_Children; }
-		inline const std::vector<Component*> GetComponents() const { return m_Components; }
-		inline const std::string& GetName() const { return m_Name; }
-		inline void SetName(const std::string& value) { m_Name = value; }
+		inline const TSet<Entity*>& GetChildren() const { return m_Children; }
+		inline const TArray<Component*>& GetComponents() const { return m_Components; }
+		inline const String& GetName() const { return m_Name; }
+		inline void SetName(const String& value) { m_Name = value; }
 		inline const Vector4& GetGlobalPosition() const { return m_GlobalPosition; }
 		inline void SetGlobalPosition(const Vector4& value) { m_GlobalPosition = value; }
 		inline const Quaternion& GetGlobalOrientation() const { return m_GlobalOrientation; }
@@ -72,9 +76,9 @@ namespace Khan
 		entt::entity m_EntityHandle = entt::null;
 		World* m_World = nullptr;
 		Entity* m_ParentEntity = nullptr;
-		std::set<Entity*> m_Children;
-		std::vector<Component*> m_Components;
-		std::string m_Name = "Empty Entity";
+		TSet<Entity*> m_Children;
+		TArray<Component*> m_Components;
+		String m_Name = "Empty Entity";
 		Vector4 m_GlobalPosition;
 		Quaternion m_GlobalOrientation;
 		Matrix4 m_GlobalTransform;

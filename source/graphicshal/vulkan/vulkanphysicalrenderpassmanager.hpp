@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/containers.h"
 #include "graphicshal/physicalrenderpass.hpp"
 
 namespace Khan
@@ -32,7 +33,7 @@ namespace Khan
 	private:
 		VulkanPhysicalRenderPass* CreatePhysicalRenderPass(VkDevice device, const PhysicalRenderPassDescription& desc);
 
-		std::unordered_map<PhysicalRenderPassDescription, VulkanPhysicalRenderPass*> m_PhysicalRenderPassCache;
+		THashMap<PhysicalRenderPassDescription, VulkanPhysicalRenderPass*> m_PhysicalRenderPassCache;
 	};
 }
 

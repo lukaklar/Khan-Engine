@@ -6,6 +6,7 @@
 #include "graphicshal/renderdevice.hpp"
 #include "graphicshal/texture.hpp"
 #include "graphicshal/textureview.hpp"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -37,13 +38,13 @@ namespace Khan
 		Texture* texture;
 
 		{
-			int32_t width, height, channels;
+			int32 width, height, channels;
 			unsigned char* data = stbi_load(fileName, &width, &height, &channels, STBI_rgb_alpha);
 
 			TextureDesc desc;
 			desc.m_Type = TextureType_2D;
-			desc.m_Width = static_cast<uint32_t>(width);
-			desc.m_Height = static_cast<uint32_t>(height);
+			desc.m_Width = static_cast<uint32>(width);
+			desc.m_Height = static_cast<uint32>(height);
 			desc.m_Depth = 1;
 			desc.m_ArrayLayers = 1;
 			desc.m_MipLevels = 1;

@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/containers.h"
 #include "graphicshal/pipelinedescriptions.hpp"
 #include "graphicshal/resourcebindfrequency.hpp"
 
@@ -27,8 +28,8 @@ namespace Khan
 		VulkanPipelineState* CreateGraphicsPipelineState(VkDevice device, const GraphicsPipelineDescription& desc);
 		VulkanPipelineState* CreateComputePipelineState(VkDevice device, const ComputePipelineDescription& desc);
 
-		std::unordered_map<GraphicsPipelineDescription, VulkanPipelineState*> m_GraphicsPipelineCache;
-		std::unordered_map<ComputePipelineDescription, VulkanPipelineState*> m_ComputePipelineCache;
+		THashMap<GraphicsPipelineDescription, VulkanPipelineState*> m_GraphicsPipelineCache;
+		THashMap<ComputePipelineDescription, VulkanPipelineState*> m_ComputePipelineCache;
 		VkPipelineCache m_PipelineCache;
 	};
 }

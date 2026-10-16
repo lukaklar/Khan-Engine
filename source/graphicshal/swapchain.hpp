@@ -1,6 +1,6 @@
 #pragma once
-#include <cstdint>
-#include <vector>
+#include "core/primitivetypes.h"
+#include "core/containers.h"
 
 namespace Khan
 {
@@ -17,8 +17,8 @@ namespace Khan
 		inline Texture* GetCurrentBackBuffer() const { return m_BackBuffers[m_CurrentImageIndex]; }
 
 	protected:
-		std::vector<Texture*> m_BackBuffers;
-		uint32_t m_CurrentImageIndex = 0;
-		uint32_t m_FrameIndex = 0;
+		TArray<Texture*> m_BackBuffers;
+		uint32 m_CurrentImageIndex = 0;
+		uint32 m_FrameIndex = 0;
 	};
 }

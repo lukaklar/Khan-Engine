@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -17,7 +17,7 @@ namespace Khan
 		bool m_FrontCounterClockwise = false;
 		bool m_ConservativeRasterizationEnabled = false;
 		bool m_DepthBiasEnabled = false;
-		uint32_t m_DepthBias = 0;
+		uint32 m_DepthBias = 0;
 		float m_DepthBiasClamp = 0.0f;
 		float m_SlopeScaledDepthBias = 0.0f;
 	};

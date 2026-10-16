@@ -1,6 +1,6 @@
 #pragma once
-
 #include "core/math.h"
+#include "core/primitivetypes.h"
 #include "graphicshal/config.h"
 #include "graphicshal/pixelformats.hpp"
 #include "system/assert.h"
@@ -22,7 +22,7 @@ namespace Khan
 
 	struct PhysicalRenderPassDescription
 	{
-		uint32_t m_RenderTargetCount = 0;
+		uint32 m_RenderTargetCount = 0;
 
 		struct
 		{
@@ -51,12 +51,12 @@ namespace Khan
 	public:
 		const PhysicalRenderPassDescription& GetDesc() const { return m_Desc; }
 
-		inline const Vector4& GetRenderTargetClearColor(uint32_t slot) const { KH_ASSERT(slot < K_MAX_RENDER_TARGETS, "Render target slot out of bounds."); return m_RenderTargetClearColors[slot]; }
-		inline void SetRenderTargetClearColor(uint32_t slot, float r, float g, float b, float a) { KH_ASSERT(slot < K_MAX_RENDER_TARGETS, "Render target slot out of bounds."); m_RenderTargetClearColors[slot] = { r, g, b, a }; }
+		inline const Vector4& GetRenderTargetClearColor(uint32 slot) const { KH_ASSERT(slot < K_MAX_RENDER_TARGETS, "Render target slot out of bounds."); return m_RenderTargetClearColors[slot]; }
+		inline void SetRenderTargetClearColor(uint32 slot, float r, float g, float b, float a) { KH_ASSERT(slot < K_MAX_RENDER_TARGETS, "Render target slot out of bounds."); m_RenderTargetClearColors[slot] = { r, g, b, a }; }
 		float GetDepthClearValue() const { return m_DepthClearValue; }
 		void SetDepthClearValue(float value) { m_DepthClearValue = value; }
-		uint32_t GetStencilClearValue() const { return m_StencilClearValue; }
-		void SetStencilClearValue(uint32_t value) { m_StencilClearValue = value; }
+		uint32 GetStencilClearValue() const { return m_StencilClearValue; }
+		void SetStencilClearValue(uint32 value) { m_StencilClearValue = value; }
 
 	protected:
 		PhysicalRenderPass(const PhysicalRenderPassDescription& desc)
@@ -70,7 +70,7 @@ namespace Khan
 
 		Vector4 m_RenderTargetClearColors[K_MAX_RENDER_TARGETS] = {};
 		float m_DepthClearValue = 1.0f;
-		uint32_t m_StencilClearValue = 0;
+		uint32 m_StencilClearValue = 0;
 	};
 }
 

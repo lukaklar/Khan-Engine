@@ -1,4 +1,6 @@
 #pragma once
+#include "core/primitivetypes.h"
+#include "core/string.h"
 
 namespace Khan
 {
@@ -17,7 +19,7 @@ namespace Khan
 	{
 		ShaderType m_Type;
 		const void* m_Bytecode;
-		uint32_t m_BytecodeSize;
+		uint32 m_BytecodeSize;
 		const char* m_EntryPoint;
 	};
 
@@ -27,8 +29,8 @@ namespace Khan
 		ShaderType GetType() const { return m_Type; }
 
 #ifdef KH_DEBUG
-		const std::string& GetDebugName() const { return m_DebugName; }
-		void SetDebugName(const std::string& debugName) { m_DebugName = debugName; }
+		const String& GetDebugName() const { return m_DebugName; }
+		void SetDebugName(const String& debugName) { m_DebugName = debugName; }
 #endif // KH_DEBUG
 
 	protected:
@@ -42,7 +44,7 @@ namespace Khan
 		ShaderType m_Type;
 
 #ifdef KH_DEBUG
-		std::string m_DebugName;
+		String m_DebugName;
 #endif // KH_DEBUG
 	};
 }

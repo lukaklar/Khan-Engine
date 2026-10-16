@@ -37,15 +37,15 @@ namespace Khan
 
 		inline static void CreateInstance(bool validationEnabled)
 		{
-			std::vector<const char*> enabledLayers;
+			TArray<const char*> enabledLayers;
 
 #ifdef VK_VALIDATE
 			s_ValidationLayersEnabled = validationEnabled;
 			if (s_ValidationLayersEnabled)
 			{
-				uint32_t layerPropertyCount;
+				uint32 layerPropertyCount;
 				VK_ASSERT(vkEnumerateInstanceLayerProperties(&layerPropertyCount, nullptr), "[VULKAN] Failed to get instance layer property count.");
-				std::vector<VkLayerProperties> layerProperties(layerPropertyCount);
+				TArray<VkLayerProperties> layerProperties(layerPropertyCount);
 				VK_ASSERT(vkEnumerateInstanceLayerProperties(&layerPropertyCount, layerProperties.data()), "[VULKAN] Failed to enumerate instance layer properties.");
 
 				const char* debugLayerName = "VK_LAYER_KHRONOS_validation";
@@ -56,12 +56,12 @@ namespace Khan
 			}
 #endif // VK_VALIDATE
 
-			uint32_t extensionPropertyCount;
+			uint32 extensionPropertyCount;
 			VK_ASSERT(vkEnumerateInstanceExtensionProperties(nullptr, &extensionPropertyCount, nullptr), "[VULKAN] Failed to get instance extension property count.");
-			std::vector<VkExtensionProperties> extensionProperties(extensionPropertyCount);
+			TArray<VkExtensionProperties> extensionProperties(extensionPropertyCount);
 			VK_ASSERT(vkEnumerateInstanceExtensionProperties(nullptr, &extensionPropertyCount, extensionProperties.data()), "[VULKAN] Failed to enumerate instance extension properties.");
 
-			std::vector<const char*> requiredExtensions =
+			TArray<const char*> requiredExtensions =
 			{
 				VK_KHR_SURFACE_EXTENSION_NAME,
 				VK_KHR_WIN32_SURFACE_EXTENSION_NAME
@@ -92,9 +92,9 @@ namespace Khan
 
 			VkInstanceCreateInfo instanceInfo = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
 			instanceInfo.pApplicationInfo = &appInfo;
-			instanceInfo.enabledLayerCount = static_cast<uint32_t>(enabledLayers.size());
+			instanceInfo.enabledLayerCount = static_cast<uint32>(enabledLayers.size());
 			instanceInfo.ppEnabledLayerNames = enabledLayers.data();
-			instanceInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
+			instanceInfo.enabledExtensionCount = static_cast<uint32>(requiredExtensions.size());
 			instanceInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
 #ifdef VK_VALIDATE
@@ -126,9 +126,9 @@ namespace Khan
 
 		inline static void EnumerateAdapters()
 		{
-			uint32_t physicalDeviceCount;
+			uint32 physicalDeviceCount;
 			VK_ASSERT(vkEnumeratePhysicalDevices(g_Instance, &physicalDeviceCount, nullptr), "[VULKAN] Failed to get physical device count.");
-			std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
+			TArray<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
 			VK_ASSERT(vkEnumeratePhysicalDevices(g_Instance, &physicalDeviceCount, physicalDevices.data()), "[VULKAN] Failed to enumerate physical devices.");
 
 			g_Adapters.reserve(physicalDeviceCount);

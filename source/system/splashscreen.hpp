@@ -1,11 +1,13 @@
 #pragma once
 
+#include "core/primitivetypes.h"
+
 namespace Khan
 {
 	class SplashScreen
 	{
 	public:
-		SplashScreen(const char* programName = "Khan Engine", const char* imageName = "splash.bmp", uint32_t width = 400, uint32_t height = 300);
+		SplashScreen(const char* programName = "Khan Engine", const char* imageName = "splash.bmp", uint32 width = 400, uint32 height = 300);
 		~SplashScreen();
 
 		void Update();
@@ -22,6 +24,6 @@ namespace Khan
 		HWND m_hWnd;
 		HBITMAP m_hBitmap;
 		const char* m_ImageName;
-		uint32_t m_Width, m_Height;
+		uint32 m_Width, m_Height;
 	};
 }

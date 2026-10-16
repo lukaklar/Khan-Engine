@@ -1,4 +1,5 @@
 #pragma once
+#include "core/primitivetypes.h"
 #include "graphicshal/config.h"
 
 namespace Khan
@@ -75,7 +76,7 @@ namespace Khan
             LogicOperator m_LogicOperator = LogicOperator::None;
             bool m_BlendEnabled = false;
             bool m_LogicOpEnabled = false;
-            uint8_t m_ColorWriteMask = static_cast<uint8_t>(ColorWriteEnable::All);
+            uint8 m_ColorWriteMask = static_cast<uint8>(ColorWriteEnable::All);
         };
 
         BlendMode m_BlendModes[K_MAX_RENDER_TARGETS];

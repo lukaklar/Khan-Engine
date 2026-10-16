@@ -14,6 +14,7 @@
 #include "graphics/shadermanager.hpp"
 #include "core/defines.h"
 #include "core/math.h"
+#include "core/primitivetypes.h"
 
 #define DECLARE_GBUFFER_INPUT(target, state)\
 temp = renderer.GetResourceBoard().m_Transient.m_GBuffer.m_##target;\
@@ -114,14 +115,14 @@ namespace Khan
 		context.SetSRVBuffer(ResourceBindFrequency_PerFrame, 7, m_LightGrid);
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_LightingResult);
 
-		uint32_t threadGroupCountX = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
-		uint32_t threadGroupCountY = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		uint32 threadGroupCountX = (uint32)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32 threadGroupCountY = (uint32)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 
 	DeferredLightingPass::DeferredLightingPass()
 		: RenderPass(QueueType_Compute, "DeferredLightingPass")
-		, m_LightParams(sizeof(uint32_t))
+		, m_LightParams(sizeof(uint32))
 	{
 		ComputePipelineDescription desc;
 		desc.m_ComputeShader = ShaderManager::Get()->GetShader<ShaderType_Compute>("deferredlighting_CS", "CS_DeferredLighting");
@@ -190,8 +191,8 @@ namespace Khan
 		context.SetPipelineState(*m_PipelineState);
 
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 0, &renderer.GetFrustumParams());
-		uint32_t numLights = static_cast<uint32_t>(renderer.GetActiveLightData().size());
-		m_LightParams.UpdateConstantData(&numLights, 0, sizeof(uint32_t));
+		uint32 numLights = static_cast<uint32>(renderer.GetActiveLightData().size());
+		m_LightParams.UpdateConstantData(&numLights, 0, sizeof(uint32));
 		context.SetConstantBuffer(ResourceBindFrequency_PerFrame, 1, &m_LightParams);
 
 		context.SetSRVTexture(ResourceBindFrequency_PerFrame, 0, m_GBuffer_Albedo);
@@ -203,8 +204,8 @@ namespace Khan
 
 		context.SetUAVTexture(ResourceBindFrequency_PerFrame, 0, m_LightingResult);
 
-		uint32_t threadGroupCountX = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
-		uint32_t threadGroupCountY = (uint32_t)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
+		uint32 threadGroupCountX = (uint32)Ceil((float)renderer.GetActiveCamera()->GetViewportWidth() / 16);
+		uint32 threadGroupCountY = (uint32)Ceil((float)renderer.GetActiveCamera()->GetViewportHeight() / 16);
 		context.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 	}
 }

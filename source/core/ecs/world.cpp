@@ -1,5 +1,6 @@
 #include "core/precomp.h"
 #include "core/ecs/world.hpp"
+#include "core/algorithms.h"
 #include "core/ecs/entity.hpp"
 
 namespace Khan
@@ -42,7 +43,7 @@ namespace Khan
 	{
 		m_Registry.destroy(entity->m_EntityHandle);
 		m_EntityMap.erase(entity->m_EntityHandle);
-		m_Entities.erase(std::find(m_Entities.begin(), m_Entities.end(), entity));
+		m_Entities.erase(Find(m_Entities.begin(), m_Entities.end(), entity));
 		delete entity;
 	}
 }

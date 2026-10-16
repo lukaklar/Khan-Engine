@@ -2,6 +2,8 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/containers.h"
+#include "core/primitivetypes.h"
 #include "graphicshal/config.h"
 #include "graphicshal/vulkan/vk_mem_alloc.h"
 
@@ -13,8 +15,8 @@ namespace Khan
 		void Create(VmaAllocator allocator);
 		void Destroy();
 
-		uint32_t Upload(const void* src, uint32_t size);
-		void ResetFrame(uint32_t frameIndex);
+		uint32 Upload(const void* src, uint32 size);
+		void ResetFrame(uint32 frameIndex);
 
 		VkBuffer CurrentBuffer() const;
 
@@ -25,19 +27,19 @@ namespace Khan
 		{
 			VkBuffer m_Buffer;
 			VmaAllocation m_Allocation;
-			uint8_t* m_MappedMemory;
-			uint32_t m_Capacity;
-			uint32_t m_Offset;
+			byte* m_MappedMemory;
+			uint32 m_Capacity;
+			uint32 m_Offset;
 		};
 
 		std::mutex m_Lock;
-		std::vector<StagingBuffer*> m_FreeStagingBuffers;
-		std::vector<StagingBuffer*> m_UsedStagingBuffers[K_MAX_FRAMES_IN_FLIGHT];
+		TArray<StagingBuffer*> m_FreeStagingBuffers;
+		TArray<StagingBuffer*> m_UsedStagingBuffers[K_MAX_FRAMES_IN_FLIGHT];
 		StagingBuffer* m_CurrentStagingBuffer;
-		uint32_t m_CurrentFrameIndex;
+		uint32 m_CurrentFrameIndex;
 
-		static constexpr uint32_t K_DEFAULT_STAGING_BUFFER_SIZE = 2 * 1024 * 1024;
-		static constexpr uint32_t K_STAGING_BUFFER_ALIGNMENT = 4;
+		static constexpr uint32 K_DEFAULT_STAGING_BUFFER_SIZE = 2 * 1024 * 1024;
+		static constexpr uint32 K_STAGING_BUFFER_ALIGNMENT = 4;
 	};
 }
 

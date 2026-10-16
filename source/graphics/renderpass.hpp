@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef KH_DEBUG
-#include <string>
+#include "core/string.h"
 #endif // KH_DEBUG
 
 namespace Khan
@@ -32,7 +32,7 @@ namespace Khan
 		inline QueueType GetExecutionQueue() const { return m_ExecutionQueue; }
 
 #ifdef KH_DEBUG
-		inline const std::string& GetName() const { return m_Name; }
+		inline const String& GetName() const { return m_Name; }
 #endif // KH_DEBUG
 
 	private:
@@ -40,7 +40,7 @@ namespace Khan
 		// TODO: Add enabled flag
 
 #ifdef KH_DEBUG
-		std::string m_Name;
+		String m_Name;
 #endif // KH_DEBUG
 	};
 }

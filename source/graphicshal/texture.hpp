@@ -1,12 +1,12 @@
 #pragma once
-
+#include "core/primitivetypes.h"
 #include "graphicshal/resource.hpp"
 
 namespace Khan
 {
 	enum PixelFormat;
 
-	using TextureFlags = uint32_t;
+	using TextureFlags = uint32;
 	enum TextureFlag
 	{
 		TextureFlag_None					= 0x000,
@@ -31,12 +31,12 @@ namespace Khan
 	struct TextureDesc
 	{
 		TextureType m_Type;
-		uint32_t m_Width;
-		uint32_t m_Height;
-		uint32_t m_Depth;
-		uint32_t m_ArrayLayers;
-		uint32_t m_MipLevels;
-		//uint32_t m_SampleCount;
+		uint32 m_Width;
+		uint32 m_Height;
+		uint32 m_Depth;
+		uint32 m_ArrayLayers;
+		uint32 m_MipLevels;
+		//uint32 m_SampleCount;
 		PixelFormat m_Format;
 		TextureFlags m_Flags;
 

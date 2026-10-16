@@ -26,7 +26,7 @@ namespace Khan
 		return semaphore;
 	}
 
-	KH_FORCE_INLINE void VulkanSemaphoreAllocator::ResetFrame(uint32_t frameIndex)
+	KH_FORCE_INLINE void VulkanSemaphoreAllocator::ResetFrame(uint32 frameIndex)
 	{
 		m_CurrentFrameIndex = frameIndex;
 		m_FreeSemaphores.insert(m_FreeSemaphores.end(), m_UsedSemaphores[frameIndex].begin(), m_UsedSemaphores[frameIndex].end());

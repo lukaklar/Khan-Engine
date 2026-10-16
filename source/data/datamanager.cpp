@@ -6,6 +6,8 @@
 #include "core/camera/camera.hpp"
 #include "core/camera/components/cameracomponent.hpp"
 #include "core/ecs/entity.hpp"
+#include "core/function.h"
+#include "core/math.h"
 #include "core/ecs/world.hpp"
 #include "data/stb_image/stb_image.h"
 #include "data/texturemanager.hpp"
@@ -54,7 +56,7 @@ namespace Khan
 
 	World* DataManager::LoadWorldFromFile(const char* fileName)
 	{
-		std::string fullFileName = ms_AssetPath;
+		String fullFileName = ms_AssetPath;
 		fullFileName += fileName;
 
 		Assimp::Importer importer;
@@ -63,9 +65,9 @@ namespace Khan
 		KH_ASSERT(scene && !(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) && scene->mRootNode, importer.GetErrorString());
 
 		World* world = new World(fileName);
-		std::unordered_map<const aiNode*, Entity*> nodeToEntityMap;
+		THashMap<const aiNode*, Entity*> nodeToEntityMap;
 
-		std::function<void(aiNode*,Entity*)> processNode = [this, scene, world, &nodeToEntityMap, &processNode](const aiNode* node, Entity* parent)
+		TFunction<void(aiNode*,Entity*)> processNode = [this, scene, world, &nodeToEntityMap, &processNode](const aiNode* node, Entity* parent)
 		{
 			Entity* entity = world->CreateEntity();
 
@@ -95,7 +97,7 @@ namespace Khan
 				Vector3 bvMin(FLT_MAX);
 				Vector3 bvMax(-FLT_MAX);
 
-				for (uint32_t i = 0; i < node->mNumMeshes; ++i)
+				for (uint32 i = 0; i < node->mNumMeshes; ++i)
 				{
 					auto it = m_Meshes.find(node->mMeshes[i]);
 					if (it != m_Meshes.end())
@@ -115,8 +117,8 @@ namespace Khan
 						Vector3 m_Bitangent;
 					};
 
-					std::vector<Vertex> vertices;
-					std::vector<uint32_t> indices;
+					TArray<Vertex> vertices;
+					TArray<uint32> indices;
 
 					BoundingVolume meshBV;
 					meshBV.SetType(BoundingVolume::Type::AABBox);
@@ -128,7 +130,7 @@ namespace Khan
 					bool calcBV = aimesh.mAABB.mMin == aiVector3D(0) && aimesh.mAABB.mMax == aiVector3D(0);
 
 					vertices.reserve(aimesh.mNumVertices);
-					for (uint32_t i = 0; i < aimesh.mNumVertices; ++i)
+					for (uint32 i = 0; i < aimesh.mNumVertices; ++i)
 					{
 						Vertex vertex;
 						vertex.m_Position = *reinterpret_cast<Vector3*>(&aimesh.mVertices[i]);
@@ -160,7 +162,7 @@ namespace Khan
 					}
 
 					indices.reserve(aimesh.mNumFaces * 3);
-					for (uint32_t i = 0; i < aimesh.mNumFaces; ++i)
+					for (uint32 i = 0; i < aimesh.mNumFaces; ++i)
 					{
 						const aiFace& face = aimesh.mFaces[i];
 						
@@ -174,13 +176,13 @@ namespace Khan
 						meshBVmin = *reinterpret_cast<const Vector3*>(&aimesh.mAABB.mMin);
 						meshBVmax = *reinterpret_cast<const Vector3*>(&aimesh.mAABB.mMax);
 
-						bvMin.x = std::min(bvMin.x, aimesh.mAABB.mMin.x * scale);
-						bvMin.y = std::min(bvMin.y, aimesh.mAABB.mMin.y * scale);
-						bvMin.z = std::min(bvMin.z, aimesh.mAABB.mMin.z * scale);
+						bvMin.x = Min(bvMin.x, aimesh.mAABB.mMin.x * scale);
+						bvMin.y = Min(bvMin.y, aimesh.mAABB.mMin.y * scale);
+						bvMin.z = Min(bvMin.z, aimesh.mAABB.mMin.z * scale);
 
-						bvMax.x = std::max(bvMax.x, aimesh.mAABB.mMax.x * scale);
-						bvMax.y = std::max(bvMax.y, aimesh.mAABB.mMax.y * scale);
-						bvMax.z = std::max(bvMax.z, aimesh.mAABB.mMax.z * scale);
+						bvMax.x = Max(bvMax.x, aimesh.mAABB.mMax.x * scale);
+						bvMax.y = Max(bvMax.y, aimesh.mAABB.mMax.y * scale);
+						bvMax.z = Max(bvMax.z, aimesh.mAABB.mMax.z * scale);
 					}
 
 					meshBV.SetAABBoxMin(meshBVmin);
@@ -200,7 +202,7 @@ namespace Khan
 
 					{
 						BufferDesc desc;
-						desc.m_Size = aimesh.mNumFaces * 3 * sizeof(uint32_t);
+						desc.m_Size = aimesh.mNumFaces * 3 * sizeof(uint32);
 						desc.m_Flags = BufferFlag_AllowIndices | BufferFlag_Writable;
 
 						mesh->m_IndexBuffer = RenderBackend::g_Device->CreateBuffer(desc, indices.data());
@@ -212,11 +214,11 @@ namespace Khan
 						const aiMaterial& mat = *scene->mMaterials[aimesh.mMaterialIndex];
 						Material* material = new Material();
 						aiString aiTexturePath;
-						uint32_t binding = 0;
+						uint32 binding = 0;
 
 						if (mat.GetTextureCount(aiTextureType_DIFFUSE) > 0 && mat.GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
-							std::string textureFilePath = ms_AssetPath;
+							String textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
@@ -224,14 +226,14 @@ namespace Khan
 
 						if (mat.GetTextureCount(aiTextureType_NORMALS) > 0 && mat.GetTexture(aiTextureType_NORMALS, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
-							std::string textureFilePath = ms_AssetPath;
+							String textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
 						}
 						else if (mat.GetTextureCount(aiTextureType_HEIGHT) > 0 && mat.GetTexture(aiTextureType_HEIGHT, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
-							std::string textureFilePath = ms_AssetPath;
+							String textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
@@ -239,13 +241,13 @@ namespace Khan
 
 						if (mat.GetTextureCount(aiTextureType_SPECULAR) > 0 && mat.GetTexture(aiTextureType_SPECULAR, 0, &aiTexturePath) == aiReturn_SUCCESS)
 						{
-							std::string textureFilePath = ms_AssetPath;
+							String textureFilePath = ms_AssetPath;
 							textureFilePath += aiTexturePath.C_Str();
 							TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 							material->AddTexture(binding++, texture);
 						}
 
-						std::string textureFilePath = ms_AssetPath;
+						String textureFilePath = ms_AssetPath;
 						textureFilePath += "roughness.jpg";
 						TextureView* texture = TextureManager::Get()->LoadTexture(textureFilePath.c_str());
 						material->AddTexture(binding++, texture);
@@ -284,7 +286,7 @@ namespace Khan
 				entity->SetBoundingVolume(bv);
 			}
 
-			for (uint32_t i = 0; i < node->mNumChildren; ++i)
+			for (uint32 i = 0; i < node->mNumChildren; ++i)
 			{
 				processNode(node->mChildren[i], entity);
 			}
@@ -292,7 +294,7 @@ namespace Khan
 
 		processNode(scene->mRootNode, nullptr);
 
-		for (uint32_t i = 0; i < scene->mNumLights; ++i)
+		for (uint32 i = 0; i < scene->mNumLights; ++i)
 		{
 			const aiLight& light = *scene->mLights[i];
 			const aiNode* lightNode = scene->mRootNode->FindNode(light.mName);
@@ -402,7 +404,7 @@ namespace Khan
 	{
 		World* world = new World("Test playground");
 
-		std::vector<float> vertices =
+		TArray<float> vertices =
 		{
 			// vertex 0
 			-1.0f, 1.0f, -1.0f,		// position
@@ -461,7 +463,7 @@ namespace Khan
 			0.0f, 0.0f, 0.0f,		// bitangent
 		};
 
-		std::vector<uint32_t> indices =
+		TArray<uint32> indices =
 		{
 			0, 1, 2,    // side 1
 			2, 1, 3,
@@ -490,7 +492,7 @@ namespace Khan
 
 		{
 			BufferDesc desc;
-			desc.m_Size = indices.size() * sizeof(uint32_t);
+			desc.m_Size = indices.size() * sizeof(uint32);
 			desc.m_Flags = BufferFlag_AllowIndices | BufferFlag_Writable;
 
 			mesh->m_IndexBuffer = RenderBackend::g_Device->CreateBuffer(desc, indices.data());
@@ -601,7 +603,7 @@ namespace Khan
 	{
 		World* world = new World("Test playground");
 
-		std::vector<float> vertices =
+		TArray<float> vertices =
 		{
 			// vertex 0
 			-1.0f, 1.0f, 0.0f,		// position
@@ -632,7 +634,7 @@ namespace Khan
 			1.0f, 0.0f, 0.0f,		// bitangent
 		};
 
-		std::vector<uint32_t> indices =
+		TArray<uint32> indices =
 		{
 			0, 2, 1,
 			1, 2, 3
@@ -651,7 +653,7 @@ namespace Khan
 
 		{
 			BufferDesc desc;
-			desc.m_Size = indices.size() * sizeof(uint32_t);
+			desc.m_Size = indices.size() * sizeof(uint32);
 			desc.m_Flags = BufferFlag_AllowIndices | BufferFlag_Writable;
 
 			mesh->m_IndexBuffer = RenderBackend::g_Device->CreateBuffer(desc, indices.data());

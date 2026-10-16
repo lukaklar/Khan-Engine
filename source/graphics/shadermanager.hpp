@@ -1,8 +1,12 @@
 #pragma once
+#include "core/singleton.h"
+#include "core/containers.h"
+#include "core/primitivetypes.h"
+#include "core/string.h"
+#include "core/utility.h"
 #include "graphicshal/shader.hpp"
 #include "graphicshal/renderbackend.hpp"
 #include "graphicshal/renderdevice.hpp"
-#include "core/singleton.h"
 
 #include <fstream>
 
@@ -16,11 +20,11 @@ namespace Khan
 		template<ShaderType shaderType>
 		const Shader* GetShader(const char* name, const char* entryPoint)
 		{
-			std::string fullFileName = ms_Path;
+			String fullFileName = ms_Path;
 			fullFileName += name;
 			fullFileName += ms_Extension;
 
-			std::string fullName(fullFileName + "|" + entryPoint);
+			String fullName(fullFileName + "|" + entryPoint);
 
 			auto shaderMapIt = m_ShaderMaps[shaderType].find(fullName);
 			if (shaderMapIt != m_ShaderMaps[shaderType].end())
@@ -38,20 +42,20 @@ namespace Khan
 				}
 
 				size_t fileSize = (size_t)file.tellg();
-				std::vector<uint8_t> shaderFileData(fileSize);
+				TArray<byte> shaderFileData(fileSize);
 
 				file.seekg(0);
 				file.read((char*)shaderFileData.data(), fileSize);
 
 				file.close();
 
-				shaderFileMapIt = m_ShaderFileMap.emplace(name, std::move(shaderFileData)).first;
+				shaderFileMapIt = m_ShaderFileMap.emplace(name, Move(shaderFileData)).first;
 			}
 
 			ShaderDesc desc;
 			desc.m_Type = shaderType;
 			desc.m_Bytecode = shaderFileMapIt->second.data();
-			desc.m_BytecodeSize = static_cast<uint32_t>(shaderFileMapIt->second.size());
+			desc.m_BytecodeSize = static_cast<uint32>(shaderFileMapIt->second.size());
 			desc.m_EntryPoint = entryPoint;
 
 			Shader* compiledShader = RenderBackend::g_Device->CreateShader(desc);
@@ -61,8 +65,8 @@ namespace Khan
 		}
 
 	private:
-		std::unordered_map<std::string, Shader*> m_ShaderMaps[ShaderType_Count];
-		std::unordered_map<std::string, std::vector<uint8_t>> m_ShaderFileMap;
+		THashMap<String, Shader*> m_ShaderMaps[ShaderType_Count];
+		THashMap<String, TArray<byte>> m_ShaderFileMap;
 
 #ifdef KH_GFXAPI_VULKAN
 		static constexpr char* ms_Path = "..\\..\\bin\\shaders\\vulkan\\";

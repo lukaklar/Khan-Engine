@@ -1,4 +1,5 @@
 #pragma once
+#include "core/string.h"
 #include "graphicshal/queuetype.hpp"
 #include "graphicshal/resourcestate.hpp"
 
@@ -13,8 +14,8 @@ namespace Khan
 		inline void SetQueue(QueueType queue) { m_Queue = queue; }
 
 #ifdef KH_DEBUG
-		inline const std::string& GetDebugName() const { return m_DebugName; }
-		inline void SetDebugName(const std::string& debugName) { m_DebugName = debugName; }
+		inline const String& GetDebugName() const { return m_DebugName; }
+		inline void SetDebugName(const String& debugName) { m_DebugName = debugName; }
 #endif // KH_DEBUG
 
 	protected:
@@ -30,7 +31,7 @@ namespace Khan
 		QueueType m_Queue;
 
 #ifdef KH_DEBUG
-		std::string m_DebugName;
+		String m_DebugName;
 #endif // KH_DEBUG
 	};
 }

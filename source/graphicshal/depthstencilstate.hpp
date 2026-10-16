@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -50,9 +50,9 @@ namespace Khan
 		struct StencilMode
 		{
 			bool m_StencilTestEnabled = false;
-			uint8_t m_ReadMask = 0xff;
-			uint8_t m_WriteMask = 0xff;
-			uint32_t m_StencilReference = 0;
+			uint8 m_ReadMask = 0xff;
+			uint8 m_WriteMask = 0xff;
+			uint32 m_StencilReference = 0;
 			FaceOperation m_FrontFace;
 			FaceOperation m_BackFace;
 		};

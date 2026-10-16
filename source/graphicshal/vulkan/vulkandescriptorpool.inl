@@ -6,7 +6,7 @@
 
 namespace Khan
 {
-	KH_FORCE_INLINE void VulkanDescriptorPool::AllocateDescriptorSets(uint32_t descriptorSetCount, const VkDescriptorSetLayout* pSetLayouts, VkDescriptorSet* pDescriptorSet)
+	KH_FORCE_INLINE void VulkanDescriptorPool::AllocateDescriptorSets(uint32 descriptorSetCount, const VkDescriptorSetLayout* pSetLayouts, VkDescriptorSet* pDescriptorSet)
 	{
 		VkDescriptorSetAllocateInfo allocateInfo;
 		allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -41,10 +41,10 @@ namespace Khan
 		}
 	}
 
-	KH_FORCE_INLINE void VulkanDescriptorPool::ResetFrame(uint32_t frameIndex)
+	KH_FORCE_INLINE void VulkanDescriptorPool::ResetFrame(uint32 frameIndex)
 	{
 		m_CurrentFrameIndex = frameIndex;
-		std::vector<VkDescriptorPool>& framePool = m_UsedPools[frameIndex];
+		TArray<VkDescriptorPool>& framePool = m_UsedPools[frameIndex];
 		for (VkDescriptorPool pool : framePool)
 		{
 			VK_ASSERT(vkResetDescriptorPool(m_Device, pool, 0), "[VULKAN] Failed to reset descriptor pool.");

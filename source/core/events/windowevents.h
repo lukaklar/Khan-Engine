@@ -2,7 +2,7 @@
 #include "core/events/event.h"
 #include "core/events/eventchannel.h"
 
-class WindowEvent : public Event
+class WindowEvent : public Khan::Event
 {
 };
 
@@ -38,7 +38,7 @@ private:
 	uint32_t m_Width, m_Height;
 };
 
-class WindowChannel : public EventChannel
+class WindowChannel : public Khan::EventChannel
 {
 public:
 	static WindowChannel& GetChannel();

@@ -1,5 +1,6 @@
 #include "system/precomp.h"
 #include "system/threadpool.hpp"
+#include "core/utility.h"
 
 namespace Khan
 {
@@ -21,10 +22,10 @@ namespace Khan
 		}
 	}
 
-	void Thread::AddJob(std::function<void()> function)
+	void Thread::AddJob(TFunction<void()> function)
 	{
 		std::lock_guard<std::mutex> lock(m_QueueMutex);
-		m_JobQueue.push(std::move(function));
+		m_JobQueue.push(Move(function));
 		m_Condition.notify_one();
 	}
 
@@ -38,7 +39,7 @@ namespace Khan
 	{
 		while (true)
 		{
-			std::function<void()> job;
+			TFunction<void()> job;
 			{
 				std::unique_lock<std::mutex> lock(m_QueueMutex);
 				m_Condition.wait(lock, [this] { return !m_JobQueue.empty() || m_Destroying; });
@@ -59,21 +60,21 @@ namespace Khan
 		}
 	}
 
-	ThreadPool::ThreadPool(uint32_t threadCount)
+	ThreadPool::ThreadPool(uint32 threadCount)
 	{
 		SetThreadCount(threadCount);
 	}
 
-	void ThreadPool::SetThreadCount(uint32_t count)
+	void ThreadPool::SetThreadCount(uint32 count)
 	{
 		m_Threads.clear();
-		for (uint32_t i = 0; i < count; i++)
+		for (uint32 i = 0; i < count; i++)
 		{
-			m_Threads.push_back(std::make_unique<Thread>());
+			m_Threads.push_back(MakeUnique<Thread>());
 		}
 	}
 
-	void ThreadPool::AddJob(std::function<void()> job)
+	void ThreadPool::AddJob(TFunction<void()> job)
 	{
 		m_Threads[m_NextWorkerThread]->AddJob(job);
 		m_NextWorkerThread = (m_NextWorkerThread + 1) % m_Threads.size();

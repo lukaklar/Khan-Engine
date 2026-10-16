@@ -1,4 +1,7 @@
 #pragma once
+#include "core/containers.h"
+#include "core/primitivetypes.h"
+#include "core/utility.h"
 
 namespace Khan
 {
@@ -48,92 +51,92 @@ namespace Khan
 		public:
 			Node(RenderPass& pass);
 
-			inline const std::unordered_set<uint64_t>& ReadSubresources() const { return m_ReadSubresources; }
-			inline const std::unordered_set<uint64_t>& WrittenSubresources() const { return m_WrittenSubresources; }
-			inline const std::unordered_set<uint64_t>& ReadAndWritten() const { return m_ReadAndWrittenSubresources; }
-			inline const std::unordered_set<uint64_t>& AllResources() const { return m_AllResources; }
-			inline const std::vector<const Node*>& NodesToSyncWith() const { return m_NodesToSyncWith; }
-			inline uint64_t GlobalExecutionIndex() const { return m_GlobalExecutionIndex; }
-			inline uint64_t DependencyLevelIndex() const { return m_DependencyLevelIndex; }
-			inline uint64_t LocalToDependencyLevelExecutionIndex() const { return m_LocalToDependencyLevelExecutionIndex; }
-			inline uint64_t LocalToQueueExecutionIndex() const { return m_LocalToQueueExecutionIndex; }
+			inline const THashSet<uint64>& ReadSubresources() const { return m_ReadSubresources; }
+			inline const THashSet<uint64>& WrittenSubresources() const { return m_WrittenSubresources; }
+			inline const THashSet<uint64>& ReadAndWritten() const { return m_ReadAndWrittenSubresources; }
+			inline const THashSet<uint64>& AllResources() const { return m_AllResources; }
+			inline const TArray<const Node*>& NodesToSyncWith() const { return m_NodesToSyncWith; }
+			inline uint64 GlobalExecutionIndex() const { return m_GlobalExecutionIndex; }
+			inline uint64 DependencyLevelIndex() const { return m_DependencyLevelIndex; }
+			inline uint64 LocalToDependencyLevelExecutionIndex() const { return m_LocalToDependencyLevelExecutionIndex; }
+			inline uint64 LocalToQueueExecutionIndex() const { return m_LocalToQueueExecutionIndex; }
 			inline bool IsSyncSignalRequired() const { return m_SyncSignalRequired; }
-			inline const std::vector<BufferView*>& AllBuffers() const { return m_AllBuffers; }
-			inline const std::vector<TextureView*>& AllTextures() const { return m_AllTextures; }
+			inline const TArray<BufferView*>& AllBuffers() const { return m_AllBuffers; }
+			inline const TArray<TextureView*>& AllTextures() const { return m_AllTextures; }
 
-			void AddReadDependency(uint64_t resourceID, uint32_t firstSubresourceIndex, uint32_t subresourceCount);
-			void AddWriteDependency(uint64_t resourceID, uint32_t firstSubresourceIndex, uint32_t subresourceCount); 
+			void AddReadDependency(uint64 resourceID, uint32 firstSubresourceIndex, uint32 subresourceCount);
+			void AddWriteDependency(uint64 resourceID, uint32 firstSubresourceIndex, uint32 subresourceCount); 
 
-			bool HasDependency(uint64_t resourceID, uint32_t subresourceIndex) const;
-			bool HasDependency(uint64_t subresourceID) const;
+			bool HasDependency(uint64 resourceID, uint32 subresourceIndex) const;
+			bool HasDependency(uint64 subresourceID) const;
 			bool HasAnyDependencies() const;
 
-			std::pair<ResourceState, uint64_t> GetBarrierDataForResource(const Resource& resource);
+			TPair<ResourceState, uint64> GetBarrierDataForResource(const Resource& resource);
 			
-			uint64_t m_ExecutionQueueIndex = 0;
+			uint64 m_ExecutionQueueIndex = 0;
 
 		private:
 			friend RenderGraph;
 
-			inline static constexpr uint64_t InvalidSynchronizationIndex = std::numeric_limits<uint64_t>::max();
+			inline static constexpr uint64 InvalidSynchronizationIndex = std::numeric_limits<uint64>::max();
 
 			// TODO:
-			//void EnsureSingleWriteDependency(uint64_t resourceID, uint32_t subresourceIndex);
+			//void EnsureSingleWriteDependency(uint64 resourceID, uint32 subresourceIndex);
 			void Clear();
 
 			RenderPass& m_Pass;
 
-			uint64_t m_GlobalExecutionIndex = 0;
-			uint64_t m_DependencyLevelIndex = 0;
-			uint64_t m_LocalToDependencyLevelExecutionIndex = 0;
-			uint64_t m_LocalToQueueExecutionIndex = 0;
-			uint64_t m_IndexInUnorderedList = 0;
+			uint64 m_GlobalExecutionIndex = 0;
+			uint64 m_DependencyLevelIndex = 0;
+			uint64 m_LocalToDependencyLevelExecutionIndex = 0;
+			uint64 m_LocalToQueueExecutionIndex = 0;
+			uint64 m_IndexInUnorderedList = 0;
 
-			std::unordered_set<uint64_t> m_ReadSubresources;
-			std::unordered_set<uint64_t> m_WrittenSubresources;
-			std::unordered_set<uint64_t> m_ReadAndWrittenSubresources;
-			std::unordered_set<uint64_t> m_AllResources;
+			THashSet<uint64> m_ReadSubresources;
+			THashSet<uint64> m_WrittenSubresources;
+			THashSet<uint64> m_ReadAndWrittenSubresources;
+			THashSet<uint64> m_AllResources;
 
-			std::vector<BufferView*> m_AllBuffers;
-			std::vector<TextureView*> m_AllTextures;
-			std::unordered_map<Resource*, uint64_t> m_ResourceToIdMap;
-			std::unordered_map<uint64_t, std::pair<ResourceState, ResourceState>> m_ResourceStateTransition;
-			std::unordered_map<uint64_t, uint64_t> m_ResourceQueueTransfer;
+			TArray<BufferView*> m_AllBuffers;
+			TArray<TextureView*> m_AllTextures;
+			THashMap<Resource*, uint64> m_ResourceToIdMap;
+			THashMap<uint64, TPair<ResourceState, ResourceState>> m_ResourceStateTransition;
+			THashMap<uint64, uint64> m_ResourceQueueTransfer;
 
-			std::vector<uint64_t> m_SynchronizationIndexSet;
-			std::vector<const Node*> m_NodesToSyncWith;
+			TArray<uint64> m_SynchronizationIndexSet;
+			TArray<const Node*> m_NodesToSyncWith;
 			bool m_SyncSignalRequired = false;
 		};
 
 		class DependencyLevel
 		{
 		public:
-			inline const std::list<Node*>& Nodes() const { return m_Nodes; }
-			inline const std::vector<const Node*>& NodesPerQueue(uint64_t queueIndex) const { return m_NodesPerQueue[queueIndex]; }
-			inline const std::unordered_set<uint64_t>& QueuesInvoledInCrossQueueResourceReads() const { return m_QueuesInvoledInCrossQueueResourceReads; }
-			inline const std::unordered_set<uint64_t>& SubresourcesReadByMultipleQueues() const { return m_SubresourcesReadByMultipleQueues; }
-			inline uint64_t LevelIndex() const { return m_LevelIndex; }
+			inline const TList<Node*>& Nodes() const { return m_Nodes; }
+			inline const TArray<const Node*>& NodesPerQueue(uint64 queueIndex) const { return m_NodesPerQueue[queueIndex]; }
+			inline const THashSet<uint64>& QueuesInvoledInCrossQueueResourceReads() const { return m_QueuesInvoledInCrossQueueResourceReads; }
+			inline const THashSet<uint64>& SubresourcesReadByMultipleQueues() const { return m_SubresourcesReadByMultipleQueues; }
+			inline uint64 LevelIndex() const { return m_LevelIndex; }
 
 		private:
 			friend RenderGraph;
 
 			void AddNode(Node* node);
-			Node* RemoveNode(std::list<Node*>::iterator it);
+			Node* RemoveNode(TList<Node*>::iterator it);
 
-			uint64_t m_LevelIndex = 0;
-			std::list<Node*> m_Nodes;
-			std::vector<std::vector<const Node*>> m_NodesPerQueue;
+			uint64 m_LevelIndex = 0;
+			TList<Node*> m_Nodes;
+			TArray<TArray<const Node*>> m_NodesPerQueue;
 
 			// Storage for queues that read at least one common resource. Resource state transitions
 			// for such queues need to be handled differently.
-			std::unordered_set<uint64_t> m_QueuesInvoledInCrossQueueResourceReads;
-			std::unordered_set<uint64_t> m_SubresourcesReadByMultipleQueues;
+			THashSet<uint64> m_QueuesInvoledInCrossQueueResourceReads;
+			THashSet<uint64> m_SubresourcesReadByMultipleQueues;
 		};
 
-		static uint64_t ConstructSubresourceID(uint64_t resourceID, uint32_t subresourceIndex);
-		static std::pair<uint64_t, uint32_t> DecodeSubresourceName(uint64_t name);
+		static uint64 ConstructSubresourceID(uint64 resourceID, uint32 subresourceIndex);
+		static TPair<uint64, uint32> DecodeSubresourceName(uint64 name);
 
-		uint64_t NodeCountForQueue(uint64_t queueIndex) const;
+		uint64 NodeCountForQueue(uint64 queueIndex) const;
 
 		Node* GetPassNode(const RenderPass* pass);
 
@@ -141,13 +144,13 @@ namespace Khan
 		struct SyncCoverage
 		{
 			const Node* m_NodeToSyncWith = nullptr;
-			uint64_t m_NodeToSyncWithIndex = 0;
-			std::vector<uint64_t> m_SyncedQueueIndices;
+			uint64 m_NodeToSyncWithIndex = 0;
+			TArray<uint64> m_SyncedQueueIndices;
 		};
 
 		//void EnsureRenderPassUniqueness(const RenderPass* pass);
 		void BuildAdjacencyLists();
-		void DepthFirstSearch(uint64_t nodeIndex, std::vector<bool>& visited, std::vector<bool>& onStack, bool& isCyclic);
+		void DepthFirstSearch(uint64 nodeIndex, TArray<bool>& visited, TArray<bool>& onStack, bool& isCyclic);
 		void TopologicalSort();
 		void BuildDependencyLevels();
 		void FinalizeDependencyLevels();
@@ -156,20 +159,20 @@ namespace Khan
 
 		TransientResourceManager* m_TransientResourceManager;
 
-		std::map<const RenderPass*, Node*> m_PassToNodeMap;
-		std::pair<RenderPass*, Node*> m_ActivePassNode;
-		uint32_t m_CreatedResourceIndex;
+		TMap<const RenderPass*, Node*> m_PassToNodeMap;
+		TPair<RenderPass*, Node*> m_ActivePassNode;
+		uint32 m_CreatedResourceIndex;
 
-		std::vector<Node> m_PassNodes;
-		std::vector<std::vector<uint64_t>> m_AdjacencyLists;
-		std::vector<DependencyLevel> m_DependencyLevels;
+		TArray<Node> m_PassNodes;
+		TArray<TArray<uint64>> m_AdjacencyLists;
+		TArray<DependencyLevel> m_DependencyLevels;
 
-		std::unordered_map<uint64_t, uint64_t> m_QueueNodeCounters;
-		std::vector<Node*> m_TopologicallySortedNodes;
-		std::vector<Node*> m_NodesInGlobalExecutionOrder;
-		std::unordered_map<uint64_t, const Node*> m_WrittenSubresourceToPassMap;
-		uint64_t m_DetectedQueueCount = 1;
-		std::vector<std::vector<const Node*>> m_NodesPerQueue;
+		THashMap<uint64, uint64> m_QueueNodeCounters;
+		TArray<Node*> m_TopologicallySortedNodes;
+		TArray<Node*> m_NodesInGlobalExecutionOrder;
+		THashMap<uint64, const Node*> m_WrittenSubresourceToPassMap;
+		uint64 m_DetectedQueueCount = 1;
+		TArray<TArray<const Node*>> m_NodesPerQueue;
 
 		static const bool ms_ResourceStateToReadAccess[];
 	};

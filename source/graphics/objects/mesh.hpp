@@ -1,5 +1,6 @@
 #pragma once
 #include "core/boundingvolume.h"
+#include "core/primitivetypes.h"
 #include "graphicshal/constantbuffer.hpp"
 
 namespace Khan
@@ -13,8 +14,8 @@ namespace Khan
 
 		Buffer* m_VertexBuffer;
 		Buffer* m_IndexBuffer;
-		uint32_t m_VertexCount;
-		uint32_t m_IndexCount;
+		uint32 m_VertexCount;
+		uint32 m_IndexCount;
 		Material* m_Material;
 		BoundingVolume m_AABB;
 		ConstantBuffer m_ParentTransform;

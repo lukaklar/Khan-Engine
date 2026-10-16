@@ -7,7 +7,7 @@
 namespace Khan
 {
 
-	void VulkanCommandPool::Create(VkDevice device, uint32_t queueFamilyIndex)
+	void VulkanCommandPool::Create(VkDevice device, uint32 queueFamilyIndex)
 	{
 		m_Device = device;
 

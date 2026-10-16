@@ -1,25 +1,25 @@
 #pragma once
-#include <cstdint>
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
 	class ConstantBuffer
 	{
 	public:
-		ConstantBuffer(uint32_t size);
+		ConstantBuffer(uint32 size);
 		~ConstantBuffer();
 
-		void UpdateConstantData(const void* data, uint32_t offset, uint32_t size);
+		void UpdateConstantData(const void* data, uint32 offset, uint32 size);
 		const void* Data() const;
-		uint32_t Size() const;
-		uint32_t GetDynamicOffset() const;
-		void SetDynamicOffset(uint32_t offset);
+		uint32 Size() const;
+		uint32 GetDynamicOffset() const;
+		void SetDynamicOffset(uint32 offset);
 		bool IsDirty() const;
 
 	private:
-		uint8_t* m_ShadowData;
-		uint32_t m_Size;
-		uint32_t m_DynamicOffset;
+		byte* m_ShadowData;
+		uint32 m_Size;
+		uint32 m_DynamicOffset;
 		bool m_IsDirty;
 	};
 }

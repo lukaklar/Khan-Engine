@@ -1,9 +1,9 @@
 #pragma once
-#include <cstdint>
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
-	enum ResourceBindFrequency : uint32_t
+	enum ResourceBindFrequency : uint32
 	{
 		ResourceBindFrequency_PerFrame,
 		ResourceBindFrequency_PerMaterial,

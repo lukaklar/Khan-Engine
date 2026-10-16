@@ -1,4 +1,5 @@
 #pragma once
+#include "core/containers.h"
 #include "core/singleton.h"
 
 namespace Khan
@@ -16,6 +17,6 @@ namespace Khan
 		SystemManager() = default;
 		~SystemManager();
 
-		std::vector<System*> m_Systems;
+		TArray<System*> m_Systems;
 	};
 }

@@ -29,7 +29,7 @@ namespace Khan
 		m_Frustum.Update(m_ViewProjection);
 	}
 
-	void Camera::OnViewportResize(uint32_t width, uint32_t height)
+	void Camera::OnViewportResize(uint32 width, uint32 height)
 	{
 		m_ViewportHeight = width;
 		m_ViewportHeight = height;

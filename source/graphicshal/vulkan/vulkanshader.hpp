@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/string.h"
 #include "graphicshal/shader.hpp"
 #include "graphicshal/vulkan/spirv/spirv_reflect.h"
 
@@ -21,7 +22,7 @@ namespace Khan
 	private:
 		VkPipelineShaderStageCreateInfo m_ShaderInfo;
 		SpvReflectShaderModule m_Reflection;
-		std::string m_EntryPoint;
+		String m_EntryPoint;
 	};
 }
 

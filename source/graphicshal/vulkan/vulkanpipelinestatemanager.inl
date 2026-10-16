@@ -8,7 +8,7 @@
 
 namespace Khan
 {
-	KH_FORCE_INLINE void ExtractShaderData(std::vector<VkDescriptorSetLayoutBinding> descriptorSetindings[ResourceBindFrequency_Count], VkPipelineShaderStageCreateInfo& shaderStageInfo, uint32_t& stageCount, const Shader* shader)
+	KH_FORCE_INLINE void ExtractShaderData(TArray<VkDescriptorSetLayoutBinding> descriptorSetindings[ResourceBindFrequency_Count], VkPipelineShaderStageCreateInfo& shaderStageInfo, uint32& stageCount, const Shader* shader)
 	{
 		if (shader != nullptr)
 		{
@@ -19,7 +19,7 @@ namespace Khan
 
 			const SpvReflectShaderModule& reflection = vulkanShader->GetReflection();
 
-			for (uint32_t i = 0; i < reflection.descriptor_binding_count; ++i)
+			for (uint32 i = 0; i < reflection.descriptor_binding_count; ++i)
 			{
 				const SpvReflectDescriptorBinding& reflectBinding = reflection.descriptor_bindings[i];
 
@@ -56,11 +56,11 @@ namespace Khan
 		// TODO: This is a serious bug when you start creating pipelines from multiple threads
 		static VkVertexInputBindingDescription vertexBindingDescriptions[K_MAX_VERTEX_DATA_STREAMS];
 		static VkVertexInputAttributeDescription vertexAttributeDescriptions[K_MAX_VERTEX_DATA_STREAMS * K_MAX_STREAM_ELEMENTS];
-		uint32_t vertexBindingDescriptionCount = 0;
-		uint32_t vertexAttributeDescriptionCount = 0;
+		uint32 vertexBindingDescriptionCount = 0;
+		uint32 vertexAttributeDescriptionCount = 0;
 
-		uint32_t location = 0;
-		for (uint32_t i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
+		uint32 location = 0;
+		for (uint32 i = 0; i < K_MAX_VERTEX_DATA_STREAMS; ++i)
 		{
 			if (state.GetActiveStreamMask() & (1 << i))
 			{
@@ -71,14 +71,14 @@ namespace Khan
 				bindingDesc.stride = streamDesc.GetStride();
 				bindingDesc.inputRate = state.GetInstancedStreamMask() & (1 << i) ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
 
-				for (uint32_t j = 0; j < streamDesc.GetNumElements(); ++j)
+				for (uint32 j = 0; j < streamDesc.GetNumElements(); ++j)
 				{
 					const VertexInputState::StreamDescriptor::StreamElement& streamElem = streamDesc.GetStreamElements()[j];
 
 					VkVertexInputAttributeDescription& attributeDesc = vertexAttributeDescriptions[vertexAttributeDescriptionCount++];
 					attributeDesc.location = location++;
 					attributeDesc.binding = i;
-					attributeDesc.format = s_vkVertexBufferFormats[static_cast<uint32_t>(streamElem.GetType())];
+					attributeDesc.format = s_vkVertexBufferFormats[static_cast<uint32>(streamElem.GetType())];
 					attributeDesc.offset = streamElem.GetOffset();
 				}
 			}
@@ -106,13 +106,13 @@ namespace Khan
 			VK_PRIMITIVE_TOPOLOGY_PATCH_LIST
 		};
 
-		info.topology = s_vkPrimitiveTopology[static_cast<uint32_t>(topology)];
+		info.topology = s_vkPrimitiveTopology[static_cast<uint32>(topology)];
 		info.primitiveRestartEnable = indexStrpCut != IndexStripCut::Disabled;
 	}
 
 	KH_FORCE_INLINE static void TranslateTesselationState(VkPipelineTessellationStateCreateInfo& info, PrimitiveTopology topology)
 	{
-		uint32_t controlPoints = static_cast<uint32_t>(topology) - static_cast<uint32_t>(PrimitiveTopology::PatchList1CP) + 1;
+		uint32 controlPoints = static_cast<uint32>(topology) - static_cast<uint32>(PrimitiveTopology::PatchList1CP) + 1;
 		info.patchControlPoints = controlPoints > 0 ? controlPoints : 0;
 	}
 
@@ -144,20 +144,20 @@ namespace Khan
 
 		info.depthTestEnable = state.m_DepthMode.m_DepthTestEnabled ? VK_TRUE : VK_FALSE;
 		info.depthWriteEnable = state.m_DepthMode.m_DepthWriteEnabled ? VK_TRUE : VK_FALSE;
-		info.depthCompareOp = s_VkComparisonFunc[static_cast<uint32_t>(state.m_DepthMode.m_DepthFunc)];
+		info.depthCompareOp = s_VkComparisonFunc[static_cast<uint32>(state.m_DepthMode.m_DepthFunc)];
 		info.depthBoundsTestEnable = state.m_DepthMode.m_DepthBoundsTestEnabled ? VK_TRUE : VK_FALSE;
 		info.stencilTestEnable = state.m_StencilMode.m_StencilTestEnabled ? VK_TRUE : VK_FALSE;
-		info.front.failOp = s_VkStencilOp[static_cast<uint32_t>(state.m_StencilMode.m_FrontFace.m_StencilFailOp)];
-		info.front.passOp = s_VkStencilOp[static_cast<uint32_t>(state.m_StencilMode.m_FrontFace.m_StencilPassOp)];
-		info.front.depthFailOp = s_VkStencilOp[static_cast<uint32_t>(state.m_StencilMode.m_FrontFace.m_DepthFailOp)];
-		info.front.compareMask = s_VkComparisonFunc[static_cast<uint32_t>(state.m_StencilMode.m_FrontFace.m_StencilFunc)];
+		info.front.failOp = s_VkStencilOp[static_cast<uint32>(state.m_StencilMode.m_FrontFace.m_StencilFailOp)];
+		info.front.passOp = s_VkStencilOp[static_cast<uint32>(state.m_StencilMode.m_FrontFace.m_StencilPassOp)];
+		info.front.depthFailOp = s_VkStencilOp[static_cast<uint32>(state.m_StencilMode.m_FrontFace.m_DepthFailOp)];
+		info.front.compareMask = s_VkComparisonFunc[static_cast<uint32>(state.m_StencilMode.m_FrontFace.m_StencilFunc)];
 		info.front.compareMask = state.m_StencilMode.m_ReadMask;
 		info.front.writeMask = state.m_StencilMode.m_WriteMask;
 		info.front.reference = state.m_StencilMode.m_StencilReference;
-		info.back.failOp = s_VkStencilOp[static_cast<uint32_t>(state.m_StencilMode.m_BackFace.m_StencilFailOp)];
-		info.back.passOp = s_VkStencilOp[static_cast<uint32_t>(state.m_StencilMode.m_BackFace.m_StencilPassOp)];
-		info.back.depthFailOp = s_VkStencilOp[static_cast<uint32_t>(state.m_StencilMode.m_BackFace.m_DepthFailOp)];
-		info.back.compareMask = s_VkComparisonFunc[static_cast<uint32_t>(state.m_StencilMode.m_BackFace.m_StencilFunc)];
+		info.back.failOp = s_VkStencilOp[static_cast<uint32>(state.m_StencilMode.m_BackFace.m_StencilFailOp)];
+		info.back.passOp = s_VkStencilOp[static_cast<uint32>(state.m_StencilMode.m_BackFace.m_StencilPassOp)];
+		info.back.depthFailOp = s_VkStencilOp[static_cast<uint32>(state.m_StencilMode.m_BackFace.m_DepthFailOp)];
+		info.back.compareMask = s_VkComparisonFunc[static_cast<uint32>(state.m_StencilMode.m_BackFace.m_StencilFunc)];
 		info.back.compareMask = state.m_StencilMode.m_ReadMask;
 		info.back.writeMask = state.m_StencilMode.m_WriteMask;
 		info.back.reference = state.m_StencilMode.m_StencilReference;
@@ -178,7 +178,7 @@ namespace Khan
 		info.depthClampEnable = VK_FALSE;
 		info.rasterizerDiscardEnable = VK_FALSE;
 		info.polygonMode = state.m_WireframeEnabled ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
-		info.cullMode = s_vkCullMode[static_cast<uint32_t>(state.m_CullMode)];
+		info.cullMode = s_vkCullMode[static_cast<uint32>(state.m_CullMode)];
 		// TODO: Switch these to the correct order
 		// this is only temporary because currently I am using the OpenGL coordinate system
 		info.frontFace = state.m_FrontCounterClockwise ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
@@ -190,7 +190,7 @@ namespace Khan
 		info.lineWidth = 1.0f;
 	}
 
-	inline static void TranslateBlendState(VkPipelineColorBlendStateCreateInfo& info, const BlendState& state, uint8_t renderTargetCount, const float blendConstants[4])
+	inline static void TranslateBlendState(VkPipelineColorBlendStateCreateInfo& info, const BlendState& state, uint8 renderTargetCount, const float blendConstants[4])
 	{
 		static const VkBlendFactor s_vkBlendFactor[] =
 		{
@@ -250,16 +250,16 @@ namespace Khan
 		info.pAttachments = colorBlendAttachmentStates;
 		std::memcpy(info.blendConstants, blendConstants, sizeof(blendConstants));
 
-		for (uint32_t i = 0; i < renderTargetCount; ++i)
+		for (uint32 i = 0; i < renderTargetCount; ++i)
 		{
 			VkPipelineColorBlendAttachmentState& blendState = colorBlendAttachmentStates[i];
 			blendState.blendEnable = state.m_BlendModes[i].m_BlendEnabled ? VK_TRUE : VK_FALSE;
-			blendState.srcColorBlendFactor = s_vkBlendFactor[static_cast<uint32_t>(state.m_BlendModes[i].m_SrcColorFactor)];
-			blendState.dstColorBlendFactor = s_vkBlendFactor[static_cast<uint32_t>(state.m_BlendModes[i].m_DstColorFactor)];
-			blendState.colorBlendOp = s_vkBlendOperation[static_cast<uint32_t>(state.m_BlendModes[i].m_ColorBlendOp)];
-			blendState.srcAlphaBlendFactor = s_vkBlendFactor[static_cast<uint32_t>(state.m_BlendModes[i].m_SrcAlphaFactor)];
-			blendState.dstAlphaBlendFactor = s_vkBlendFactor[static_cast<uint32_t>(state.m_BlendModes[i].m_DstAlphaFactor)];
-			blendState.alphaBlendOp = s_vkBlendOperation[static_cast<uint32_t>(state.m_BlendModes[i].m_AlphaBlendOp)];
+			blendState.srcColorBlendFactor = s_vkBlendFactor[static_cast<uint32>(state.m_BlendModes[i].m_SrcColorFactor)];
+			blendState.dstColorBlendFactor = s_vkBlendFactor[static_cast<uint32>(state.m_BlendModes[i].m_DstColorFactor)];
+			blendState.colorBlendOp = s_vkBlendOperation[static_cast<uint32>(state.m_BlendModes[i].m_ColorBlendOp)];
+			blendState.srcAlphaBlendFactor = s_vkBlendFactor[static_cast<uint32>(state.m_BlendModes[i].m_SrcAlphaFactor)];
+			blendState.dstAlphaBlendFactor = s_vkBlendFactor[static_cast<uint32>(state.m_BlendModes[i].m_DstAlphaFactor)];
+			blendState.alphaBlendOp = s_vkBlendOperation[static_cast<uint32>(state.m_BlendModes[i].m_AlphaBlendOp)];
 			blendState.colorWriteMask = state.m_BlendModes[i].m_ColorWriteMask;
 		}
 	}
@@ -288,9 +288,9 @@ namespace Khan
 	{
 		VulkanPipelineState* pipelineState = new VulkanPipelineState();
 
-		std::vector<VkDescriptorSetLayoutBinding> descriptorSetBindings[ResourceBindFrequency_Count];
+		TArray<VkDescriptorSetLayoutBinding> descriptorSetBindings[ResourceBindFrequency_Count];
 		VkPipelineShaderStageCreateInfo shaderStageInfos[5];
-		uint32_t stageCount = 0;
+		uint32 stageCount = 0;
 
 		ExtractShaderData(descriptorSetBindings, shaderStageInfos[stageCount], stageCount, desc.m_VertexShader);
 		ExtractShaderData(descriptorSetBindings, shaderStageInfos[stageCount], stageCount, desc.m_PixelShader);
@@ -299,9 +299,9 @@ namespace Khan
 		ExtractShaderData(descriptorSetBindings, shaderStageInfos[stageCount], stageCount, desc.m_GeometryShader);
 
 		VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		for (uint32_t i = 0; i < ResourceBindFrequency_Count; ++i)
+		for (uint32 i = 0; i < ResourceBindFrequency_Count; ++i)
 		{
-			descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
+			descriptorSetLayoutInfo.bindingCount = static_cast<uint32>(descriptorSetBindings[i].size());
 			descriptorSetLayoutInfo.pBindings = descriptorSetBindings[i].data();
 			VK_ASSERT(vkCreateDescriptorSetLayout(device, &descriptorSetLayoutInfo, nullptr, &pipelineState->m_DescriptorSetLayout[i]), "[VULKAN] Failed to create descriptor set layout.");
 		}
@@ -376,16 +376,16 @@ namespace Khan
 	{
 		VulkanPipelineState* pipelineState = new VulkanPipelineState();
 
-		std::vector<VkDescriptorSetLayoutBinding> descriptorSetBindings[ResourceBindFrequency_Count];
+		TArray<VkDescriptorSetLayoutBinding> descriptorSetBindings[ResourceBindFrequency_Count];
 		VkPipelineShaderStageCreateInfo shaderStageInfo;
-		uint32_t stageCount = 0;
+		uint32 stageCount = 0;
 
 		ExtractShaderData(descriptorSetBindings, shaderStageInfo, stageCount, desc.m_ComputeShader);
 
 		VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		for (uint32_t i = 0; i < ResourceBindFrequency_Count; ++i)
+		for (uint32 i = 0; i < ResourceBindFrequency_Count; ++i)
 		{
-			descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
+			descriptorSetLayoutInfo.bindingCount = static_cast<uint32>(descriptorSetBindings[i].size());
 			descriptorSetLayoutInfo.pBindings = descriptorSetBindings[i].data();
 			VK_ASSERT(vkCreateDescriptorSetLayout(device, &descriptorSetLayoutInfo, nullptr, &pipelineState->m_DescriptorSetLayout[i]), "[VULKAN] Failed to create descriptor set layout.");
 		}

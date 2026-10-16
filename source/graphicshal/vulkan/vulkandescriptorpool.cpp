@@ -15,7 +15,7 @@ namespace Khan
 
 	VulkanDescriptorPool::~VulkanDescriptorPool()
 	{
-		for (uint32_t i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
+		for (uint32 i = 0; i < K_MAX_FRAMES_IN_FLIGHT; ++i)
 		{
 			m_FreePools.insert(m_FreePools.end(), m_UsedPools[i].begin(), m_UsedPools[i].end());
 			m_UsedPools[i].clear();

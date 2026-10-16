@@ -1,4 +1,5 @@
 #include "data/precomp.h"
+#include "core/string.h"
 
 struct sqlite3;
 
@@ -13,12 +14,12 @@ namespace Khan
 		bool Close();
 		bool ExecuteSQL(const char* sql);
 		bool ExecuteSQL(const char* sql, int (*callback)(void*, int, char**, char**));
-		std::string GetLastError() const;
+		String GetLastError() const;
 
-		inline const std::string& GetName() const { return m_Name; }
+		inline const String& GetName() const { return m_Name; }
 
 	private:
-		std::string m_Name;
+		String m_Name;
 		sqlite3* m_Database = nullptr;
 	};
 }

@@ -29,7 +29,7 @@ namespace Khan
 		}
 	}
 
-	KH_FORCE_INLINE void VulkanCommandPool::ResetFrame(uint32_t frameIndex)
+	KH_FORCE_INLINE void VulkanCommandPool::ResetFrame(uint32 frameIndex)
 	{
 		m_CurrentPool = &m_FramePools[frameIndex];
 		VK_ASSERT(vkResetCommandPool(m_Device, m_CurrentPool->m_CommandPool, 0), "[VULKAN] Failed to reset command pool.");

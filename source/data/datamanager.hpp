@@ -1,4 +1,6 @@
 #pragma once
+#include "core/containers.h"
+#include "core/primitivetypes.h"
 #include "core/singleton.h"
 #include "data/database/sqlitedatabase.hpp"
 
@@ -24,7 +26,7 @@ namespace Khan
 
 		//SQLiteDatabase m_Database;
 
-		std::map<uint32_t, Mesh*> m_Meshes;
+		TMap<uint32, Mesh*> m_Meshes;
 
 		static constexpr char* ms_AssetPath = "..\\..\\assets\\";
 	};

@@ -2,6 +2,8 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/primitivetypes.h"
+
 namespace Khan
 {
 	enum QueueType;
@@ -27,11 +29,11 @@ namespace Khan
 	private:
 		const DisplayAdapter& m_Adapter;
 		VkImageMemoryBarrier m_ImageBarriers[32];
-		uint32_t m_ImageBarrierCount;
+		uint32 m_ImageBarrierCount;
 		VkBufferMemoryBarrier m_BufferBarriers[32];
-		uint32_t m_BufferBarrierCount;
+		uint32 m_BufferBarrierCount;
 		VkMemoryBarrier m_MemoryBarriers[32];
-		uint32_t m_MemoryBarrierCount;
+		uint32 m_MemoryBarrierCount;
 		VkPipelineStageFlags m_SrcStages;
 		VkPipelineStageFlags m_DstStages;
 	};

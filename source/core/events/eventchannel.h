@@ -1,20 +1,24 @@
 #pragma once
+#include "core/containers.h"
 #include "core/core_dll.h"
 
-class Event;
-class EventListenerHolder;
-
-class KH_CORE_DLL EventChannel
+namespace Khan
 {
-protected:
-	void Broadcast(const Event& event);
+	class Event;
+	class EventListenerHolder;
 
-private:
-	void RegisterListener(EventListenerHolder* listener);
-	void UnregisterListener(EventListenerHolder* listener);
+	class KH_CORE_DLL EventChannel
+	{
+	protected:
+		void Broadcast(const Event& event);
 
-private:
-	friend class EventListenerHolder;
+	private:
+		void RegisterListener(EventListenerHolder* listener);
+		void UnregisterListener(EventListenerHolder* listener);
 
-	std::unordered_set<EventListenerHolder*> m_Listeners;
-};
+	private:
+		friend class EventListenerHolder;
+
+		THashSet<EventListenerHolder*> m_Listeners;
+	};
+}

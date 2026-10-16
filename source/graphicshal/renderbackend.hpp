@@ -1,4 +1,5 @@
 #pragma once
+#include "core/containers.h"
 
 namespace Khan
 {
@@ -10,9 +11,9 @@ namespace Khan
 
 	namespace RenderBackend
 	{
-		extern std::vector<DisplayAdapter*> g_Adapters;
+		extern TArray<DisplayAdapter*> g_Adapters;
 		extern RenderDevice* g_Device;
-		//extern std::vector<RenderContext*> g_Contexts;
+		//extern TArray<RenderContext*> g_Contexts;
 		extern Display* g_Display;
 		extern Swapchain* g_Swapchain;
 

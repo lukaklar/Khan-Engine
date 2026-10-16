@@ -1,4 +1,6 @@
 #pragma once
+#include "core/containers.h"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -10,7 +12,7 @@ namespace Khan
 
 	struct MaterialTexture
 	{
-		uint32_t m_Binding;
+		uint32 m_Binding;
 		TextureView* m_Texture;
 	};
 
@@ -22,8 +24,8 @@ namespace Khan
 		inline void SetPipelineState(RenderPipelineState* value) { m_PipelineState = value; }
 		inline const Shader* GetPixelShader() const { return m_PixelShader; }
 		inline void SetPixelShader(const Shader* pixelShader) { m_PixelShader = pixelShader; }
-		inline const std::vector<MaterialTexture>& GetTextures() const { return m_Textures; }
-		inline void AddTexture(uint32_t binding, TextureView* texture) { m_Textures.push_back({ binding, texture }); }
+		inline const TArray<MaterialTexture>& GetTextures() const { return m_Textures; }
+		inline void AddTexture(uint32 binding, TextureView* texture) { m_Textures.push_back({ binding, texture }); }
 		inline bool HasTwoSides() const { return m_TwoSided; }
 		inline void SetTwoSided(bool value) { m_TwoSided = value; }
 		inline bool IsTransparent() const { return m_Transparent; }
@@ -43,7 +45,7 @@ namespace Khan
 
 	private:
 		const Shader* m_PixelShader;
-		std::vector<MaterialTexture> m_Textures;
+		TArray<MaterialTexture> m_Textures;
 		bool m_TwoSided;
 		bool m_Transparent;
 		BlendFactor m_SrcColorFactor;

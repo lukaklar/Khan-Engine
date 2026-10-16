@@ -2,6 +2,7 @@
 
 #ifdef KH_GFXAPI_VULKAN
 
+#include "core/containers.h"
 #include "graphicshal/vulkan/vulkanbuffer.hpp"
 #include "graphicshal/vulkan/vulkanbufferview.hpp"
 #include "graphicshal/vulkan/vulkanshader.hpp"
@@ -11,7 +12,7 @@
 
 namespace Khan
 {
-	KH_FORCE_INLINE bool CheckLayer(const char* layer, const std::vector<VkLayerProperties>& presentLayers)
+	KH_FORCE_INLINE bool CheckLayer(const char* layer, const TArray<VkLayerProperties>& presentLayers)
 	{
 		for (auto& properties : presentLayers)
 		{
@@ -23,7 +24,7 @@ namespace Khan
 		return false;
 	}
 
-	KH_FORCE_INLINE bool CheckExtension(const char* extension, const std::vector<VkExtensionProperties>& presentExtensions)
+	KH_FORCE_INLINE bool CheckExtension(const char* extension, const TArray<VkExtensionProperties>& presentExtensions)
 	{
 		for (auto& properties : presentExtensions)
 		{

@@ -6,6 +6,8 @@
 #include "graphicshal/vulkan/vulkanadapter.hpp"
 #include "graphicshal/vulkan/vulkancore.h"
 #include "graphicshal/vulkan/vulkanutils.hpp"
+#include "core/containers.h"
+#include "core/primitivetypes.h"
 
 namespace Khan
 {
@@ -20,17 +22,17 @@ namespace Khan
 		vkGetPhysicalDeviceProperties(adapter, &m_Properties);
 		vkGetPhysicalDeviceFeatures(adapter, &m_Features);
 
-		uint32_t queueFamilyPropertyCount;
+		uint32 queueFamilyPropertyCount;
 		vkGetPhysicalDeviceQueueFamilyProperties(adapter, &queueFamilyPropertyCount, nullptr);
-		std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyPropertyCount);
+		TArray<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyPropertyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(adapter, &queueFamilyPropertyCount, queueFamilyProperties.data());
 
-		for (uint32_t i = 0; i < QueueType_Count; ++i)
+		for (uint32 i = 0; i < QueueType_Count; ++i)
 		{
 			m_QueueFamilyIndices[i] = UINT32_MAX;
 		}
 
-		for (uint32_t i = 0; i < queueFamilyPropertyCount; ++i)
+		for (uint32 i = 0; i < queueFamilyPropertyCount; ++i)
 		{
 			if (m_QueueFamilyIndices[QueueType_Graphics] == UINT32_MAX && queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
@@ -48,9 +50,9 @@ namespace Khan
 			}
 		}
 
-		uint32_t extensionPropertyCount;
+		uint32 extensionPropertyCount;
 		VK_ASSERT(vkEnumerateDeviceExtensionProperties(adapter, nullptr, &extensionPropertyCount, nullptr), "[VULKAN] Failed to get device extension property count.");
-		std::vector<VkExtensionProperties> extensionProperties(extensionPropertyCount);
+		TArray<VkExtensionProperties> extensionProperties(extensionPropertyCount);
 		VK_ASSERT(vkEnumerateDeviceExtensionProperties(adapter, nullptr, &extensionPropertyCount, extensionProperties.data()), "[VULKAN] Failed to enumerate device extension properties.");
 
 		for (const char* extension : s_DesiredExtensions)
